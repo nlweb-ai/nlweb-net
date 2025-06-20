@@ -6,12 +6,13 @@ This document provides guidance for AI assistants working with the NLWebNet code
 
 **NLWebNet** is a .NET implementation of the [NLWeb protocol](https://github.com/microsoft/NLWeb) for building natural language web interfaces.
 
-### Production-Ready NuGet Package
+### NuGet Package Development
 
-**This library is designed for production use and follows .NET best practices.**
+**This library is being developed for eventual production use and follows .NET best practices.**
 
-- **Purpose**: Production implementation of the NLWeb protocol for .NET applications
-- **Current status**: Alpha prerelease (0.1.0-alpha.3) on NuGet - actively developed
+- **Purpose**: To create a production-quality implementation of the NLWeb protocol for .NET applications
+- **Current status**: Early alpha prerelease (0.1.0-alpha.3) - not yet production ready
+- **Development goal**: Production-ready library with high code quality standards
 - **Demo application**: Simple reference implementation showcasing library capabilities
 - **Target audience**: .NET developers building natural language web interfaces
 
@@ -195,10 +196,11 @@ src/NLWebNet/
 ## Limitations and Current Implementation Status
 
 ### Current Implementation Status
-- **Alpha release** - Core functionality implemented, additional features in development
+- **Early alpha prerelease** - Core functionality implemented, not yet production ready
 - **Mock data backend** as default - Real data source integrations can be implemented via `IDataBackend`
 - **Basic AI integration** - Extensible via Microsoft.Extensions.AI patterns
 - **Authentication framework** - Ready for implementation based on application requirements
+- **Code quality standards** - Production-level code quality maintained throughout development
 
 ### Performance Considerations
 - **Streaming responses** for better perceived performance
@@ -208,7 +210,8 @@ src/NLWebNet/
 
 ### Deployment Considerations
 - **Requires .NET 9.0** - Latest framework dependency for modern features
-- **Production ready** - Library designed for production deployment
+- **Early prerelease status** - Not yet ready for production deployment
+- **Production-quality code** - Library being developed with production standards
 - **Demo app simplicity** - Reference implementation kept simple for clarity
 
 ## When to Seek Clarification
@@ -220,4 +223,4 @@ Ask for guidance when:
 - **Protocol compliance** questions arise
 - **Production deployment** patterns need to be established
 
-Remember: This is a production-ready library with a focus on clean, maintainable code that properly implements the NLWeb protocol for .NET applications.
+Remember: This library is being developed with production-quality standards, though it is currently in early prerelease and not yet ready for production use. All code additions and edits should maintain production-level quality as the project works toward its goal of becoming a production-ready NLWeb protocol implementation for .NET applications.
