@@ -1,6 +1,0 @@
-@TestNLWebNet_HostAddress = http://localhost:5243
-
-GET {{TestNLWebNet_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
