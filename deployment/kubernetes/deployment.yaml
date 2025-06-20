@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nlwebnet-demo
+  labels:
+    app: nlwebnet-demo
+    version: v1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nlwebnet-demo
+  template:
+    metadata:
+      labels:
+        app: nlwebnet-demo
+        version: v1
+    spec:
+      containers:
+      - name: nlwebnet-demo
+        image: nlwebnet-demo:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Production"
+        - name: ASPNETCORE_URLS
+          value: "http://+:8080"
+        - name: NLWebNet__DefaultMode
+          value: "List"
+        - name: NLWebNet__EnableStreaming
+          value: "true"
+        # Azure OpenAI configuration (from secrets)
+        - name: AzureOpenAI__ApiKey
+          valueFrom:
+            secretKeyRef:
+              name: nlwebnet-secrets
+              key: azure-openai-api-key
+        - name: AzureOpenAI__Endpoint
+          valueFrom:
+            configMapKeyRef:
+              name: nlwebnet-config
+              key: azure-openai-endpoint
+        # Azure Search configuration (from secrets)
+        - name: AzureSearch__ApiKey
+          valueFrom:
+            secretKeyRef:
+              name: nlwebnet-secrets
+              key: azure-search-api-key
+        - name: AzureSearch__ServiceName
+          valueFrom:
+            configMapKeyRef:
+              name: nlwebnet-config
+              key: azure-search-service-name
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 1001
+      securityContext:
+        fsGroup: 1001

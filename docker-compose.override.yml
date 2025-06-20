@@ -1,0 +1,22 @@
+# Docker Compose override for development
+# This file is automatically loaded by docker-compose and overrides settings for development
+
+version: '3.8'
+
+services:
+  nlwebnet-demo:
+    build:
+      target: build  # Use build stage for development with SDK
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DOTNET_USE_POLLING_FILE_WATCHER=true
+      - DOTNET_RUNNING_IN_CONTAINER=true
+    volumes:
+      # Enable hot reload for development
+      - ./demo:/src/demo
+      - ./src:/src/src
+      - /src/demo/bin
+      - /src/demo/obj
+    ports:
+      - "5037:8080"  # Use familiar port from local development
+    command: ["dotnet", "watch", "run", "--project", "/src/demo/NLWebNet.Demo.csproj", "--urls", "http://+:8080"]

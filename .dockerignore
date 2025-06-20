@@ -1,0 +1,68 @@
+# .dockerignore for NLWebNet
+# Exclude files and directories that should not be copied to Docker context
+
+# Git and development files
+.git/
+.gitignore
+.gitattributes
+.github/
+*.md
+docs/
+doc/
+
+# IDE and editor files
+.vs/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Build outputs
+**/bin/
+**/obj/
+**/out/
+**/publish/
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# Packages
+*.nupkg
+*.snupkg
+packages/
+
+# User secrets and environment files
+.env
+.env.*
+**/secrets.json
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Node.js (if any)
+node_modules/
+npm-debug.log*
+
+# Logs
+logs/
+*.log
+
+# Runtime directories
+var/
+etc/
+usr/

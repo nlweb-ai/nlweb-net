@@ -1,0 +1,17 @@
+apiVersion: v2
+name: nlwebnet-demo
+description: A Helm chart for NLWebNet Demo Application
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+home: https://github.com/jongalloway/NLWebNet
+sources:
+  - https://github.com/jongalloway/NLWebNet
+maintainers:
+  - name: NLWebNet Team
+    email: maintainer@example.com
+keywords:
+  - nlweb
+  - ai
+  - blazor
+  - dotnet

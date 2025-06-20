@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "nlwebnet-demo.fullname" . }}-config
+  labels:
+    {{- include "nlwebnet-demo.labels" . | nindent 4 }}
+data:
+  # NLWebNet configuration
+  NLWebNet__DefaultMode: {{ .Values.config.nlwebnet.defaultMode | quote }}
+  NLWebNet__EnableStreaming: {{ .Values.config.nlwebnet.enableStreaming | quote }}
+  NLWebNet__DefaultTimeoutSeconds: {{ .Values.config.nlwebnet.defaultTimeoutSeconds | quote }}
+  NLWebNet__MaxResultsPerQuery: {{ .Values.config.nlwebnet.maxResultsPerQuery | quote }}
+  NLWebNet__EnableDetailedLogging: {{ .Values.config.nlwebnet.enableDetailedLogging | quote }}
+  NLWebNet__EnableCaching: {{ .Values.config.nlwebnet.enableCaching | quote }}
+  NLWebNet__CacheExpirationMinutes: {{ .Values.config.nlwebnet.cacheExpirationMinutes | quote }}
+  
+  # Azure OpenAI configuration
+  AzureOpenAI__Endpoint: {{ .Values.config.azureOpenAI.endpoint | quote }}
+  AzureOpenAI__DeploymentName: {{ .Values.config.azureOpenAI.deploymentName | quote }}
+  AzureOpenAI__ApiVersion: {{ .Values.config.azureOpenAI.apiVersion | quote }}
+  
+  # OpenAI configuration
+  OpenAI__Model: {{ .Values.config.openAI.model | quote }}
+  OpenAI__BaseUrl: {{ .Values.config.openAI.baseUrl | quote }}
+  
+  # Azure Search configuration
+  AzureSearch__ServiceName: {{ .Values.config.azureSearch.serviceName | quote }}
+  AzureSearch__IndexName: {{ .Values.config.azureSearch.indexName | quote }}

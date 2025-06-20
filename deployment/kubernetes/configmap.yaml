@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nlwebnet-config
+data:
+  # Azure OpenAI configuration
+  azure-openai-endpoint: "https://your-resource.openai.azure.com/"
+  azure-openai-deployment-name: "gpt-4"
+  azure-openai-api-version: "2024-02-01"
+  
+  # Azure Search configuration  
+  azure-search-service-name: "your-search-service"
+  azure-search-index-name: "nlweb-index"
+  
+  # OpenAI configuration
+  openai-model: "gpt-4"
+  openai-base-url: "https://api.openai.com/v1"
+  
+  # Application settings
+  aspnetcore-environment: "Production"
+  nlwebnet-default-mode: "List"
+  nlwebnet-enable-streaming: "true"
+  nlwebnet-default-timeout-seconds: "30"
+  nlwebnet-max-results-per-query: "50"

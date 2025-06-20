@@ -308,6 +308,45 @@ curl -X POST "http://localhost:5037/mcp" \
   -d '{"method": "list_tools"}'
 ```
 
+## 🚀 Deployment
+
+NLWebNet supports multiple deployment strategies for various environments:
+
+### Quick Start - Docker
+
+```bash
+# Build and test the Docker image
+docker build -t nlwebnet-demo .
+docker run -p 8080:8080 nlwebnet-demo
+
+# Or use Docker Compose for development
+docker-compose up --build
+```
+
+### Production Deployment Options
+
+- **🐳 Docker & Docker Compose** - Containerized deployment with development and production configurations
+- **☸️ Kubernetes** - Scalable container orchestration with auto-scaling and health checks
+- **🌐 Azure Container Apps** - Serverless container platform with automatic scaling
+- **🌍 Azure App Service** - Platform-as-a-Service deployment with integrated monitoring
+- **📦 Helm Charts** - Package manager for Kubernetes with templated deployments
+
+### Deployment Guides
+
+- **[Complete Deployment Guide](doc/deployment-guide.md)** - Comprehensive instructions for all platforms
+- **[Deployment Scripts](deployment/scripts/)** - Automated deployment scripts
+- **[Kubernetes Manifests](deployment/kubernetes/)** - Ready-to-use K8s configurations
+- **[Azure Templates](deployment/azure/)** - ARM templates for Azure deployment
+- **[Helm Chart](deployment/helm/nlwebnet-demo/)** - Production-ready Helm chart
+
+### Health Monitoring
+
+All deployments include:
+- Health check endpoint at `/health`
+- Liveness and readiness probes
+- Application performance monitoring
+- Structured logging and observability
+
 ## ⚙️ Configuration
 
 NLWebNet uses standard ASP.NET Core configuration patterns for managing settings and external service credentials.

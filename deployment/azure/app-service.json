@@ -1,0 +1,205 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "appServicePlanName": {
+      "type": "string",
+      "defaultValue": "nlwebnet-plan",
+      "metadata": {
+        "description": "Name of the App Service Plan"
+      }
+    },
+    "webAppName": {
+      "type": "string",
+      "defaultValue": "[concat('nlwebnet-', uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "Name of the Web App"
+      }
+    },
+    "sku": {
+      "type": "string",
+      "defaultValue": "B1",
+      "allowedValues": [
+        "B1",
+        "B2",
+        "B3",
+        "S1",
+        "S2",
+        "S3",
+        "P1v2",
+        "P2v2",
+        "P3v2"
+      ],
+      "metadata": {
+        "description": "SKU for the App Service Plan"
+      }
+    },
+    "dockerImage": {
+      "type": "string",
+      "defaultValue": "nlwebnet-demo:latest",
+      "metadata": {
+        "description": "Docker image to deploy"
+      }
+    },
+    "dockerRegistryUrl": {
+      "type": "string",
+      "defaultValue": "https://index.docker.io",
+      "metadata": {
+        "description": "Docker registry URL"
+      }
+    },
+    "dockerRegistryUsername": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Docker registry username"
+      }
+    },
+    "dockerRegistryPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Docker registry password"
+      }
+    },
+    "azureOpenAIApiKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Azure OpenAI API Key"
+      }
+    },
+    "azureOpenAIEndpoint": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure OpenAI Endpoint URL"
+      }
+    },
+    "azureSearchApiKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Azure Search API Key"
+      }
+    },
+    "azureSearchServiceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure Search Service Name"
+      }
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2021-02-01",
+      "name": "[parameters('appServicePlanName')]",
+      "location": "[variables('location')]",
+      "kind": "linux",
+      "properties": {
+        "reserved": true
+      },
+      "sku": {
+        "name": "[parameters('sku')]"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-02-01",
+      "name": "[parameters('webAppName')]",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
+      ],
+      "kind": "app,linux,container",
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "siteConfig": {
+          "linuxFxVersion": "[concat('DOCKER|', parameters('dockerImage'))]",
+          "appSettings": [
+            {
+              "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+              "value": "false"
+            },
+            {
+              "name": "DOCKER_REGISTRY_SERVER_URL",
+              "value": "[parameters('dockerRegistryUrl')]"
+            },
+            {
+              "name": "DOCKER_REGISTRY_SERVER_USERNAME",
+              "value": "[parameters('dockerRegistryUsername')]"
+            },
+            {
+              "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
+              "value": "[parameters('dockerRegistryPassword')]"
+            },
+            {
+              "name": "ASPNETCORE_ENVIRONMENT",
+              "value": "Production"
+            },
+            {
+              "name": "ASPNETCORE_URLS",
+              "value": "http://+:80"
+            },
+            {
+              "name": "NLWebNet__DefaultMode",
+              "value": "List"
+            },
+            {
+              "name": "NLWebNet__EnableStreaming",
+              "value": "true"
+            },
+            {
+              "name": "NLWebNet__DefaultTimeoutSeconds",
+              "value": "30"
+            },
+            {
+              "name": "NLWebNet__MaxResultsPerQuery",
+              "value": "50"
+            },
+            {
+              "name": "AzureOpenAI__ApiKey",
+              "value": "[parameters('azureOpenAIApiKey')]"
+            },
+            {
+              "name": "AzureOpenAI__Endpoint",
+              "value": "[parameters('azureOpenAIEndpoint')]"
+            },
+            {
+              "name": "AzureOpenAI__DeploymentName",
+              "value": "gpt-4"
+            },
+            {
+              "name": "AzureOpenAI__ApiVersion",
+              "value": "2024-02-01"
+            },
+            {
+              "name": "AzureSearch__ApiKey",
+              "value": "[parameters('azureSearchApiKey')]"
+            },
+            {
+              "name": "AzureSearch__ServiceName",
+              "value": "[parameters('azureSearchServiceName')]"
+            },
+            {
+              "name": "AzureSearch__IndexName",
+              "value": "nlweb-index"
+            }
+          ],
+          "healthCheckPath": "/health"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "webAppURL": {
+      "type": "string",
+      "value": "[concat('https://', reference(resourceId('Microsoft.Web/sites', parameters('webAppName'))).defaultHostName)]"
+    },
+    "webAppName": {
+      "type": "string",
+      "value": "[parameters('webAppName')]"
+    }
+  }
+}

@@ -1,0 +1,58 @@
+# Docker Compose for NLWebNet local development
+version: '3.8'
+
+services:
+  nlwebnet-demo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - NLWebNet__DefaultMode=List
+      - NLWebNet__EnableStreaming=true
+      - NLWebNet__DefaultTimeoutSeconds=30
+      - NLWebNet__MaxResultsPerQuery=50
+    volumes:
+      # Mount for development hot reload (commented out for production-like container)
+      # - ./demo:/app
+      # - ./src:/src
+      - nlwebnet_data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - nlwebnet
+
+  # Optional: Add nginx reverse proxy for production-like setup
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deployment/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deployment/nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - nlwebnet-demo
+    networks:
+      - nlwebnet
+    profiles:
+      - production
+
+volumes:
+  nlwebnet_data:
+
+networks:
+  nlwebnet:
+    driver: bridge
+
+# Development override file: docker-compose.override.yml
+# This file is automatically loaded by docker-compose for development settings

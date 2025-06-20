@@ -1,0 +1,139 @@
+# Default values for nlwebnet-demo.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 3
+
+image:
+  repository: nlwebnet-demo
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 1001
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1001
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: nlwebnet-demo.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: nlwebnet-demo-tls
+      hosts:
+        - nlwebnet-demo.example.com
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Application configuration
+config:
+  aspnetcore:
+    environment: Production
+    urls: "http://+:8080"
+  
+  nlwebnet:
+    defaultMode: "List"
+    enableStreaming: true
+    defaultTimeoutSeconds: 30
+    maxResultsPerQuery: 50
+    enableDetailedLogging: false
+    enableCaching: true
+    cacheExpirationMinutes: 60
+
+  azureOpenAI:
+    endpoint: ""
+    deploymentName: "gpt-4"
+    apiVersion: "2024-02-01"
+    # apiKey should be provided via secrets
+
+  openAI:
+    model: "gpt-4"
+    baseUrl: "https://api.openai.com/v1"
+    # apiKey should be provided via secrets
+
+  azureSearch:
+    serviceName: ""
+    indexName: "nlweb-index"
+    # apiKey should be provided via secrets
+
+# Secrets configuration
+secrets:
+  # Set these values during deployment or via external secret management
+  azureOpenAIApiKey: ""
+  azureSearchApiKey: ""
+  openAIApiKey: ""
+
+# Health checks
+healthChecks:
+  liveness:
+    enabled: true
+    path: /health
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+  
+  readiness:
+    enabled: true
+    path: /health
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# Monitoring
+monitoring:
+  serviceMonitor:
+    enabled: false
+    interval: 30s
+    path: /metrics

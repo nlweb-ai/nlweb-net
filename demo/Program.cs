@@ -70,4 +70,9 @@ app.MapRazorComponents<NLWebNet.Demo.Components.App>()
 // Map NLWebNet minimal API endpoints
 app.MapNLWebNet();
 
+// Add health check endpoint for container health monitoring
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
+   .WithName("HealthCheck")
+   .WithOpenApi();
+
 app.Run();
