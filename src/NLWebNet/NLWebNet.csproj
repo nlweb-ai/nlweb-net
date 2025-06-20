@@ -3,10 +3,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    
-    <!-- Package Metadata -->
+      <!-- Package Metadata -->
     <PackageId>NLWebNet</PackageId>
-    <PackageVersion>1.0.0-alpha</PackageVersion>
+    <PackageVersion Condition="'$(PackageVersion)' == ''">1.0.0-dev</PackageVersion>
     <Authors>NLWebNet Contributors</Authors>
     <Description>A .NET library implementing the NLWeb protocol for natural language web interfaces</Description>
     <PackageProjectUrl>https://github.com/microsoft/NLWeb</PackageProjectUrl>

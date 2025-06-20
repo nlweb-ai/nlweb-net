@@ -50,6 +50,7 @@ The demo application is now fully functional with a modern .NET 9 Blazor Web App
 - ✅ **CI/CD Testing Fix**: Updated GitHub Actions workflow to gracefully handle missing test projects and prevent build failures
 - ✅ **CI/CD Packaging Fix**: Added Release build step to package-validation job to ensure NuGet DLL is available for packaging
 - ✅ **CI/CD Symbol Generation**: Fixed NuGet package validation by adding proper symbol generation, deterministic builds, and Source Link integration
+- ✅ **Dynamic Package Versioning**: Implemented Git-based semantic versioning with automatic pre-release numbering for CI builds
 
 The next phase focuses on implementing the core NLWeb library functionality.
 
