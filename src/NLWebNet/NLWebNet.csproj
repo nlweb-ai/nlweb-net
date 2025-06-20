@@ -3,18 +3,20 @@
 		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>		<!-- Package Metadata -->		<PackageId>NLWebNet</PackageId>
-		<PackageVersion Condition="'$(PackageVersion)' == ''">0.1.0-alpha.1</PackageVersion>
+		<Title>NLWebNet - .NET NLWeb Protocol Library</Title>
+		<PackageVersion Condition="'$(PackageVersion)' == ''">0.1.0-alpha.3</PackageVersion>
 		<Version>$(PackageVersion)</Version>
 		<AssemblyVersion Condition="'$(AssemblyVersion)' == ''">0.1.0.0</AssemblyVersion>
 		<FileVersion Condition="'$(FileVersion)' == ''">0.1.0.0</FileVersion>
 		<Authors>Jon Galloway</Authors>
+		<Copyright>Copyright (c) Jon Galloway 2025</Copyright>
 		<Description>A .NET library implementing the NLWeb protocol for natural language web interfaces. Provides minimal API endpoints, Model Context Protocol (MCP) integration, and streaming support for building conversational AI applications.</Description>
-		<PackageProjectUrl>https://github.com/jongalloway/NLWebNet</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/jongalloway/NLWebNet</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/jongalloway/NLWebNet</PackageProjectUrl>		<RepositoryUrl>https://github.com/jongalloway/NLWebNet</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>nlweb;ai;conversation;minimal-api;mcp;streaming;rag;search;llm;dotnet9;alpha;prerelease</PackageTags>
-		<PackageReleaseNotes>Alpha release: Complete NLWeb protocol implementation with Minimal API endpoints, MCP integration, streaming support, and comprehensive testing. Early prerelease version for initial feedback and testing.</PackageReleaseNotes>
+		<PackageReleaseNotes>Alpha release 0.1.0-alpha.3: Enhanced NuGet package metadata with copyright notice, repository type, and improved package title for better Package Manager display. Complete NLWeb protocol implementation with Minimal API endpoints (/ask, /mcp), Model Context Protocol integration, streaming support, and comprehensive testing. This is a proof-of-concept prerelease for testing and evaluation purposes only - not recommended for production use.</PackageReleaseNotes>
 		<!-- Symbol and Deterministic Build Configuration -->
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -42,9 +44,7 @@
 
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-	</ItemGroup>
-
-	<ItemGroup>
+	</ItemGroup>	<ItemGroup>
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
