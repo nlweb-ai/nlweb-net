@@ -211,6 +211,12 @@ PublishScripts/
 *.nuget.props
 *.nuget.targets
 
+# Package validation and testing directories
+packages-*/
+temp-*/
+*-extract/
+TestConsumer/
+
 # Microsoft Azure Build Output
 csx/
 *.build.csdef

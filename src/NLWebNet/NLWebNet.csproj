@@ -2,29 +2,30 @@
 	<PropertyGroup>
 		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>		<!-- Package Metadata -->		<PackageId>NLWebNet</PackageId>
-		<PackageVersion Condition="'$(PackageVersion)' == ''">1.0.0-beta.1</PackageVersion>
+		<ImplicitUsings>enable</ImplicitUsings>		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>		<!-- Package Metadata -->		<PackageId>NLWebNet</PackageId>
+		<PackageVersion Condition="'$(PackageVersion)' == ''">0.1.0-alpha.1</PackageVersion>
+		<Version>$(PackageVersion)</Version>
+		<AssemblyVersion Condition="'$(AssemblyVersion)' == ''">0.1.0.0</AssemblyVersion>
+		<FileVersion Condition="'$(FileVersion)' == ''">0.1.0.0</FileVersion>
 		<Authors>Jon Galloway</Authors>
 		<Description>A .NET library implementing the NLWeb protocol for natural language web interfaces. Provides minimal API endpoints, Model Context Protocol (MCP) integration, and streaming support for building conversational AI applications.</Description>
 		<PackageProjectUrl>https://github.com/jongalloway/NLWebNet</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/jongalloway/NLWebNet</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageTags>nlweb;ai;conversation;minimal-api;mcp;streaming;rag;search;llm;dotnet9;prerelease</PackageTags>
-		<PackageReleaseNotes>Beta release: Complete NLWeb protocol implementation with Minimal API endpoints, MCP integration, streaming support, and comprehensive testing. Marked as prerelease due to dependency on ModelContextProtocol preview package.</PackageReleaseNotes>
-
+		<PackageTags>nlweb;ai;conversation;minimal-api;mcp;streaming;rag;search;llm;dotnet9;alpha;prerelease</PackageTags>
+		<PackageReleaseNotes>Alpha release: Complete NLWeb protocol implementation with Minimal API endpoints, MCP integration, streaming support, and comprehensive testing. Early prerelease version for initial feedback and testing.</PackageReleaseNotes>
 		<!-- Symbol and Deterministic Build Configuration -->
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<DebugType>portable</DebugType>
 		<DebugSymbols>true</DebugSymbols>
 		<Deterministic>true</Deterministic>
-		<ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
-
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 		<!-- Source Link Configuration -->
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<PathMap>$(MSBuildProjectDirectory)=C:\src\</PathMap>
 	</PropertyGroup>	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.AI" Version="9.6.0" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />

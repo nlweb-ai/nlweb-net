@@ -388,7 +388,7 @@ This is a **fully functional implementation** of the NLWeb protocol, ready for p
 - [x] **Configuration**: CORS, AI services, and multi-environment support
 - [x] **Documentation**: XML documentation, README, and API usage examples
 - [x] **CI/CD**: GitHub Actions workflow for build, test, and validation
-- [x] **NuGet Package**: Fully functional package with working extension methods (1.0.0-beta.1)
+- [x] **NuGet Package**: Fully functional package with working extension methods (0.1.0-alpha.1)
 - [x] **API Exposure**: Extension methods accessible via `using NLWebNet;` (Microsoft pattern)
 - [x] **End-to-End Validation**: Complete package installation and functionality testing
 
@@ -422,4 +422,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## 🏷️ Version
 
-Current version: `1.0.0-beta.1` (Prerelease - fully functional, marked as beta due to ModelContextProtocol dependency)
+Current version: `0.1.0-alpha.1` (Prerelease - early alpha release for initial feedback and testing)

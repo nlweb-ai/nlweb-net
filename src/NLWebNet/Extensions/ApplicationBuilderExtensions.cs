@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Routing;
 using NLWebNet.Middleware;
 using NLWebNet.Endpoints;
 
-namespace NLWebNet.Extensions;
+namespace NLWebNet;
 
 /// <summary>
 /// Extension methods for configuring NLWebNet middleware and endpoints

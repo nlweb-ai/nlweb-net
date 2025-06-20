@@ -4,7 +4,7 @@ using NLWebNet.Services;
 using NLWebNet.MCP;
 using NLWebNet.Controllers;
 
-namespace NLWebNet.Extensions;
+namespace NLWebNet;
 
 /// <summary>
 /// Extension methods for configuring NLWebNet services

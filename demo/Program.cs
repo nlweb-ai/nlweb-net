@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Builder;
-using NLWebNet.Extensions;
+using NLWebNet;
 using NLWebNet.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
