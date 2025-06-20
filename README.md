@@ -1,5 +1,7 @@
 # NLWebNet
 
+[![.NET Build and Test](https://github.com/jongalloway/NLWebNet/actions/workflows/build.yml/badge.svg)](https://github.com/jongalloway/NLWebNet/actions/workflows/build.yml)
+
 A .NET implementation of the [NLWeb protocol](https://github.com/microsoft/NLWeb) for building natural language web interfaces. This project provides both a reusable library and a demo application showcasing the NLWeb standard.
 
 ## 📋 Overview
