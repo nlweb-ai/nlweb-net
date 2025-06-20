@@ -11,6 +11,7 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
+  CI: true
 
 jobs:
   build:
@@ -170,11 +171,7 @@ jobs:
         path: ./packages/*.nupkg
         retention-days: 30
 
-    - name: Validate package
-      run: |
-        echo "📦 Validating NuGet package..."
-        for package in ./packages/*.nupkg; do
-          echo "Validating: $package"
-          dotnet tool install --global dotnet-validate --version 0.0.1-preview.537
-          dotnet validate package local "$package"
-        done
+    - name: Validate NuGet Package
+      uses: NuGetPackageExplorer/ValidatePackage@v1
+      with:
+        packagePath: ./packages/NLWebNet.1.0.0-alpha.nupkg

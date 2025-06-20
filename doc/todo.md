@@ -49,6 +49,7 @@ The demo application is now fully functional with a modern .NET 9 Blazor Web App
 - ✅ **Build Fixes**: Resolved App.razor build warnings by adding proper @using directives and removing duplicate files
 - ✅ **CI/CD Testing Fix**: Updated GitHub Actions workflow to gracefully handle missing test projects and prevent build failures
 - ✅ **CI/CD Packaging Fix**: Added Release build step to package-validation job to ensure NuGet DLL is available for packaging
+- ✅ **CI/CD Symbol Generation**: Fixed NuGet package validation by adding proper symbol generation, deterministic builds, and Source Link integration
 
 The next phase focuses on implementing the core NLWeb library functionality.
 
@@ -94,11 +95,13 @@ The next phase focuses on implementing the core NLWeb library functionality.
 - [x] Add proper validation attributes and JSON serialization settings
 - [x] Set up CI/CD pipeline:
   - [x] GitHub Actions workflow for automated builds and testing
-  - [x] Multi-configuration builds (Debug/Release)
+  - [x] Multi-configuration builds (Debug/Release) → Optimized to Release-only
   - [x] Code quality checks and formatting validation
   - [x] Security scanning for vulnerable packages
   - [x] NuGet package creation and validation
   - [x] Build status badge in README
+  - [x] Symbol generation and deterministic builds for package validation
+  - [x] Source Link integration for GitHub repository
 
 ### Phase 3: Business Logic Layer (Library)
 
