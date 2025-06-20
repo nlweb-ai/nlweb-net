@@ -4,16 +4,16 @@ This document provides guidance for AI assistants working with the NLWebNet code
 
 ## Project Overview
 
-**NLWebNet** is a .NET implementation of the [NLWeb protocol](https://github.com/microsoft/NLWeb) for building natural language web interfaces. 
+**NLWebNet** is a .NET implementation of the [NLWeb protocol](https://github.com/microsoft/NLWeb) for building natural language web interfaces.
 
-### ⚠️ Important: Proof of Concept Status
+### Production-Ready NuGet Package
 
-**This is an experimental proof-of-concept implementation, NOT production-ready software.**
+**This library is designed for production use and follows .NET best practices.**
 
-- **Purpose**: Testing, evaluation, and learning the NLWeb protocol
-- **Not suitable for**: Production applications, critical systems, enterprise use
-- **Current status**: Alpha prerelease (0.1.0-alpha.3) on NuGet
-- **Target audience**: Developers evaluating NLWeb concepts and integration patterns
+- **Purpose**: Production implementation of the NLWeb protocol for .NET applications
+- **Current status**: Alpha prerelease (0.1.0-alpha.3) on NuGet - actively developed
+- **Demo application**: Simple reference implementation showcasing library capabilities
+- **Target audience**: .NET developers building natural language web interfaces
 
 ## Technology Stack
 
@@ -192,13 +192,13 @@ src/NLWebNet/
 3. **Update project files** - Include in main library and test projects
 4. **Validate package size** - Keep library lightweight
 
-## Limitations and Constraints
+## Limitations and Current Implementation Status
 
 ### Current Implementation Status
-- **Mock data backend** only - No real data source integration
-- **Limited AI integration** - Placeholder implementations
-- **Experimental features** - Not all protocol features fully implemented
-- **No authentication** - Security features not implemented
+- **Alpha release** - Core functionality implemented, additional features in development
+- **Mock data backend** as default - Real data source integrations can be implemented via `IDataBackend`
+- **Basic AI integration** - Extensible via Microsoft.Extensions.AI patterns
+- **Authentication framework** - Ready for implementation based on application requirements
 
 ### Performance Considerations
 - **Streaming responses** for better perceived performance
@@ -206,10 +206,10 @@ src/NLWebNet/
 - **Minimal allocations** where possible
 - **Configuration caching** for frequently accessed settings
 
-### Deployment Constraints
-- **Requires .NET 9.0** - Latest framework dependency
-- **Development only** - Not intended for production deployment
-- **Local testing focus** - Limited cloud deployment guidance
+### Deployment Considerations
+- **Requires .NET 9.0** - Latest framework dependency for modern features
+- **Production ready** - Library designed for production deployment
+- **Demo app simplicity** - Reference implementation kept simple for clarity
 
 ## When to Seek Clarification
 
@@ -217,7 +217,7 @@ Ask for guidance when:
 - **Breaking changes** to public APIs are needed
 - **New external dependencies** are required
 - **Significant architectural changes** are proposed
-- **Production-readiness** features are requested (this is a proof-of-concept)
 - **Protocol compliance** questions arise
+- **Production deployment** patterns need to be established
 
-Remember: This is a learning and evaluation project. Focus on clean, maintainable code that demonstrates NLWeb concepts rather than production-grade enterprise features.
+Remember: This is a production-ready library with a focus on clean, maintainable code that properly implements the NLWeb protocol for .NET applications.
