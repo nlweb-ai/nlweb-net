@@ -6,18 +6,47 @@ description: Install .NET 9 SDK and restore dependencies for the NLWebNet librar
 
 steps:
   - name: Install .NET 9 SDK
-    description: Download and install the .NET 9 SDK required for building and running the projects
+    description: Install the .NET 9 SDK using the official Microsoft installation methods
     run: |
-      # Download and install .NET 9 SDK
-      curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version latest --channel 9.0
+      # Check if .NET 9 is already installed
+      if command -v dotnet &> /dev/null && dotnet --list-sdks | grep -q "9\."; then
+        echo "✅ .NET 9 SDK is already installed"
+        dotnet --version
+        exit 0
+      fi
       
-      # Add .NET to PATH if not already present
-      if [[ ":$PATH:" != *":$HOME/.dotnet:"* ]]; then
-        echo 'export PATH="$HOME/.dotnet:$PATH"' >> ~/.bashrc
-        export PATH="$HOME/.dotnet:$PATH"
+      # Install .NET 9 SDK using official Microsoft methods
+      echo "📦 Installing .NET 9 SDK..."
+      
+      # For Ubuntu/Debian
+      if command -v apt &> /dev/null; then
+        # Add Microsoft package repository
+        wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+        sudo dpkg -i packages-microsoft-prod.deb
+        rm packages-microsoft-prod.deb
+        
+        # Install .NET 9 SDK
+        sudo apt update
+        sudo apt install -y dotnet-sdk-9.0
+      
+      # For macOS with Homebrew
+      elif command -v brew &> /dev/null; then
+        brew install dotnet
+      
+      # For other systems, use the official install script (same as GitHub Actions uses internally)
+      else
+        echo "Using official Microsoft .NET install script..."
+        curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 9.0 --install-dir ~/.dotnet
+        
+        # Add .NET to PATH if not already present
+        if [[ ":$PATH:" != *":$HOME/.dotnet:"* ]]; then
+          echo 'export PATH="$HOME/.dotnet:$PATH"' >> ~/.bashrc
+          export PATH="$HOME/.dotnet:$PATH"
+        fi
       fi
       
       # Verify installation
+      echo "🔍 Verifying .NET installation..."
       dotnet --version
       dotnet --info
 
