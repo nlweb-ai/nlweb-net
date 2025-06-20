@@ -188,10 +188,13 @@ app.MapNLWebNet();     // Map NLWebNet minimal API endpoints
 
 ### Prerequisites
 
-- .NET 9.0 SDK
+- .NET 8.0 SDK or later
+- .NET Aspire workload (recommended): `dotnet workload install aspire`
 - Visual Studio 2022 or VS Code
 
 ### Running the Demo
+
+#### 🌟 Recommended: .NET Aspire (with observability dashboard)
 
 1. **Clone the repository**
 
@@ -200,22 +203,44 @@ app.MapNLWebNet();     // Map NLWebNet minimal API endpoints
    cd NLWebNet
    ```
 
-2. **Build the solution**
+2. **Install .NET Aspire workload** (one-time setup)
 
    ```bash
+   dotnet workload install aspire
+   ```
+
+3. **Run with Aspire orchestration**
+
+   ```bash
+   cd demo-apphost
+   dotnet run
+   ```
+
+4. **Access the applications**
+   - **Aspire Dashboard**: `https://localhost:15888` (monitoring, logs, metrics)
+   - **Demo UI**: `http://localhost:8080`
+   - **Swagger UI**: `http://localhost:8080/swagger`
+
+#### Traditional: Standalone Demo
+
+1. **Clone and build**
+
+   ```bash
+   git clone https://github.com/jongalloway/NLWebNet.git
+   cd NLWebNet
    dotnet build
    ```
 
-3. **Run the demo application**
+2. **Run the demo application**
 
    ```bash
    cd demo
    dotnet run
    ```
 
-4. **Open your browser**
+3. **Open your browser**
    - Demo UI: `http://localhost:5037`
-   - OpenAPI Spec: `http://localhost:5037/openapi/v1.json`
+   - Swagger UI: `http://localhost:5037/swagger`
 
 5. **Test the demo features**
    - **Home Page**: Overview and navigation to demo features
@@ -311,6 +336,27 @@ curl -X POST "http://localhost:5037/mcp" \
 ## 🚀 Deployment
 
 NLWebNet supports multiple deployment strategies for various environments:
+
+### 🌟 Recommended: .NET Aspire
+
+**.NET Aspire is the recommended approach** for .NET developers building cloud-native applications:
+
+```bash
+# Development with full observability
+cd demo-apphost
+dotnet run
+
+# Access Aspire dashboard at https://localhost:15888
+# Access demo app at http://localhost:8080
+```
+
+**Benefits:**
+- Built-in observability and telemetry
+- Service discovery and configuration management
+- Production-ready health checks and resilience patterns
+- Integrated development experience with dashboard
+
+📖 **[Complete Aspire Integration Guide](doc/aspire-integration.md)**
 
 ### Quick Start - Docker
 

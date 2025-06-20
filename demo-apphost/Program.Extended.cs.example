@@ -1,0 +1,41 @@
+using Aspire.Hosting;
+
+var builder = DistributedApplication.CreateBuilder(args);
+
+// Example: Add Redis cache (uncomment to use)
+// var redis = builder.AddRedis("cache");
+
+// Example: Add PostgreSQL database (uncomment to use)
+// var postgres = builder.AddPostgres("postgres")
+//     .WithEnvironment("POSTGRES_DB", "nlwebnet");
+// var database = postgres.AddDatabase("nlwebnetdb");
+
+// Add the NLWebNet Demo web application
+var nlwebnetDemo = builder.AddProject("nlwebnet-demo", "../demo/NLWebNet.Demo.csproj")
+    .WithHttpEndpoint(port: 8080, name: "http")
+    .WithEnvironment("ASPNETCORE_ENVIRONMENT", builder.Environment.EnvironmentName)
+    .WithEnvironment("NLWebNet__DefaultMode", "List")
+    .WithEnvironment("NLWebNet__EnableStreaming", "true")
+    .WithEnvironment("NLWebNet__DefaultTimeoutSeconds", "30")
+    .WithEnvironment("NLWebNet__MaxResultsPerQuery", "50");
+
+// Example: Connect to Redis cache
+// nlwebnetDemo.WithReference(redis);
+
+// Example: Connect to database
+// nlwebnetDemo.WithReference(database);
+
+// Example: Add a background service
+// var backgroundService = builder.AddProject("nlwebnet-worker", "../worker/NLWebNet.Worker.csproj")
+//     .WithReference(database)
+//     .WithReference(redis);
+
+// Example: Add an API gateway or reverse proxy
+// var gateway = builder.AddProject("nlwebnet-gateway", "../gateway/NLWebNet.Gateway.csproj")
+//     .WithHttpEndpoint(port: 80, name: "public")
+//     .WithReference(nlwebnetDemo);
+
+// Build and run the application
+var app = builder.Build();
+
+await app.RunAsync();

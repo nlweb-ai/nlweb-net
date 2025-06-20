@@ -4,6 +4,9 @@ using NLWebNet.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add Aspire service defaults (telemetry, service discovery, resilience, health checks)
+builder.AddServiceDefaults();
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -37,9 +40,13 @@ builder.Services.AddNLWebNet(options =>
 });
 
 // Add OpenAPI for API documentation
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Map Aspire default endpoints (health checks, metrics, etc.)
+app.MapDefaultEndpoints();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -50,7 +57,8 @@ if (!app.Environment.IsDevelopment())
 }
 else
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
@@ -63,7 +71,7 @@ app.UseNLWebNet();
 
 app.UseAntiforgery();
 
-app.MapStaticAssets();
+app.UseStaticFiles();
 app.MapRazorComponents<NLWebNet.Demo.Components.App>()
     .AddInteractiveServerRenderMode();
 
@@ -72,7 +80,6 @@ app.MapNLWebNet();
 
 // Add health check endpoint for container health monitoring
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
-   .WithName("HealthCheck")
-   .WithOpenApi();
+   .WithName("HealthCheck");
 
 app.Run();

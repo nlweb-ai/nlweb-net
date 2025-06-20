@@ -5,6 +5,7 @@ This guide provides comprehensive instructions for deploying the NLWebNet demo a
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
+- [.NET Aspire Deployment (Recommended)](#net-aspire-deployment-recommended)
 - [Docker Deployment](#docker-deployment)
 - [Kubernetes Deployment](#kubernetes-deployment)
 - [Azure Deployment](#azure-deployment)
@@ -14,11 +15,43 @@ This guide provides comprehensive instructions for deploying the NLWebNet demo a
 
 ## Prerequisites
 
-- .NET 9.0 SDK
-- Docker and Docker Compose
+- .NET 8.0 SDK or later
+- .NET Aspire workload: `dotnet workload install aspire`
+- Docker and Docker Compose (for containerization)
 - Kubernetes cluster (for K8s deployment)
 - Azure CLI (for Azure deployment)
 - Helm 3.x (for Helm deployment)
+
+## .NET Aspire Deployment (Recommended)
+
+**.NET Aspire is the recommended approach for .NET developers** building cloud-native applications. It provides built-in observability, service discovery, and production-ready patterns.
+
+### Quick Start
+
+```bash
+# Install Aspire workload (one-time setup)
+dotnet workload install aspire
+
+# Run the application with Aspire orchestration
+cd demo-apphost
+dotnet run
+```
+
+### Features
+
+- **Aspire Dashboard**: Visual monitoring at `https://localhost:15888`
+- **Built-in Observability**: Distributed tracing, metrics, and health checks
+- **Service Discovery**: Automatic service location and communication
+- **Development Experience**: Hot reload, centralized logging, and debugging
+
+### Benefits over Traditional Containerization
+
+1. **Integrated Development**: Built-in dashboard and debugging tools
+2. **Production Patterns**: Standardized health checks, resilience, and telemetry
+3. **Cloud-Native Ready**: Designed for modern distributed applications
+4. **Microsoft Ecosystem**: First-class support in Azure and Visual Studio
+
+📖 **[Complete Aspire Integration Guide](aspire-integration.md)**
 
 ## Docker Deployment
 

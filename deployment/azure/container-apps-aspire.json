@@ -1,0 +1,179 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "containerAppName": {
+      "type": "string",
+      "defaultValue": "nlwebnet-demo-aspire",
+      "metadata": {
+        "description": "Name of the container app"
+      }
+    },
+    "containerImage": {
+      "type": "string",
+      "defaultValue": "nlwebnet-demo:latest",
+      "metadata": {
+        "description": "Container image to deploy"
+      }
+    },
+    "environmentName": {
+      "type": "string",
+      "defaultValue": "nlwebnet-aspire-env",
+      "metadata": {
+        "description": "Name of the Container Apps environment"
+      }
+    },
+    "logAnalyticsWorkspace": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Log Analytics workspace for Aspire telemetry"
+      }
+    },
+    "applicationInsightsConnectionString": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Application Insights connection string for Aspire observability"
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.App/managedEnvironments",
+      "apiVersion": "2023-05-01",
+      "name": "[parameters('environmentName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "daprAIInstrumentationKey": "[if(not(empty(parameters('applicationInsightsConnectionString'))), parameters('applicationInsightsConnectionString'), null())]",
+        "appLogsConfiguration": {
+          "destination": "log-analytics",
+          "logAnalyticsConfiguration": {
+            "customerId": "[if(not(empty(parameters('logAnalyticsWorkspace'))), reference(parameters('logAnalyticsWorkspace'), '2020-08-01').customerId, null())]",
+            "sharedKey": "[if(not(empty(parameters('logAnalyticsWorkspace'))), listKeys(parameters('logAnalyticsWorkspace'), '2020-08-01').primarySharedKey, null())]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2023-05-01",
+      "name": "[parameters('containerAppName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.App/managedEnvironments', parameters('environmentName'))]"
+      ],
+      "properties": {
+        "managedEnvironmentId": "[resourceId('Microsoft.App/managedEnvironments', parameters('environmentName'))]",
+        "configuration": {
+          "ingress": {
+            "external": true,
+            "targetPort": 8080,
+            "transport": "http",
+            "allowInsecure": false
+          },
+          "secrets": [
+            {
+              "name": "appinsights-connection-string",
+              "value": "[parameters('applicationInsightsConnectionString')]"
+            }
+          ]
+        },
+        "template": {
+          "containers": [
+            {
+              "name": "nlwebnet-demo",
+              "image": "[parameters('containerImage')]",
+              "env": [
+                {
+                  "name": "ASPNETCORE_ENVIRONMENT",
+                  "value": "Production"
+                },
+                {
+                  "name": "ASPNETCORE_URLS",
+                  "value": "http://+:8080"
+                },
+                {
+                  "name": "NLWebNet__DefaultMode",
+                  "value": "List"
+                },
+                {
+                  "name": "NLWebNet__EnableStreaming",
+                  "value": "true"
+                },
+                {
+                  "name": "NLWebNet__DefaultTimeoutSeconds",
+                  "value": "30"
+                },
+                {
+                  "name": "NLWebNet__MaxResultsPerQuery",
+                  "value": "50"
+                },
+                {
+                  "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                  "secretRef": "appinsights-connection-string"
+                },
+                {
+                  "name": "OTEL_SERVICE_NAME",
+                  "value": "nlwebnet-demo"
+                },
+                {
+                  "name": "OTEL_RESOURCE_ATTRIBUTES",
+                  "value": "service.name=nlwebnet-demo,service.version=1.0.0,deployment.environment=production"
+                }
+              ],
+              "resources": {
+                "cpu": 0.5,
+                "memory": "1Gi"
+              },
+              "probes": [
+                {
+                  "type": "Liveness",
+                  "httpGet": {
+                    "path": "/alive",
+                    "port": 8080
+                  },
+                  "initialDelaySeconds": 10,
+                  "periodSeconds": 30
+                },
+                {
+                  "type": "Readiness",
+                  "httpGet": {
+                    "path": "/health/ready",
+                    "port": 8080
+                  },
+                  "initialDelaySeconds": 5,
+                  "periodSeconds": 10
+                }
+              ]
+            }
+          ],
+          "scale": {
+            "minReplicas": 1,
+            "maxReplicas": 10,
+            "rules": [
+              {
+                "name": "http-rule",
+                "http": {
+                  "metadata": {
+                    "concurrentRequests": "100"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "containerAppFQDN": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.App/containerApps', parameters('containerAppName'))).configuration.ingress.fqdn]"
+    },
+    "containerAppUrl": {
+      "type": "string",
+      "value": "[concat('https://', reference(resourceId('Microsoft.App/containerApps', parameters('containerAppName'))).configuration.ingress.fqdn)]"
+    }
+  ]
+}
