@@ -20,10 +20,10 @@ public static class ApplicationBuilderExtensions
         app.UseMiddleware<NLWebMiddleware>();
         return app;
     }    /// <summary>
-    /// Maps NLWebNet API endpoints (/ask and /mcp) using minimal APIs
-    /// </summary>
-    /// <param name="app">The web application</param>
-    /// <returns>The web application for chaining</returns>
+         /// Maps NLWebNet API endpoints (/ask and /mcp) using minimal APIs
+         /// </summary>
+         /// <param name="app">The web application</param>
+         /// <returns>The web application for chaining</returns>
     public static WebApplication MapNLWebNet(this WebApplication app)
     {
         // Map minimal API endpoints directly

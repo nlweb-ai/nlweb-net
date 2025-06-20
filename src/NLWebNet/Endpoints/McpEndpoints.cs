@@ -87,15 +87,16 @@ public static class McpEndpoints
             .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
             .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError); return group;
     }    /// <summary>
-    /// List available MCP tools.
-    /// </summary>
-    /// <param name="mcpService">The MCP service</param>
-    /// <param name="loggerFactory">The logger factory</param>
-    /// <returns>List of available tools with their schemas</returns>
+         /// List available MCP tools.
+         /// </summary>
+         /// <param name="mcpService">The MCP service</param>
+         /// <param name="loggerFactory">The logger factory</param>
+         /// <returns>List of available tools with their schemas</returns>
     private static async Task<IResult> ListToolsAsync(
         [FromServices] IMcpService mcpService,
         [FromServices] ILoggerFactory loggerFactory)
-    {        try
+    {
+        try
         {
             var logger = loggerFactory.CreateLogger(typeof(McpEndpoints));
             logger.LogDebug("Listing available MCP tools");
@@ -122,7 +123,8 @@ public static class McpEndpoints
     private static async Task<IResult> ListPromptsAsync(
         [FromServices] IMcpService mcpService,
         [FromServices] ILoggerFactory loggerFactory)
-    {        try
+    {
+        try
         {
             var logger = loggerFactory.CreateLogger(typeof(McpEndpoints));
             logger.LogDebug("Listing available MCP prompts");
@@ -141,22 +143,23 @@ public static class McpEndpoints
             return Results.StatusCode(StatusCodes.Status500InternalServerError);
         }
     }    /// <summary>
-    /// Call an MCP tool with the specified arguments.
-    /// </summary>
-    /// <param name="request">Tool call request with name and arguments</param>
-    /// <param name="mcpService">The MCP service</param>    
-    /// <param name="loggerFactory">The logger factory</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Tool execution result</returns>
+         /// Call an MCP tool with the specified arguments.
+         /// </summary>
+         /// <param name="request">Tool call request with name and arguments</param>
+         /// <param name="mcpService">The MCP service</param>    
+         /// <param name="loggerFactory">The logger factory</param>
+         /// <param name="cancellationToken">Cancellation token</param>
+         /// <returns>Tool execution result</returns>
     private static async Task<IResult> CallToolAsync(
         [FromBody] McpCallToolRequest request,
         [FromServices] IMcpService mcpService,
         [FromServices] ILoggerFactory loggerFactory,
         CancellationToken cancellationToken = default)
-    {        try
+    {
+        try
         {
             var logger = loggerFactory.CreateLogger(typeof(McpEndpoints));
-            
+
             // Validate the request
             if (request == null)
             {
@@ -219,22 +222,23 @@ public static class McpEndpoints
             return Results.StatusCode(StatusCodes.Status500InternalServerError);
         }
     }    /// <summary>
-    /// Get a specific prompt with template substitution.
-    /// </summary>    
-    /// <param name="request">Prompt request with name and arguments</param>
-    /// <param name="mcpService">The MCP service</param>
-    /// <param name="loggerFactory">The logger factory</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Prompt with substituted arguments</returns>
+         /// Get a specific prompt with template substitution.
+         /// </summary>    
+         /// <param name="request">Prompt request with name and arguments</param>
+         /// <param name="mcpService">The MCP service</param>
+         /// <param name="loggerFactory">The logger factory</param>
+         /// <param name="cancellationToken">Cancellation token</param>
+         /// <returns>Prompt with substituted arguments</returns>
     private static async Task<IResult> GetPromptAsync(
         [FromBody] McpGetPromptRequest request,
         [FromServices] IMcpService mcpService,
         [FromServices] ILoggerFactory loggerFactory,
         CancellationToken cancellationToken = default)
-    {        try
+    {
+        try
         {
             var logger = loggerFactory.CreateLogger(typeof(McpEndpoints));
-            
+
             // Validate the request
             if (request == null)
             {
@@ -285,22 +289,23 @@ public static class McpEndpoints
             return Results.StatusCode(StatusCodes.Status500InternalServerError);
         }
     }    /// <summary>
-    /// Process a unified MCP request (for compatibility with existing clients).
-    /// </summary>    
-    /// <param name="request">Unified MCP request</param>
-    /// <param name="mcpService">The MCP service</param>
-    /// <param name="loggerFactory">The logger factory</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>MCP response based on request type</returns>
+         /// Process a unified MCP request (for compatibility with existing clients).
+         /// </summary>    
+         /// <param name="request">Unified MCP request</param>
+         /// <param name="mcpService">The MCP service</param>
+         /// <param name="loggerFactory">The logger factory</param>
+         /// <param name="cancellationToken">Cancellation token</param>
+         /// <returns>MCP response based on request type</returns>
     private static async Task<IResult> ProcessMcpRequestAsync(
         [FromBody] object request,
         [FromServices] IMcpService mcpService,
         [FromServices] ILoggerFactory loggerFactory,
         CancellationToken cancellationToken = default)
-    {        try
+    {
+        try
         {
             var logger = loggerFactory.CreateLogger(typeof(McpEndpoints));
-            
+
             if (request == null)
             {
                 logger.LogWarning("Received null MCP request");
@@ -369,12 +374,14 @@ public static class McpEndpoints
 
             return Results.StatusCode(StatusCodes.Status500InternalServerError);
         }
-    }    private static async Task<IResult> HandleCallToolFromUnified(
+    }
+    private static async Task<IResult> HandleCallToolFromUnified(
         JsonElement root,
         [FromServices] IMcpService mcpService,
         [FromServices] ILoggerFactory loggerFactory,
         CancellationToken cancellationToken)
-    {        try
+    {
+        try
         {
             var request = JsonSerializer.Deserialize<McpCallToolRequest>(root.GetRawText());
             if (request != null)
@@ -395,12 +402,14 @@ public static class McpEndpoints
             logger.LogError(ex, "Error handling unified tool call: {Message}", ex.Message);
             return Results.StatusCode(StatusCodes.Status500InternalServerError);
         }
-    }    private static async Task<IResult> HandleGetPromptFromUnified(
+    }
+    private static async Task<IResult> HandleGetPromptFromUnified(
         JsonElement root,
         [FromServices] IMcpService mcpService,
         [FromServices] ILoggerFactory loggerFactory,
         CancellationToken cancellationToken)
-    {        try
+    {
+        try
         {
             var request = JsonSerializer.Deserialize<McpGetPromptRequest>(root.GetRawText());
             if (request != null)

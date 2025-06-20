@@ -48,7 +48,7 @@ The NLWebNet library is now fully functional and feature complete with a modern 
 - ✅ **Extension Methods**: Added `MapNLWebNet()` extension method for easy endpoint mapping in consuming applications
 - ✅ **Dependency Injection**: Created `AddNLWebNet()` extension method with options configuration
 - ✅ **GET/POST Support**: Both endpoints support GET and POST with appropriate parameter binding
-- ✅ **Multiple Query Modes**: Full support for List, Summarize, and Generate modes with proper typing 
+- ✅ **Multiple Query Modes**: Full support for List, Summarize, and Generate modes with proper typing
 - ✅ **Streaming Support**: Server-Sent Events (SSE) implementation with graceful fallbacks
 - ✅ **Middleware**: NLWebMiddleware for centralized processing and request correlation
 - ✅ **MCP Integration**: Complete Model Context Protocol implementation with tools and prompts
@@ -258,7 +258,7 @@ All Phase 5 objectives have been completed successfully, initially using the tra
   - [x] Fixed logger DI for minimal APIs by using ILoggerFactory
   - [x] Fixed parameter binding and routing for minimal APIs
   - [x] Added [FromServices] attributes to McpEndpoints parameters for proper DI
-  - [ ] Complete test migration from controller tests to endpoint tests
+  - [x] Complete test migration from controller tests to endpoint tests
 
 **Current Status**: Minimal API migration is complete, with all endpoints successfully implemented and tested. Both the `/ask` and `/mcp` endpoints (GET and POST) are fully functional and have been verified with test requests. The library builds successfully and can be consumed by applications with a clean, modern API. The migration to ILoggerFactory provides proper logging support in all endpoint methods.
 
