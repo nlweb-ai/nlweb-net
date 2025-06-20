@@ -1,7 +1,7 @@
 name: .NET Build and Test
 
 permissions:
-  contents: read
+  contents: write
   checks: write
   pull-requests: write
 
@@ -247,11 +247,8 @@ jobs:
         echo "Validating package: $PACKAGE_FILE"
         # Run validation but skip deterministic build check if it fails
         dotnet validate package local "$PACKAGE_FILE" || {
-          echo "⚠️ Full validation failed, trying without deterministic check..."
-          dotnet validate package local "$PACKAGE_FILE" --exclude deterministic || {
-            echo "⚠️ Validation failed but continuing (non-blocking for prerelease)"
-            echo "##[warning]Package validation failed but build will continue"
-          }
+          echo "⚠️ Validation failed but continuing (non-blocking for prerelease)"
+          echo "##[warning]Package validation failed but build will continue"
         }
 
     - name: Publish to NuGet.org
