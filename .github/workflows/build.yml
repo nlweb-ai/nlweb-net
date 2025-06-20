@@ -122,7 +122,8 @@ jobs:
         name: build-artifacts-${{ matrix.configuration }}
         path: |
           src/NLWebNet/bin/Release/
-          demo/bin/Release/        retention-days: 7
+          demo/bin/Release/
+        retention-days: 7
 
   code-quality:
     runs-on: ubuntu-latest
@@ -174,7 +175,8 @@ jobs:
           echo "❌ Vulnerable packages found!"
           exit 1
         else
-          echo "✅ No vulnerable packages found."        fi
+          echo "✅ No vulnerable packages found."
+        fi
 
   package-validation:
     runs-on: ubuntu-latest
