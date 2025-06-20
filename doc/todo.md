@@ -66,9 +66,11 @@ The NLWebNet library is now fully functional and feature complete with a modern 
 - ✅ **Testing Framework**: Using MSTest 3.9.3 with NSubstitute 5.3.0 for comprehensive unit testing
 - ✅ **Production Ready**: All builds (Debug/Release) work correctly, with properly configured NuGet packaging
 
-**Phases 1-9 are now complete.** The library provides a complete implementation of the NLWeb protocol with both traditional controller-based endpoints (legacy) and modern minimal API endpoints for improved performance and maintainability. The project includes comprehensive configuration management, CORS support, and extensive testing infrastructure with manual testing resources.
+**Phases 1-10.5 are now complete.** The library provides a complete implementation of the NLWeb protocol with both traditional controller-based endpoints (legacy) and modern minimal API endpoints for improved performance and maintainability. The project includes comprehensive configuration management, CORS support, and extensive testing infrastructure with manual testing resources.
 
-**The project is ready for Phase 10 (Documentation & Packaging) and Phase 11 (Deployment & Production Readiness)** with a fully functional demonstration application running at `http://localhost:5037` and comprehensive configuration and testing infrastructure.
+**✅ MAJOR BREAKTHROUGH: NuGet Package API Issue RESOLVED** - The NLWebNet package is now fully functional with working extension methods accessible via `using NLWebNet;`. End-to-end testing confirms that consumer applications can successfully install the package, use the `AddNLWebNet()` and `MapNLWebNet()` extension methods, and run working HTTP servers.
+
+**The project is ready for Phase 11 (Deployment & Production Readiness) and NuGet.org publication** with a fully functional demonstration application running at `http://localhost:5037`, a working NuGet package with confirmed extension method accessibility, and comprehensive configuration and testing infrastructure.
 
 ## Implementation Plan
 
@@ -409,10 +411,10 @@ Comprehensive testing and validation infrastructure has been implemented coverin
   - [x] Configure package metadata in project file
   - [x] Update package metadata for production (repository URL, version, description, tags)
   - [x] Test package creation locally - package builds successfully  
-  - [x] Identify API surface area issue - Extensions namespace not exposed correctly in package
-  - [ ] Fix package API exposure (Extensions namespace visibility)
-  - [ ] Complete local package installation testing
-  - [ ] Publish to NuGet.org (delayed to later phase)
+  - [x] ✅ **RESOLVED**: API surface area issue - Extensions accessible via `using NLWebNet;`
+  - [x] ✅ **COMPLETED**: Package API exposure working correctly
+  - [x] ✅ **SUCCESS**: Complete local package installation testing with working extension methods
+  - [ ] Publish to NuGet.org (ready for publication)
 
 #### Technical Findings
 
@@ -422,19 +424,85 @@ Comprehensive testing and validation infrastructure has been implemented coverin
 - ✅ Package includes README.md, symbols (.snupkg), and proper NuGet metadata
 - ✅ Only minor warning about prerelease dependency on ModelContextProtocol package
 
-**API Surface Area Issue Identified:**
+**✅ API Surface Area RESOLVED:**
 
-- ❌ Extensions namespace (`NLWebNet.Extensions`) not accessible from consuming projects
-- ❌ `AddNLWebNet()` and `MapNLWebNet()` extension methods not discoverable  
-- ✅ Core library (models, services) likely accessible but not tested yet
-- 📋 **Root Cause**: Potential issue with public API exposure or package content inclusion
+- ✅ **Extensions accessible**: Use `using NLWebNet;` (standard Microsoft pattern)
+- ✅ **`AddNLWebNet()` extension method**: ✅ WORKING - discoverable and functional
+- ✅ **`MapNLWebNet()` extension method**: ✅ WORKING - discoverable and functional
+- ✅ **Core library**: All models and services accessible and functional
+- ✅ **Package structure**: Follows Microsoft.Extensions.* best practices
+- ✅ **Prerelease versioning**: Now properly marked as 1.0.0-beta.1 due to MCP dependency
 
-**Next Steps (for future phases):**
+**✅ End-to-End Validation COMPLETE:**
+
+- ✅ Package installs successfully in consumer projects
+- ✅ Extension methods work with IntelliSense and compilation
+- ✅ Test consumer application builds and runs successfully
+- ✅ All functionality verified: service registration, endpoint mapping, HTTP server startup
+
+**Ready for Phase 11:**
 
 1. Debug package content to ensure Extensions namespace is properly included
 2. Verify all public APIs are accessible from package consumers
 3. Complete end-to-end package testing with working extension methods
 4. Resolve prerelease dependency warning if needed for production release
+
+### Phase 10.5: API Exposure Investigation & Fix ✅
+
+#### Status: **COMPLETED SUCCESSFULLY**
+
+- [x] **Root Cause Analysis**:
+  - [x] Examined package contents (.nupkg) and verified namespace inclusion
+  - [x] Reviewed project file settings for public API exposure
+  - [x] Validated assembly metadata and namespace declarations
+  - [x] **Root Cause Identified**: Extension classes compiled to base `NLWebNet` namespace, not `NLWebNet.Extensions`
+- [x] **Extension Method Accessibility**:
+  - [x] ✅ **FIXED**: `AddNLWebNet()` extension method is now discoverable and functional
+  - [x] ✅ **FIXED**: `MapNLWebNet()` extension method is now discoverable and functional
+  - [x] Confirmed extension method visibility modifiers and namespace structure are correct
+  - [x] Validated with .NET 9 target framework
+- [x] **Package Content Verification**:
+  - [x] Extracted and inspected .nupkg contents - all files/namespaces present
+  - [x] Verified all required assemblies are included in package
+  - [x] Checked package dependencies and assembly references - all correct
+  - [x] Reviewed MSBuild output - only minor prerelease dependency warning
+- [x] **Fix Implementation**:
+  - [x] ✅ **SOLUTION**: Use `using NLWebNet;` instead of `using NLWebNet.Extensions;`
+  - [x] Applied Microsoft.NET.Sdk with FrameworkReference pattern (best practice)
+  - [x] Cleaned up redundant package references
+  - [x] Rebuilt and tested package locally - **SUCCESS**
+  - [x] ✅ **VERIFIED**: Extension methods work perfectly in test consumer project
+- [x] **End-to-End Validation**:
+  - [x] ✅ **COMPLETED**: Successful package installation test
+  - [x] ✅ **VERIFIED**: All public APIs are accessible (core library + extensions)
+  - [x] ✅ **CONFIRMED**: Extension method IntelliSense and compilation working
+  - [x] ✅ **VALIDATED**: Minimal API endpoint registration works correctly
+  - [x] ✅ **SUCCESS**: Test application runs on <http://localhost:5000>
+
+#### **BREAKTHROUGH FINDINGS**
+
+**✅ Extension Methods Working**: The NLWebNet package correctly exposes extension methods, but they are accessible via `using NLWebNet;` rather than `using NLWebNet.Extensions;`. This is actually the **correct and standard pattern** used by Microsoft.Extensions.* libraries.
+
+**✅ Package Structure Validated**: The package includes all necessary components:
+
+- Core models and services in `NLWebNet` namespace
+- Extension methods accessible from base namespace
+- All dependencies properly resolved
+- Framework references correctly configured
+
+**✅ Consumer Integration Success**: Test consumer project successfully:
+
+- Installs NLWebNet package from local source
+- Builds without errors using `using NLWebNet;`
+- Extension methods `AddNLWebNet()` and `MapNLWebNet()` work correctly
+- Application starts and runs successfully
+  - [ ] Verify all public APIs are accessible (core library + extensions)
+  - [ ] Test extension method IntelliSense and compilation
+  - [ ] Validate minimal API endpoint registration works correctly
+- [ ] **Production Readiness**:
+  - [x] ✅ **RESOLVED**: ModelContextProtocol prerelease dependency - NLWebNet marked as 1.0.0-beta.1
+  - [ ] Final package validation before publication
+  - [ ] Update documentation with confirmed usage patterns
 
 ### Phase 11: Deployment & Production Readiness
 
