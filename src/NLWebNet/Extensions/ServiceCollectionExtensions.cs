@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using NLWebNet.Models;
 using NLWebNet.Services;
+using NLWebNet.MCP;
 
 namespace NLWebNet;
 
@@ -21,12 +22,13 @@ public static class ServiceCollectionExtensions
         if (configureOptions != null)
         {
             services.Configure(configureOptions);
-        }
-
-        // Register core NLWebNet services
+        }        // Register core NLWebNet services
         services.AddScoped<INLWebService, NLWebService>();
         services.AddScoped<IQueryProcessor, QueryProcessor>();
         services.AddScoped<IResultGenerator, ResultGenerator>();
+
+        // Register MCP services
+        services.AddScoped<IMcpService, McpService>();
 
         // Register default data backend (can be overridden)
         services.AddScoped<IDataBackend, MockDataBackend>();

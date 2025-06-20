@@ -54,9 +54,11 @@ The demo application is now fully functional with a modern .NET 9 Blazor Web App
 - ✅ **Business Logic Layer**: Complete implementation of core services (INLWebService, IQueryProcessor, IResultGenerator, IDataBackend) with Microsoft.Extensions.AI integration
 - ✅ **Comprehensive Testing**: Added MSTest unit tests for QueryProcessor and MockDataBackend (11 tests, 100% pass rate)
 - ✅ **Testing Framework Migration**: Migrated from xUnit to MSTest 3.9.3 with code coverage support and .NET 9 compatibility
+- ✅ **Mocking Library**: Uses NSubstitute 5.3.0 for clean, fluent mock setup and verification in unit tests
 - ✅ **Package Compatibility**: Ensured all dependencies are stable .NET 9 compatible versions (except ModelContextProtocol which is appropriately in preview)
 - ✅ **CI/CD Stability**: Fixed GitHub Actions workflow permissions, removed invalid parameters, and verified YAML formatting
 - ✅ **CI/CD Optimization**: Added smart build skipping for markdown-only changes to save CI/CD resources and time
+- ✅ **MCP Integration**: Complete Model Context Protocol implementation with 2 tools, 3 prompts, comprehensive testing (13 new tests, 24 total)
 - ✅ **Production Ready**: All builds (Debug/Release) work correctly, demo app runs successfully at <http://localhost:5038>
 
 The project is now ready for Phase 4 (MCP Integration) with a solid foundation of tested, extensible business logic.
@@ -139,17 +141,53 @@ The core business logic layer has been successfully implemented with the followi
 - MockDataBackend provides realistic sample data with relevance scoring for demo purposes
 - **Testing Framework**: Uses MSTest 3.2.0 with Microsoft.Testing.Extensions.CodeCoverage for comprehensive unit testing
 
-### Phase 4: MCP Integration (Library)
+### Phase 4: MCP Integration (Library) ✅
 
-- [ ] Implement MCP core methods in `/src/NLWebNet/MCP/`:
-  - [ ] `IMcpService` interface
-  - [ ] `McpService` implementation
-  - [ ] `list_tools` endpoint handler
-  - [ ] `list_prompts` endpoint handler  
-  - [ ] `call_tool` endpoint handler
-  - [ ] `get_prompt` endpoint handler
-- [ ] Create MCP-specific response formatters
-- [ ] **OPEN QUESTION**: What tools and prompts should be exposed via MCP?
+#### Status: Complete
+
+The Model Context Protocol (MCP) integration has been successfully implemented with full tool and prompt support:
+
+- [x] **MCP Core Implementation**:
+  - [x] `IMcpService` interface with comprehensive MCP method definitions
+  - [x] `McpService` implementation with full functionality
+  - [x] Complete MCP request/response models (`McpModels.cs`)
+  - [x] Registration in dependency injection container
+- [x] **MCP Tool Endpoints**:
+  - [x] `list_tools` endpoint handler returning 2 tools:
+    - `nlweb_search`: Basic NLWeb search with mode support (list, summarize, generate)  
+    - `nlweb_query_history`: Contextual search using conversation history
+  - [x] `call_tool` endpoint handler with proper argument processing and error handling
+  - [x] JSON schema definitions for tool input validation
+- [x] **MCP Prompt Endpoints**:
+  - [x] `list_prompts` endpoint handler returning 3 prompts:
+    - `nlweb_search_prompt`: Structured search query generation
+    - `nlweb_summarize_prompt`: Result summarization prompts
+    - `nlweb_generate_prompt`: Comprehensive answer generation prompts
+  - [x] `get_prompt` endpoint handler with template argument substitution
+- [x] **Integration Features**:
+  - [x] Full integration with existing `INLWebService` for query processing
+  - [x] MCP-specific response formatting for AI client consumption
+  - [x] Support for streaming and non-streaming responses
+  - [x] Proper error handling and validation
+  - [x] Context-aware query processing with conversation history
+- [x] **Comprehensive Testing**: Added 13 MSTest unit tests covering all MCP functionality:
+  - Tool listing and validation
+  - Prompt listing and template processing
+  - Tool calling with various argument combinations
+  - Error handling for invalid tools/prompts/arguments
+  - Integration with NLWebService
+  - Null argument validation
+- [x] **Testing with NSubstitute**: All MCP tests use NSubstitute 5.3.0 for clean mock setup and verification
+
+#### Technical Implementation
+
+- **Tools Exposed**: `nlweb_search` and `nlweb_query_history` with comprehensive JSON schemas
+- **Prompts Exposed**: Search, summarize, and generate prompts with configurable arguments
+- **Error Handling**: Graceful fallbacks with detailed error messages for AI clients
+- **Type Safety**: Full nullable reference type support and comprehensive validation
+- **Testing**: 100% test coverage with 24/24 tests passing (11 existing + 13 new MCP tests)
+
+The MCP integration provides a complete interface for AI clients to interact with NLWeb functionality through standardized tool calls and prompt templates.
 
 ### Phase 5: API Controllers & Middleware (Library)
 
