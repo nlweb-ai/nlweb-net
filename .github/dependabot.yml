@@ -1,0 +1,82 @@
+# Dependabot configuration for NLWebNet repository
+# Configures weekly dependency scanning and update recommendations
+
+version: 2
+updates:
+  # Monitor NuGet packages for the main library
+  - package-ecosystem: "nuget"
+    directory: "/src/NLWebNet"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    target-branch: "main"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "nuget"
+    reviewers:
+      - "jongalloway"
+
+  # Monitor NuGet packages for the demo application
+  - package-ecosystem: "nuget"
+    directory: "/demo"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 3
+    target-branch: "main"
+    commit-message:
+      prefix: "deps(demo)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "nuget"
+      - "demo"
+    reviewers:
+      - "jongalloway"
+
+  # Monitor NuGet packages for test projects
+  - package-ecosystem: "nuget"
+    directory: "/tests"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 3
+    target-branch: "main"
+    commit-message:
+      prefix: "deps(tests)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "nuget"
+      - "tests"
+    reviewers:
+      - "jongalloway"
+
+  # Monitor GitHub Actions workflow dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/.github/workflows"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 2
+    target-branch: "main"
+    commit-message:
+      prefix: "deps(actions)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    reviewers:
+      - "jongalloway"
