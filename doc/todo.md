@@ -59,11 +59,12 @@ The demo application is now fully functional with a modern .NET 9 Blazor Web App
 - ✅ **CI/CD Stability**: Fixed GitHub Actions workflow permissions, removed invalid parameters, and verified YAML formatting
 - ✅ **CI/CD Optimization**: Added smart build skipping for markdown-only changes to save CI/CD resources and time
 - ✅ **MCP Integration**: Complete Model Context Protocol implementation with 2 tools, 3 prompts, comprehensive testing (13 new tests, 24 total)
-- ✅ **Production Ready**: All builds (Debug/Release) work correctly, demo app runs successfully at <http://localhost:5038>
+- ✅ **Testing Migration**: Successfully migrated from Moq to NSubstitute 5.3.0 for cleaner test syntax and better maintainability
+- ✅ **Production Ready**: All builds (Debug/Release) work correctly, demo app runs successfully at <http://localhost:5037>
 
-The project is now ready for Phase 4 (MCP Integration) with a solid foundation of tested, extensible business logic.
+**Phase 4 (MCP Integration) is now complete** with a solid foundation of tested, extensible business logic.
 
-The next phase focuses on implementing the core NLWeb library functionality.
+**The project is ready for Phase 5: API Controllers & Middleware** to expose the NLWeb protocol via HTTP endpoints.
 
 ## Implementation Plan
 
@@ -189,20 +190,34 @@ The Model Context Protocol (MCP) integration has been successfully implemented w
 
 The MCP integration provides a complete interface for AI clients to interact with NLWeb functionality through standardized tool calls and prompt templates.
 
-### Phase 5: API Controllers & Middleware (Library)
+### Phase 5: API Controllers & Middleware (Library) 🚧
 
-- [ ] Implement API controllers in `/src/NLWebNet/Controllers/`:
-  - [ ] `AskController` for `/ask` endpoint
-  - [ ] `McpController` for `/mcp` endpoint
-  - [ ] Support for both GET and POST methods
-  - [ ] Implement streaming response support (Server-Sent Events)
-  - [ ] Add proper error handling and status codes
-  - [ ] Add request validation and sanitization
-- [ ] Implement custom middleware in `/src/NLWebNet/Middleware/`:
-  - [ ] `NLWebMiddleware` for request processing
-  - [ ] Query ID generation middleware (if not provided)
-  - [ ] Response formatting middleware
-  - [ ] Error handling middleware for NLWeb-specific errors
+**Status: Ready to Begin**
+
+- [ ] **Core API Controllers**:
+  - [ ] `AskController` for `/ask` endpoint (Priority 1)
+    - [ ] Support for all NLWeb parameters (query, mode, site, prev, etc.)
+    - [ ] Integration with existing `INLWebService`
+    - [ ] Proper HTTP status codes and error responses
+    - [ ] Request validation and sanitization
+  - [ ] `McpController` for `/mcp` endpoint (Priority 2)
+    - [ ] Integration with existing `IMcpService`
+    - [ ] Support for `list_tools`, `list_prompts`, `call_tool`, `get_prompt`
+    - [ ] MCP-specific response formatting
+- [ ] **Streaming Support**:
+  - [ ] Server-Sent Events (SSE) implementation for `/ask`
+  - [ ] Proper Content-Type headers and chunked responses
+  - [ ] Graceful fallback for non-streaming clients
+- [ ] **Essential Middleware**:
+  - [ ] Query ID generation (if not provided)
+  - [ ] Request/response logging
+  - [ ] Global error handling for NLWeb-specific errors
+  - [ ] CORS support for cross-origin requests
+- [ ] **Integration Testing**:
+  - [ ] End-to-end API tests for `/ask` endpoint
+  - [ ] MCP protocol compliance tests  
+  - [ ] Streaming response validation
+  - [ ] Error scenario testing
 
 ### Phase 6: Dependency Injection Extensions (Library)
 
