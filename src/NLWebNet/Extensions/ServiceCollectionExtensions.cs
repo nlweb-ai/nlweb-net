@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using NLWebNet.Models;
 
 namespace NLWebNet;
 

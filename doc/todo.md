@@ -62,26 +62,25 @@ The demo application is now fully functional with a modern .NET 9 Blazor Web App
   - [x] Update Components structure (App.razor, _Imports.razor, Routes.razor)
   - [x] Move pages to Components/Pages/ and update layouts
   - [x] Update Program.cs to use AddRazorComponents and AddInteractiveServerComponents
-  - [x] Remove legacy Razor Pages and update asset references (site.css → app.css)
-  - [x] Fix namespace and compilation issues
-  - [ ] Set up configuration for external services (API keys, endpoints)
+  - [x] Remove legacy Razor Pages and update asset references (site.css → app.css)  - [x] Fix namespace and compilation issues
+  - [x] Set up configuration for external services (API keys, endpoints)
 
 ### Phase 2: Core Data Models (Library)
 
-- [ ] Create library structure in `/src/NLWebNet/`:
-  - [ ] `Models/` directory for request/response models
-  - [ ] `Services/` directory for business logic interfaces
-  - [ ] `Extensions/` directory for DI extensions
-  - [ ] `Middleware/` directory for ASP.NET Core middleware
-  - [ ] `Controllers/` directory for API controllers
-  - [ ] `MCP/` directory for MCP integration
-- [ ] Implement request/response models:
-  - [ ] `NLWebRequest` class with properties: `query`, `site`, `prev`, `decontextualized_query`, `streaming`, `query_id`, `mode`
-  - [ ] `NLWebResponse` class with properties: `query_id`, result attributes, results array
-  - [ ] `NLWebResult` class with properties: `url`, `name`, `site`, `score`, `description`, `schema_object`
-  - [ ] `QueryMode` enum: `List`, `Summarize`, `Generate`
-  - [ ] `NLWebOptions` configuration class
-- [ ] Add proper validation attributes and JSON serialization settings
+- [x] Create library structure in `/src/NLWebNet/`:
+  - [x] `Models/` directory for request/response models
+  - [x] `Services/` directory for business logic interfaces
+  - [x] `Extensions/` directory for DI extensions
+  - [x] `Middleware/` directory for ASP.NET Core middleware
+  - [x] `Controllers/` directory for API controllers
+  - [x] `MCP/` directory for MCP integration
+- [x] Implement request/response models:
+  - [x] `NLWebRequest` class with properties: `query`, `site`, `prev`, `decontextualized_query`, `streaming`, `query_id`, `mode`
+  - [x] `NLWebResponse` class with properties: `query_id`, result attributes, results array
+  - [x] `NLWebResult` class with properties: `url`, `name`, `site`, `score`, `description`, `schema_object`
+  - [x] `QueryMode` enum: `List`, `Summarize`, `Generate`
+  - [x] `NLWebOptions` configuration class
+- [x] Add proper validation attributes and JSON serialization settings
 
 ### Phase 3: Business Logic Layer (Library)
 

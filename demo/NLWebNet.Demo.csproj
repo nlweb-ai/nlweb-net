@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>NLWebNet.Demo</RootNamespace>
+    <UserSecretsId>031db3ba-2870-4c49-b002-5f532463e55e</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

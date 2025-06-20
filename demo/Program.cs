@@ -1,4 +1,5 @@
 using NLWebNet;
+using NLWebNet.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +11,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddNLWebNet(options =>
 {
     // Configure NLWebNet options here
-    options.DefaultMode = QueryMode.List;
+    options.DefaultMode = NLWebNet.Models.QueryMode.List;
     options.EnableStreaming = true;
 });
 
