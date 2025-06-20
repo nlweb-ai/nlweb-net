@@ -48,6 +48,7 @@ The demo application is now fully functional with a modern .NET 9 Blazor Web App
 - ✅ **Core Data Models**: Complete implementation of NLWeb protocol request/response models with validation and JSON serialization
 - ✅ **Build Fixes**: Resolved App.razor build warnings by adding proper @using directives and removing duplicate files
 - ✅ **CI/CD Testing Fix**: Updated GitHub Actions workflow to gracefully handle missing test projects and prevent build failures
+- ✅ **CI/CD Packaging Fix**: Added Release build step to package-validation job to ensure NuGet DLL is available for packaging
 
 The next phase focuses on implementing the core NLWeb library functionality.
 
