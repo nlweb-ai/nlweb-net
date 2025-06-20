@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.0.0" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -18,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\NLWebNet\NLWebNet.csproj" />
+    <ProjectReference Include="..\..\src\NLWebNet\NLWebNet.csproj" IsAspireProjectResource="false" />
     <ProjectReference Include="..\..\demo\NLWebNet.Demo.csproj" />
   </ItemGroup>
 

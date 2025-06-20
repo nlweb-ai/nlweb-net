@@ -1,0 +1,22 @@
+name: Setup .NET 9 Environment
+description: Install .NET 9 SDK and required workloads for NLWebNet development
+steps:
+  - name: Install .NET 9 SDK
+    run: |
+      # Download and install .NET 9 SDK
+      curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version latest --channel 9.0
+      
+      # Add .NET to PATH for current session
+      export DOTNET_ROOT=$HOME/.dotnet
+      export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools
+      
+      # Verify installation
+      $HOME/.dotnet/dotnet --version
+      
+      # Set environment variables for subsequent steps
+      echo "DOTNET_ROOT=$HOME/.dotnet" >> $GITHUB_ENV
+      echo "$HOME/.dotnet" >> $GITHUB_PATH
+      echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+      
+      # Install required workloads
+      $HOME/.dotnet/dotnet workload install aspire

@@ -54,7 +54,6 @@ public static class AspireHostingExtensions
         IResourceBuilder<IResourceWithConnectionString> dataBackend)
     {
         return builder.AddNLWebNetApp(name)
-            .WithReference(dataBackend)
-            .WithEnvironment("NLWebNet__DataBackend__ConnectionString", dataBackend.Resource.GetConnectionString());
+            .WithReference(dataBackend);
     }
 }
