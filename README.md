@@ -1,13 +1,29 @@
 # NLWebNet
 
 [![.NET Build and Test](https://github.com/jongalloway/NLWebNet/actions/workflows/build.yml/badge.svg)](https://github.com/jongalloway/NLWebNet/actions/workflows/build.yml)
+[![NuGet Version](https://img.shields.io/nuget/v/NLWebNet.svg)](https://www.nuget.org/packages/NLWebNet/)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/NLWebNet.svg)](https://www.nuget.org/packages/NLWebNet/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![.NET 9](https://img.shields.io/badge/.NET-9.0-blue.svg)](https://dotnet.microsoft.com/download/dotnet/9.0)
 [![MSTest](https://img.shields.io/badge/Testing-MSTest-purple.svg)](https://github.com/microsoft/testfx)
-[![Artifacts](https://img.shields.io/badge/Artifacts-Download-orange.svg)](https://github.com/jongalloway/NLWebNet/actions/workflows/build.yml)
-[![NuGet Package](https://img.shields.io/badge/NuGet-Package%20Available-brightgreen.svg)](https://github.com/jongalloway/NLWebNet/actions/workflows/build.yml)
 
 A .NET implementation of the [NLWeb protocol](https://github.com/microsoft/NLWeb) for building natural language web interfaces. This project provides both a reusable library and a demo application showcasing the NLWeb standard.
+
+> **⚠️ PROOF OF CONCEPT - NOT PRODUCTION READY**
+> 
+> This is an experimental implementation created for **testing and evaluation purposes only**. While functional, this library is not intended for production use and should be considered a proof of concept to demonstrate NLWeb protocol capabilities in .NET environments.
+>
+> **Use cases:**
+> - 🧪 Protocol evaluation and experimentation
+> - 📚 Learning and understanding NLWeb concepts  
+> - 🔬 Research and development prototyping
+> - 🎯 Testing integration patterns with AI services
+>
+> **Not recommended for:**
+> - ❌ Production applications
+> - ❌ Critical business systems
+> - ❌ Public-facing services
+> - ❌ Applications requiring enterprise support
 
 ## 📋 Overview
 
@@ -147,6 +163,8 @@ graph TB
 
 ## 🚀 Quick Start
 
+> **📋 Note**: This library is provided for **testing and evaluation purposes only**. Please review the development status above before integrating into any project.
+
 ### Using the Library in Your Project
 
 1. Add the NLWebNet library to your ASP.NET Core project:
@@ -211,10 +229,18 @@ app.MapNLWebNet();     // Map NLWebNet minimal API endpoints
 
 ### Using the Library
 
-Install the NuGet package (when published):
+> **⚠️ For testing and evaluation only - not recommended for production use**
+
+Install the NuGet package:
 
 ```bash
 dotnet add package NLWebNet
+```
+
+Or via Package Manager Console:
+
+```powershell
+Install-Package NLWebNet
 ```
 
 Configure in your ASP.NET Core application:
@@ -375,13 +401,31 @@ builder.Services.Configure<AzureSearchOptions>(
 
 ## 🛠️ Development Status
 
-This is a **fully functional implementation** of the NLWeb protocol, ready for production use as a prerelease package.
+This is a **proof of concept implementation** of the NLWeb protocol, available as an **alpha prerelease package** for testing and evaluation purposes only.
 
-**✅ Completed (Phases 1-10.5):**
+### ⚠️ EXPERIMENTAL SOFTWARE - NOT PRODUCTION READY
+
+**✅ Completed (Phases 1-11) - For Testing & Evaluation:**
 
 - [x] **Core Library**: Complete NLWeb protocol implementation with Minimal API endpoints
 - [x] **Data Models**: Request/response models with validation and JSON serialization
 - [x] **Business Logic**: Service layer with Microsoft.Extensions.AI integration
+- [x] **NuGet Package**: Published as alpha prerelease at [nuget.org/packages/NLWebNet](https://www.nuget.org/packages/NLWebNet/)
+- [x] **CI/CD Pipeline**: Automated build, test, validation, and publishing to NuGet.org
+- [x] **Documentation**: Comprehensive README, API documentation, and usage examples
+
+**🎯 Intended Use Cases:**
+
+- Protocol evaluation and experimentation
+- Learning NLWeb concepts and implementation patterns
+- Research and development prototyping
+- Testing integration with AI services and data backends
+
+**❌ Not Suitable For:**
+
+- Production applications or critical business systems
+- Public-facing services or enterprise applications
+- Applications requiring commercial support or SLAs
 - [x] **MCP Integration**: Full Model Context Protocol support with tools and prompts
 - [x] **Demo Application**: Modern .NET 9 Blazor Web App with interactive components
 - [x] **Testing**: 39 unit tests with 100% pass rate plus comprehensive manual testing guides
