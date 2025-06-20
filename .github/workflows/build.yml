@@ -175,6 +175,6 @@ jobs:
         echo "📦 Validating NuGet package..."
         for package in ./packages/*.nupkg; do
           echo "Validating: $package"
-          dotnet tool install --global dotnet-validate --version 0.0.1-preview.304
+          dotnet tool install --global dotnet-validate --version 0.0.1-preview.537
           dotnet validate package local "$package"
         done
