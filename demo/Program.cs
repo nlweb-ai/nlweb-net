@@ -1,4 +1,4 @@
-using NLWebNet;
+using NLWebNet.Extensions;
 using NLWebNet.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Add controllers for API endpoints
+builder.Services.AddControllers();
 
 // Add NLWebNet services
 builder.Services.AddNLWebNet(options =>
@@ -34,13 +37,19 @@ else
 
 app.UseHttpsRedirection();
 
+// Add NLWebNet middleware
+app.UseNLWebNet();
+
 app.UseAntiforgery();
 
 app.MapStaticAssets();
 app.MapRazorComponents<NLWebNet.Demo.Components.App>()
     .AddInteractiveServerRenderMode();
 
-// Add NLWebNet endpoints
+// Map API controllers
+app.MapControllers();
+
+// Add NLWebNet endpoints (optional, controllers are already mapped)
 app.MapNLWebNet();
 
 app.Run();

@@ -2,8 +2,9 @@ using Microsoft.Extensions.DependencyInjection;
 using NLWebNet.Models;
 using NLWebNet.Services;
 using NLWebNet.MCP;
+using NLWebNet.Controllers;
 
-namespace NLWebNet;
+namespace NLWebNet.Extensions;
 
 /// <summary>
 /// Extension methods for configuring NLWebNet services
@@ -22,7 +23,9 @@ public static class ServiceCollectionExtensions
         if (configureOptions != null)
         {
             services.Configure(configureOptions);
-        }        // Register core NLWebNet services
+        }
+
+        // Register core NLWebNet services
         services.AddScoped<INLWebService, NLWebService>();
         services.AddScoped<IQueryProcessor, QueryProcessor>();
         services.AddScoped<IResultGenerator, ResultGenerator>();
@@ -32,6 +35,10 @@ public static class ServiceCollectionExtensions
 
         // Register default data backend (can be overridden)
         services.AddScoped<IDataBackend, MockDataBackend>();
+
+        // Register controllers
+        services.AddTransient<AskController>();
+        services.AddTransient<McpController>();
 
         return services;
     }
