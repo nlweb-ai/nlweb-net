@@ -29,6 +29,7 @@ public static class ApplicationBuilderExtensions
         // Map minimal API endpoints directly
         AskEndpoints.MapAskEndpoints(app);
         McpEndpoints.MapMcpEndpoints(app);
+        HealthEndpoints.MapHealthEndpoints(app);
 
         return app;
     }
@@ -43,6 +44,7 @@ public static class ApplicationBuilderExtensions
         // Map minimal API endpoints directly
         AskEndpoints.MapAskEndpoints(app);
         McpEndpoints.MapMcpEndpoints(app);
+        HealthEndpoints.MapHealthEndpoints(app);
 
         return app;
     }

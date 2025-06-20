@@ -37,6 +37,11 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="9.0.6" />
 		<PackageReference Include="ModelContextProtocol" Version="0.2.0-preview.3" />
+		
+		<!-- Health Checks and Monitoring -->
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.6" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="9.0.6" />
+		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="9.0.6" />
 
 		<!-- Source Link for GitHub -->
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
