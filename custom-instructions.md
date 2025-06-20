@@ -1,0 +1,223 @@
+# Custom Instructions for NLWebNet
+
+This document provides guidance for AI assistants working with the NLWebNet codebase. Please follow these instructions when providing development assistance, code suggestions, or modifications.
+
+## Project Overview
+
+**NLWebNet** is a .NET implementation of the [NLWeb protocol](https://github.com/microsoft/NLWeb) for building natural language web interfaces. 
+
+### ⚠️ Important: Proof of Concept Status
+
+**This is an experimental proof-of-concept implementation, NOT production-ready software.**
+
+- **Purpose**: Testing, evaluation, and learning the NLWeb protocol
+- **Not suitable for**: Production applications, critical systems, enterprise use
+- **Current status**: Alpha prerelease (0.1.0-alpha.3) on NuGet
+- **Target audience**: Developers evaluating NLWeb concepts and integration patterns
+
+## Technology Stack
+
+- **.NET 9.0** - Latest .NET version with modern features
+- **ASP.NET Core** - Web framework with Minimal APIs
+- **Blazor Web App** - For the demo application
+- **Microsoft.Extensions.AI** - AI service abstractions
+- **Model Context Protocol (MCP)** - For enhanced AI integration
+- **MSTest** - Testing framework
+- **NSubstitute** - Mocking framework for unit tests
+
+## Architecture Patterns
+
+### 1. Minimal API Approach
+- **Primary approach**: Uses **Minimal APIs** for modern, lightweight endpoints
+- **Legacy support**: Traditional controllers still present but being phased out
+- Endpoints are organized in static classes: `AskEndpoints`, `McpEndpoints`
+- Extension methods provide clean endpoint mapping: `app.MapNLWebNet()`
+- Both `app.MapNLWebNet()` (minimal APIs) and `app.MapNLWebNetControllers()` (legacy) available
+
+### 2. Dependency Injection
+- Follows standard .NET DI patterns
+- Extension methods for service registration: `services.AddNLWebNet()`
+- Interface-based design with clear service contracts
+- Supports custom backend implementations via generics
+
+### 3. Service Layer Architecture
+```
+Controllers/Endpoints → Services → Data Backends
+                     ↘ MCP Integration
+```
+
+Key interfaces:
+- `INLWebService` - Main orchestration service
+- `IDataBackend` - Data retrieval abstraction
+- `IQueryProcessor` - Query processing logic
+- `IResultGenerator` - Response generation
+- `IMcpService` - Model Context Protocol integration
+
+### 4. Configuration Pattern
+- Uses `NLWebOptions` for strongly-typed configuration
+- Supports configuration binding from `appsettings.json`
+- User secrets for sensitive data (API keys)
+- Environment-specific configurations
+
+### 5. Architectural Migration
+**Important**: The project is transitioning from traditional MVC controllers to Minimal APIs.
+
+- **Preferred**: Use `Endpoints/` classes with static mapping methods
+- **Legacy**: `Controllers/` still exists but should not be extended
+- **Extension methods**: Both approaches supported via `MapNLWebNet()` (minimal APIs) and `MapNLWebNetControllers()` (legacy)
+- **New development**: Always use Minimal API patterns in the `Endpoints/` directory
+
+## Code Conventions
+
+### Naming and Structure
+- **Namespace**: All code under `NLWebNet` namespace
+- **Models**: Request/response DTOs with JSON serialization attributes
+- **Services**: Interface + implementation pattern (`IService` → `Service`)
+- **Extensions**: Static extension classes for framework integration
+- **Endpoints**: Static classes with minimal API mapping methods (preferred)
+- **Controllers**: Traditional MVC controllers (legacy, being phased out)
+
+### C# Style Guidelines
+- **Nullable reference types** enabled (`<Nullable>enable</Nullable>`)
+- **Implicit usings** enabled for common namespaces
+- **XML documentation** for all public APIs
+- **Data annotations** for request validation
+- **JSON property names** in snake_case for protocol compliance
+
+### File Organization
+```
+src/NLWebNet/
+├── Models/          # Request/response DTOs
+├── Services/        # Business logic interfaces/implementations
+├── Endpoints/       # Minimal API endpoint definitions (preferred)
+├── Extensions/      # DI and middleware extensions
+├── Controllers/     # Legacy MVC controllers (being phased out)
+├── MCP/            # Model Context Protocol integration
+└── Middleware/     # Custom middleware components
+```
+
+## NLWeb Protocol Implementation
+
+### Core Concepts
+- **Three query modes**: `List`, `Summarize`, `Generate`
+- **Streaming support**: Real-time response delivery
+- **Query context**: Previous queries and decontextualization
+- **Site filtering**: Subset targeting within data backends
+
+### Request/Response Flow
+1. Validate incoming `NLWebRequest`
+2. Process query through `IQueryProcessor`
+3. Retrieve data via `IDataBackend`
+4. Generate response using `IResultGenerator`
+5. Return `NLWebResponse` with results
+
+### MCP Integration
+- Supports core MCP methods: `list_tools`, `list_prompts`, `call_tool`, `get_prompt`
+- Parallel endpoint structure: `/ask` and `/mcp` with shared logic
+- Tool and prompt template management
+
+## Testing Approach
+
+### Unit Testing
+- **39 unit tests** with 100% pass rate (current standard)
+- **NSubstitute** for mocking dependencies
+- **MSTest** framework with `[TestMethod]` attributes
+- Focus on service layer and business logic testing
+
+### Integration Testing
+- **Manual testing** preferred over automated integration tests
+- **Comprehensive guides** in `/doc/manual-testing-guide.md`
+- **Sample requests** in `/doc/sample-requests.http` for IDE testing
+- **Demo application** for end-to-end validation
+
+### Testing Conventions
+- Test classes named `[ClassUnderTest]Tests`
+- Arrange-Act-Assert pattern
+- Mock external dependencies (AI services, data backends)
+- Test both success and error scenarios
+
+## Development Practices
+
+### CI/CD Pipeline
+- **GitHub Actions** for automated builds and testing
+- **NuGet package** generation and validation
+- **Release automation** with version tagging
+- **Security scanning** for vulnerable dependencies
+
+### Build and Packaging
+- **Deterministic builds** for reproducible packages
+- **Symbol packages** (.snupkg) for debugging support
+- **Source Link** integration for GitHub source navigation
+- **Package validation** scripts for quality assurance
+
+### Documentation Standards
+- **Comprehensive README** with usage examples
+- **XML documentation** for all public APIs
+- **OpenAPI specification** generated automatically
+- **Manual testing guides** for validation procedures
+
+## AI Service Integration
+
+### Microsoft.Extensions.AI Pattern
+- Use `Microsoft.Extensions.AI` abstractions for AI service integration
+- Support multiple AI providers (Azure OpenAI, OpenAI API)
+- Configuration-driven AI service selection
+- Async/await patterns for AI service calls
+
+### Error Handling
+- **Graceful degradation** when AI services are unavailable
+- **Fallback responses** for service failures
+- **Proper exception handling** with meaningful error messages
+- **Logging** for debugging and monitoring
+
+## Common Patterns and Best Practices
+
+### When Adding New Features
+1. **Start with interfaces** - Define contracts before implementations
+2. **Add configuration options** to `NLWebOptions` if needed
+3. **Include unit tests** - Maintain the 100% pass rate standard
+4. **Update documentation** - XML docs and README as appropriate
+5. **Consider MCP integration** - How does this fit with MCP protocol?
+
+### When Modifying Endpoints
+1. **Use Minimal APIs** - Prefer `Endpoints/` classes over `Controllers/`
+2. **Maintain protocol compliance** - Follow NLWeb specification
+3. **Add OpenAPI documentation** - Use `.WithSummary()` and `.WithDescription()`
+4. **Include error responses** - Proper status codes and problem details
+5. **Test with sample requests** - Update manual testing guides
+
+### When Adding Dependencies
+1. **Prefer Microsoft.Extensions.*** - Use standard .NET abstractions
+2. **Check for existing alternatives** - Avoid duplicate functionality
+3. **Update project files** - Include in main library and test projects
+4. **Validate package size** - Keep library lightweight
+
+## Limitations and Constraints
+
+### Current Implementation Status
+- **Mock data backend** only - No real data source integration
+- **Limited AI integration** - Placeholder implementations
+- **Experimental features** - Not all protocol features fully implemented
+- **No authentication** - Security features not implemented
+
+### Performance Considerations
+- **Streaming responses** for better perceived performance
+- **Async/await** throughout for scalability
+- **Minimal allocations** where possible
+- **Configuration caching** for frequently accessed settings
+
+### Deployment Constraints
+- **Requires .NET 9.0** - Latest framework dependency
+- **Development only** - Not intended for production deployment
+- **Local testing focus** - Limited cloud deployment guidance
+
+## When to Seek Clarification
+
+Ask for guidance when:
+- **Breaking changes** to public APIs are needed
+- **New external dependencies** are required
+- **Significant architectural changes** are proposed
+- **Production-readiness** features are requested (this is a proof-of-concept)
+- **Protocol compliance** questions arise
+
+Remember: This is a learning and evaluation project. Focus on clean, maintainable code that demonstrates NLWeb concepts rather than production-grade enterprise features.
