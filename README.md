@@ -1,6 +1,11 @@
 # NLWebNet
 
 [![.NET Build and Test](https://github.com/jongalloway/NLWebNet/actions/workflows/build.yml/badge.svg)](https://github.com/jongalloway/NLWebNet/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![.NET 9](https://img.shields.io/badge/.NET-9.0-blue.svg)](https://dotnet.microsoft.com/download/dotnet/9.0)
+[![MSTest](https://img.shields.io/badge/Testing-MSTest-purple.svg)](https://github.com/microsoft/testfx)
+[![Artifacts](https://img.shields.io/badge/Artifacts-Download-orange.svg)](https://github.com/jongalloway/NLWebNet/actions/workflows/build.yml)
+[![NuGet Package](https://img.shields.io/badge/NuGet-Package%20Available-brightgreen.svg)](https://github.com/jongalloway/NLWebNet/actions/workflows/build.yml)
 
 A .NET implementation of the [NLWeb protocol](https://github.com/microsoft/NLWeb) for building natural language web interfaces. This project provides both a reusable library and a demo application showcasing the NLWeb standard.
 
