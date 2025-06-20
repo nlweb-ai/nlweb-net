@@ -1,0 +1,58 @@
+@page "/"
+
+<PageTitle>NLWebNet Demo</PageTitle>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1>Welcome to NLWebNet</h1>
+            <p class="lead">A .NET implementation of the NLWeb protocol for building natural language web interfaces.
+            </p>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">🎮 Interactive Demo</h5>
+                            <p class="card-text">Try out the NLWeb protocol with our interactive demo interface.</p>
+                            <a href="/nlweb" class="btn btn-primary">Launch Demo</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">📖 API Documentation</h5>
+                            <p class="card-text">Explore the OpenAPI specification and test endpoints.</p>
+                            <a href="/openapi/v1.json" class="btn btn-outline-secondary" target="_blank">View
+                                OpenAPI</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">🔄 NLWeb Protocol</h5>
+                            <p class="card-text">
+                                NLWeb enables natural language querying with three main modes:
+                            </p>
+                            <ul>
+                                <li><strong>List</strong>: Returns ranked search results</li>
+                                <li><strong>Summarize</strong>: Provides AI-generated summaries with supporting results
+                                </li>
+                                <li><strong>Generate</strong>: Full RAG (Retrieval-Augmented Generation) responses</li>
+                            </ul>
+                            <p class="text-muted">
+                                This implementation follows the <a href="https://github.com/microsoft/NLWeb"
+                                    target="_blank">official NLWeb specification</a>
+                                and includes Model Context Protocol (MCP) support.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>        </div>
+    </div>
+</div>

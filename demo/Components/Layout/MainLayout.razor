@@ -1,0 +1,26 @@
+@inherits LayoutComponentBase
+
+<div class="page">
+    <main>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="/">NLWebNet Demo</a>
+                <div class="navbar-nav">
+                    <a class="nav-link" href="/">Home</a>
+                    <a class="nav-link" href="/nlweb">NLWeb Demo</a>
+                    <a class="nav-link" href="/openapi/v1.json" target="_blank">OpenAPI Spec</a>
+                </div>
+            </div>
+        </nav>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>

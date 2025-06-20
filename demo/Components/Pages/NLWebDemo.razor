@@ -1,0 +1,96 @@
+@page "/nlweb"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@inject IJSRuntime JSRuntime
+
+<PageTitle>NLWebNet Demo</PageTitle>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">NLWebNet Interactive Demo</h1>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Query Interface</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="queryInput" class="form-label">Enter your query:</label>
+                        <input type="text" class="form-control" id="queryInput" @bind="queryText" 
+                               placeholder="Ask a question..." />
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="modeSelect" class="form-label">Query Mode:</label>
+                            <select class="form-select" id="modeSelect" @bind="selectedMode">
+                                <option value="@QueryMode.List">List</option>
+                                <option value="@QueryMode.Summarize">Summarize</option>
+                                <option value="@QueryMode.Generate">Generate</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mt-4">
+                                <input class="form-check-input" type="checkbox" id="streamingCheck" @bind="enableStreaming" />
+                                <label class="form-check-label" for="streamingCheck">
+                                    Enable Streaming
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" @onclick="SubmitQuery" disabled="@isLoading">
+                        @if (isLoading)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        }
+                        Submit Query
+                    </button>
+                </div>
+            </div>
+            
+            @if (!string.IsNullOrEmpty(responseMessage))
+            {
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Response</h5>
+                    </div>
+                    <div class="card-body">
+                        <pre class="bg-light p-3 rounded">@responseMessage</pre>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string queryText = "";
+    private QueryMode selectedMode = QueryMode.List;
+    private bool enableStreaming = true;
+    private bool isLoading = false;
+    private string responseMessage = "";
+    
+    private void SubmitQuery()
+    {
+        if (string.IsNullOrWhiteSpace(queryText))
+            return;
+            
+        isLoading = true;
+        responseMessage = "";
+        
+        try
+        {
+            // TODO: This will be implemented when the library is complete
+            responseMessage = $"Query: {queryText}\nMode: {selectedMode}\nStreaming: {enableStreaming}\n\n(NLWebNet library integration coming soon...)";
+        }
+        catch (Exception ex)
+        {
+            responseMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
