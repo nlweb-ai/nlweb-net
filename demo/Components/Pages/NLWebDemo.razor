@@ -1,62 +1,112 @@
 @page "/nlweb"
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 @inject IJSRuntime JSRuntime
+@inject HttpClient HttpClient
+@using NLWebNet.Models
+@using System.Text.Json
 
 <PageTitle>NLWebNet Demo</PageTitle>
 
-<div class="container mt-4">
+<div class="container-fluid mt-4">
     <div class="row">
         <div class="col-12">
-            <h1 class="mb-4">NLWebNet Interactive Demo</h1>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Query Interface</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label for="queryInput" class="form-label">Enter your query:</label>
-                        <input type="text" class="form-control" id="queryInput" @bind="queryText" 
-                               placeholder="Ask a question..." />
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="modeSelect" class="form-label">Query Mode:</label>
-                            <select class="form-select" id="modeSelect" @bind="selectedMode">
-                                <option value="@QueryMode.List">List</option>
-                                <option value="@QueryMode.Summarize">Summarize</option>
-                                <option value="@QueryMode.Generate">Generate</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-check mt-4">
-                                <input class="form-check-input" type="checkbox" id="streamingCheck" @bind="enableStreaming" />
-                                <label class="form-check-label" for="streamingCheck">
-                                    Enable Streaming
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button class="btn btn-primary" @onclick="SubmitQuery" disabled="@isLoading">
-                        @if (isLoading)
-                        {
-                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                        }
-                        Submit Query
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">
+                    <i class="fas fa-globe-americas text-primary me-2"></i>
+                    NLWebNet Interactive Demo
+                </h1>                <div class="btn-group" role="group">
+                    <button type="button" class="btn @(activeTab == "query" ? "btn-primary" : "btn-outline-primary")" 
+                            @onclick='() => SetActiveTab("query")'>
+                        <i class="fas fa-search me-1"></i>Query
+                    </button>
+                    <button type="button" class="btn @(activeTab == "streaming" ? "btn-primary" : "btn-outline-primary")" 
+                            @onclick='() => SetActiveTab("streaming")'>
+                        <i class="fas fa-stream me-1"></i>Streaming
+                    </button>
+                    <button type="button" class="btn @(activeTab == "api" ? "btn-primary" : "btn-outline-primary")" 
+                            @onclick='() => SetActiveTab("api")'>
+                        <i class="fas fa-code me-1"></i>API Test
                     </button>
                 </div>
             </div>
             
-            @if (!string.IsNullOrEmpty(responseMessage))
+            @if (activeTab == "query")
             {
-                <div class="card mt-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Response</h5>
+                <div class="row">
+                    <div class="col-lg-6">                        <QueryInput OnSubmit="HandleQuerySubmitted" 
+                                  IsLoading="isLoading" 
+                                  @ref="queryInputComponent" />
                     </div>
-                    <div class="card-body">
-                        <pre class="bg-light p-3 rounded">@responseMessage</pre>
+                    <div class="col-lg-6">
+                        @if (currentResponse != null)
+                        {
+                            <ResultsDisplay Response="currentResponse" 
+                                          ShowDebugInfo="true"
+                                          OnResultClicked="HandleResultClicked" />
+                        }
+                        else if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="alert alert-danger">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        <strong>Error:</strong> @errorMessage
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            else if (activeTab == "streaming")
+            {
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Streaming Query</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Query</label>
+                                    <input type="text" class="form-control" @bind="streamingQuery" 
+                                           placeholder="Enter streaming query..." />
+                                </div>
+                                <button class="btn btn-primary" @onclick="StartStreamingQuery" 
+                                        disabled="@(isStreaming || string.IsNullOrWhiteSpace(streamingQuery))">
+                                    @if (isStreaming)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                    }
+                                    <i class="fas fa-play me-1"></i>Start Streaming
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <StreamingDisplay IsStreaming="isStreaming" 
+                                        IsCompleted="streamingCompleted"
+                                        QueryId="streamingQueryId"
+                                        OnStopStreaming="StopStreaming"
+                                        @ref="streamingDisplay" />
+                    </div>
+                </div>
+            }
+            else if (activeTab == "api")
+            {
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">API Testing Interface</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Test the NLWebNet API endpoints directly. This will be implemented in the next iteration.
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             }
@@ -65,32 +115,151 @@
 </div>
 
 @code {
-    private string queryText = "";
-    private QueryMode selectedMode = QueryMode.List;
-    private bool enableStreaming = true;
+    private string activeTab = "query";
     private bool isLoading = false;
-    private string responseMessage = "";
+    private string errorMessage = "";
     
-    private void SubmitQuery()
+    // Query tab
+    private QueryInput? queryInputComponent;
+    private NLWebResponse? currentResponse;
+    
+    // Streaming tab
+    private string streamingQuery = "";
+    private bool isStreaming = false;
+    private bool streamingCompleted = false;    private string streamingQueryId = "";
+    private StreamingDisplay? streamingDisplay;
+    
+    private void SetActiveTab(string tab)
     {
-        if (string.IsNullOrWhiteSpace(queryText))
-            return;
-            
+        activeTab = tab;
+        errorMessage = "";
+    }
+    
+    private async Task HandleQuerySubmitted(NLWebRequest request)
+    {
         isLoading = true;
-        responseMessage = "";
+        errorMessage = "";
+        currentResponse = null;
         
         try
         {
-            // TODO: This will be implemented when the library is complete
-            responseMessage = $"Query: {queryText}\nMode: {selectedMode}\nStreaming: {enableStreaming}\n\n(NLWebNet library integration coming soon...)";
+            // Simulate API call for now - will be replaced with actual NLWebNet API calls
+            await Task.Delay(1000); // Simulate network delay
+            
+            currentResponse = CreateMockResponse(request);
         }
         catch (Exception ex)
         {
-            responseMessage = $"Error: {ex.Message}";
+            errorMessage = ex.Message;
         }
         finally
         {
             isLoading = false;
         }
+    }
+    
+    private NLWebResponse CreateMockResponse(NLWebRequest request)
+    {        var response = new NLWebResponse
+        {
+            QueryId = Guid.NewGuid().ToString(),
+            Query = request.Query,
+            Mode = request.Mode,
+            Summary = $"Mock summary for query: '{request.Query}' in {request.Mode} mode",
+            GeneratedResponse = request.Mode == QueryMode.Generate 
+                ? $"Generated response: Based on your query '{request.Query}', here is a comprehensive answer with relevant information and insights."
+                : null,
+            Results = new List<NLWebResult>()
+        };
+        
+        // Add mock results
+        for (int i = 1; i <= 5; i++)
+        {
+            response.Results.Add(new NLWebResult
+            {
+                Name = $"Result {i}",
+                Url = $"https://example.com/result{i}",
+                Description = $"This is a mock description for result {i} related to '{request.Query}'",
+                Score = 0.9 - (i * 0.1),
+                Site = "example.com"
+            });
+        }
+        
+        return response;
+    }
+    
+    private void HandleResultClicked(NLWebResult result)
+    {
+        // Handle result click - could navigate, show details, etc.
+        JSRuntime.InvokeVoidAsync("open", result.Url, "_blank");
+    }
+    
+    private async Task StartStreamingQuery()
+    {
+        if (string.IsNullOrWhiteSpace(streamingQuery))
+            return;
+            
+        isStreaming = true;
+        streamingCompleted = false;
+        streamingQueryId = Guid.NewGuid().ToString();
+        
+        // Clear previous results
+        streamingDisplay?.ClearStream();
+        
+        // Simulate streaming response
+        await SimulateStreamingResponse();
+    }
+    
+    private async Task SimulateStreamingResponse()
+    {
+        try
+        {
+            streamingDisplay?.AddTextChunk("Starting query processing...");
+            await Task.Delay(500);
+            
+            streamingDisplay?.AddTextChunk("Searching web sources...");
+            await Task.Delay(800);
+            
+            // Add some mock results
+            for (int i = 1; i <= 3; i++)
+            {                var result = new NLWebResult
+                {
+                    Name = $"Streaming Result {i}",
+                    Url = $"https://example.com/streaming{i}",
+                    Description = $"Streamed result {i} for query: {streamingQuery}",
+                    Score = 0.95 - (i * 0.05),
+                    Site = "example.com"
+                };
+                
+                streamingDisplay?.AddResultChunk(result);
+                await Task.Delay(600);
+            }
+            
+            streamingDisplay?.AddTextChunk("Processing results...");
+            await Task.Delay(400);
+            
+            streamingDisplay?.AddSummaryChunk($"Found 3 relevant results for '{streamingQuery}'. The results show comprehensive information about the topic.");
+            await Task.Delay(300);
+            
+            streamingDisplay?.AddTextChunk("Query completed successfully.");
+        }
+        catch (Exception ex)
+        {
+            streamingDisplay?.AddErrorChunk($"Streaming error: {ex.Message}");
+        }
+        finally
+        {
+            isStreaming = false;
+            streamingCompleted = true;
+        }
+    }
+      private Task StopStreaming()
+    {
+        isStreaming = false;
+        streamingDisplay?.AddTextChunk("Streaming stopped by user.");
+        return Task.CompletedTask;
+    }
+      public void Dispose()
+    {
+        // Cleanup if needed
     }
 }

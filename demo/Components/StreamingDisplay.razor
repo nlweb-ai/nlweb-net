@@ -1,0 +1,236 @@
+@using NLWebNet.Models
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+<div class="card mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-stream me-2"></i>Live Results
+        </h5>
+        <div class="d-flex align-items-center">
+            @if (IsStreaming)
+            {
+                <span class="badge bg-primary me-2">
+                    <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                    Streaming
+                </span>
+            }
+            else if (IsCompleted)
+            {
+                <span class="badge bg-success me-2">
+                    <i class="fas fa-check me-1"></i>Complete
+                </span>
+            }
+            @if (!string.IsNullOrEmpty(QueryId))
+            {
+                <small class="text-muted">Query ID: @QueryId</small>
+            }
+        </div>
+    </div>
+    <div class="card-body">
+        @if (StreamedChunks.Any())
+        {
+            <div class="streaming-content" style="max-height: 400px; overflow-y: auto;" @ref="streamingContainer">
+                @foreach (var chunk in StreamedChunks)
+                {
+                    <div class="stream-chunk mb-2 p-2 border-start border-primary border-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted">@chunk.Timestamp.ToString("HH:mm:ss.fff")</small>
+                            <span class="badge bg-light text-dark">@chunk.Type</span>
+                        </div>
+                        <div class="chunk-content">
+                            @if (chunk.Type == "text")
+                            {
+                                <span>@chunk.Content</span>
+                            }
+                            else if (chunk.Type == "result")
+                            {
+                                <div class="border rounded p-2 bg-light">
+                                    <strong>@chunk.ResultData?.Name</strong>
+                                    @if (!string.IsNullOrEmpty(chunk.ResultData?.Description))
+                                    {
+                                        <br><small class="text-muted">@chunk.ResultData.Description</small>
+                                    }
+                                    @if (chunk.ResultData?.Score > 0)
+                                    {
+                                        <span class="badge bg-primary float-end">@chunk.ResultData.Score.ToString("F2")</span>
+                                    }
+                                </div>
+                            }
+                            else if (chunk.Type == "summary")
+                            {
+                                <div class="alert alert-info mb-0">
+                                    <strong>Summary:</strong> @chunk.Content
+                                </div>
+                            }
+                            else if (chunk.Type == "error")
+                            {
+                                <div class="alert alert-danger mb-0">
+                                    <strong>Error:</strong> @chunk.Content
+                                </div>
+                            }
+                            else
+                            {
+                                <pre class="mb-0 small">@chunk.Content</pre>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+            
+            <div class="mt-3 d-flex justify-content-between">
+                <span class="text-muted small">@StreamedChunks.Count chunk(s) received</span>
+                <div>
+                    @if (IsStreaming)
+                    {
+                        <button class="btn btn-outline-danger btn-sm" @onclick="StopStreaming">
+                            <i class="fas fa-stop me-1"></i>Stop
+                        </button>
+                    }
+                    <button class="btn btn-outline-secondary btn-sm" @onclick="ClearStream">
+                        <i class="fas fa-trash me-1"></i>Clear
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" @onclick="ExportStream">
+                        <i class="fas fa-download me-1"></i>Export
+                    </button>
+                </div>
+            </div>
+        }
+        else if (IsStreaming)
+        {
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Waiting for data...</span>
+                </div>
+                <p class="mt-2 text-muted">Waiting for streaming data...</p>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-stream fa-2x mb-3"></i>
+                <p>No streaming data yet. Submit a query with streaming enabled to see live results.</p>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string QueryId { get; set; } = "";
+    [Parameter] public bool IsStreaming { get; set; }
+    [Parameter] public bool IsCompleted { get; set; }
+    [Parameter] public EventCallback OnStopStreaming { get; set; }
+    
+    private ElementReference streamingContainer;
+    private List<StreamChunk> StreamedChunks = new();
+
+    public class StreamChunk
+    {
+        public DateTime Timestamp { get; set; } = DateTime.Now;
+        public string Type { get; set; } = "";
+        public string Content { get; set; } = "";
+        public NLWebResult? ResultData { get; set; }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (StreamedChunks.Any())
+        {
+            // Auto-scroll to bottom
+            await JSRuntime.InvokeVoidAsync("scrollToBottom", streamingContainer);
+        }
+    }
+
+    public void AddTextChunk(string content)
+    {
+        StreamedChunks.Add(new StreamChunk
+        {
+            Type = "text",
+            Content = content
+        });
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void AddResultChunk(NLWebResult result)
+    {
+        StreamedChunks.Add(new StreamChunk
+        {
+            Type = "result",
+            Content = result.Name,
+            ResultData = result
+        });
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void AddSummaryChunk(string summary)
+    {
+        StreamedChunks.Add(new StreamChunk
+        {
+            Type = "summary",
+            Content = summary
+        });
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void AddErrorChunk(string error)
+    {
+        StreamedChunks.Add(new StreamChunk
+        {
+            Type = "error",
+            Content = error
+        });
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void AddJsonChunk(string json)
+    {
+        StreamedChunks.Add(new StreamChunk
+        {
+            Type = "json",
+            Content = json
+        });
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task StopStreaming()
+    {
+        await OnStopStreaming.InvokeAsync();
+    }
+
+    public void ClearStream()
+    {
+        StreamedChunks.Clear();
+        StateHasChanged();
+    }
+
+    private async Task ExportStream()
+    {
+        var content = string.Join("\n", StreamedChunks.Select(c => 
+            $"[{c.Timestamp:HH:mm:ss.fff}] {c.Type.ToUpper()}: {c.Content}"));
+        
+        var fileName = $"nlweb_stream_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+        await JSRuntime.InvokeVoidAsync("downloadFile", fileName, content);
+    }    public ValueTask DisposeAsync()
+    {
+        // Cleanup if needed
+        return ValueTask.CompletedTask;
+    }
+}
+
+<script>
+    window.scrollToBottom = (element) => {
+        if (element) {
+            element.scrollTop = element.scrollHeight;
+        }
+    };
+
+    window.downloadFile = (filename, content) => {
+        const element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    };
+</script>

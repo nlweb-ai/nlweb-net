@@ -1,0 +1,394 @@
+@page "/api-test"
+@rendermode InteractiveServer
+@inject HttpClient HttpClient
+@inject IJSRuntime JSRuntime
+@using System.Text.Json
+@using System.Text
+
+<PageTitle>API Testing - NLWebNet Demo</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">
+                <i class="fas fa-flask text-success me-2"></i>
+                API Testing Interface
+            </h1>
+            
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-cog me-2"></i>Request Configuration
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Endpoint</label>
+                                <select class="form-select" @bind="selectedEndpoint">
+                                    <option value="/api/nlweb/query">POST /api/nlweb/query</option>
+                                    <option value="/api/nlweb/stream">POST /api/nlweb/stream</option>
+                                    <option value="/api/nlweb/status">GET /api/nlweb/status</option>
+                                    <option value="/api/health">GET /api/health</option>
+                                </select>
+                            </div>
+                            
+                            @if (selectedEndpoint.Contains("query") || selectedEndpoint.Contains("stream"))
+                            {
+                                <div class="mb-3">
+                                    <label class="form-label">Query</label>
+                                    <textarea class="form-control" rows="3" @bind="requestQuery" 
+                                              placeholder="Enter your query here..."></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Mode</label>
+                                    <select class="form-select" @bind="requestMode">
+                                        <option value="@QueryMode.List">List</option>
+                                        <option value="@QueryMode.Summarize">Summarize</option>
+                                        <option value="@QueryMode.Generate">Generate</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Site Filter (optional)</label>
+                                    <input type="text" class="form-control" @bind="requestSite" 
+                                           placeholder="example.com" />
+                                </div>
+                                
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" @bind="requestStreaming" />
+                                    <label class="form-check-label">Enable Streaming</label>
+                                </div>
+                            }
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Custom Headers</label>
+                                <textarea class="form-control" rows="3" @bind="customHeaders" 
+                                          placeholder="Content-Type: application/json&#10;Authorization: Bearer token"></textarea>
+                            </div>
+                            
+                            <button class="btn btn-primary" @onclick="SendRequest" disabled="@isLoading">
+                                @if (isLoading)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                }
+                                <i class="fas fa-paper-plane me-1"></i>Send Request
+                            </button>
+                            
+                            <button class="btn btn-outline-secondary ms-2" @onclick="ClearResults">
+                                <i class="fas fa-trash me-1"></i>Clear
+                            </button>
+                        </div>
+                    </div>
+                    
+                    @if (savedRequests.Any())
+                    {
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Saved Requests</h6>
+                            </div>
+                            <div class="card-body">
+                                @foreach (var saved in savedRequests.Take(5))
+                                {
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small text-muted">@saved.Name</span>
+                                        <button class="btn btn-sm btn-outline-primary" @onclick="() => LoadSavedRequest(saved)">
+                                            Load
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-exchange-alt me-2"></i>Request & Response
+                            </h5>
+                            <div>
+                                @if (!string.IsNullOrEmpty(lastResponseStatus))
+                                {
+                                    <span class="badge @(lastResponseStatus.StartsWith("2") ? "bg-success" : "bg-danger")">
+                                        @lastResponseStatus
+                                    </span>
+                                }
+                                @if (lastResponseTime.HasValue)
+                                {
+                                    <span class="badge bg-info ms-2">@(lastResponseTime.Value)ms</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <ul class="nav nav-tabs" role="tablist">                                <li class="nav-item">
+                                    <button class="nav-link @(activeTab == "request" ? "active" : "")" 
+                                            @onclick='() => SetActiveTab("request")'>
+                                        Request
+                                    </button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link @(activeTab == "response" ? "active" : "")" 
+                                            @onclick='() => SetActiveTab("response")'>
+                                        Response
+                                    </button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link @(activeTab == "headers" ? "active" : "")" 
+                                            @onclick='() => SetActiveTab("headers")'>
+                                        Headers
+                                    </button>
+                                </li>
+                            </ul>
+                            
+                            <div class="tab-content mt-3">
+                                @if (activeTab == "request")
+                                {
+                                    <div class="tab-pane active">
+                                        <h6>Request Details</h6>
+                                        <pre class="bg-light p-3 rounded small">@lastRequestDetails</pre>
+                                    </div>
+                                }
+                                else if (activeTab == "response")
+                                {
+                                    <div class="tab-pane active">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <h6>Response Body</h6>
+                                            <div>
+                                                <button class="btn btn-sm btn-outline-secondary" @onclick="FormatResponse">
+                                                    <i class="fas fa-code me-1"></i>Format JSON
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-primary ms-1" @onclick="SaveResponse">
+                                                    <i class="fas fa-save me-1"></i>Save
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <pre class="bg-light p-3 rounded small" style="max-height: 400px; overflow-y: auto;">@lastResponseBody</pre>
+                                    </div>
+                                }
+                                else if (activeTab == "headers")
+                                {
+                                    <div class="tab-pane active">
+                                        <h6>Response Headers</h6>
+                                        <pre class="bg-light p-3 rounded small">@lastResponseHeaders</pre>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string selectedEndpoint = "/api/nlweb/query";
+    private string requestQuery = "What is artificial intelligence?";
+    private QueryMode requestMode = QueryMode.Summarize;
+    private string requestSite = "";
+    private bool requestStreaming = false;
+    private string customHeaders = "";
+    
+    private bool isLoading = false;
+    private string activeTab = "request";
+    
+    private string lastRequestDetails = "";
+    private string lastResponseBody = "";
+    private string lastResponseHeaders = "";
+    private string lastResponseStatus = "";
+    private int? lastResponseTime;
+    
+    private List<SavedRequest> savedRequests = new();
+    
+    public class SavedRequest
+    {
+        public string Name { get; set; } = "";
+        public string Endpoint { get; set; } = "";
+        public string Query { get; set; } = "";
+        public QueryMode Mode { get; set; }
+        public string Site { get; set; } = "";
+        public bool Streaming { get; set; }
+        public DateTime Timestamp { get; set; } = DateTime.Now;
+    }
+    
+    protected override void OnInitialized()
+    {
+        // Add some sample saved requests
+        savedRequests.Add(new SavedRequest 
+        { 
+            Name = "AI Query", 
+            Endpoint = "/api/nlweb/query",
+            Query = "What is artificial intelligence?",
+            Mode = QueryMode.Summarize
+        });
+        savedRequests.Add(new SavedRequest 
+        { 
+            Name = "Tech News", 
+            Endpoint = "/api/nlweb/query",
+            Query = "Latest technology news",
+            Mode = QueryMode.List,
+            Site = "techcrunch.com"
+        });
+    }
+    
+    private void SetActiveTab(string tab)
+    {
+        activeTab = tab;
+    }
+    
+    private async Task SendRequest()
+    {
+        isLoading = true;
+        var startTime = DateTime.Now;
+        
+        try
+        {            var request = BuildRequest();
+            lastRequestDetails = request.ToString() ?? "N/A";
+            
+            // Since we don't have the actual API running, simulate the response
+            await Task.Delay(800); // Simulate network delay
+            
+            var response = CreateMockApiResponse();
+            lastResponseBody = JsonSerializer.Serialize(response, new JsonSerializerOptions { WriteIndented = true });
+            lastResponseStatus = "200 OK";
+            lastResponseTime = (int)(DateTime.Now - startTime).TotalMilliseconds;
+            lastResponseHeaders = "Content-Type: application/json\nContent-Length: " + lastResponseBody.Length;
+            
+            activeTab = "response";
+        }
+        catch (Exception ex)
+        {
+            lastResponseBody = $"Error: {ex.Message}";
+            lastResponseStatus = "500 Internal Server Error";
+            lastResponseTime = (int)(DateTime.Now - startTime).TotalMilliseconds;
+            lastResponseHeaders = "Content-Type: text/plain";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+    
+    private object BuildRequest()
+    {
+        if (selectedEndpoint.Contains("query") || selectedEndpoint.Contains("stream"))
+        {
+            return new
+            {
+                query = requestQuery,
+                mode = requestMode.ToString(),
+                site = string.IsNullOrWhiteSpace(requestSite) ? null : requestSite,
+                streaming = requestStreaming,
+                timestamp = DateTime.UtcNow
+            };
+        }
+        
+        return new { timestamp = DateTime.UtcNow };
+    }
+    
+    private object CreateMockApiResponse()
+    {
+        if (selectedEndpoint.Contains("status"))
+        {
+            return new
+            {
+                status = "healthy",
+                version = "1.0.0",
+                timestamp = DateTime.UtcNow,
+                uptime = "2h 34m 12s"
+            };
+        }
+        
+        if (selectedEndpoint.Contains("health"))
+        {
+            return new
+            {
+                status = "Healthy",
+                checks = new[]
+                {
+                    new { name = "Database", status = "Healthy", duration = "0.023s" },
+                    new { name = "External API", status = "Healthy", duration = "0.156s" }
+                }
+            };
+        }
+        
+        // Mock query/stream response
+        return new NLWebResponse
+        {
+            QueryId = Guid.NewGuid().ToString(),
+            Query = requestQuery,
+            Mode = requestMode,
+            Summary = $"Mock API response for query: '{requestQuery}'",
+            GeneratedResponse = requestMode == QueryMode.Generate 
+                ? "This is a mock generated response from the API testing interface."
+                : null,
+            Results = new List<NLWebResult>
+            {                new NLWebResult
+                {
+                    Name = "Mock API Result 1",
+                    Url = "https://api.example.com/result1",
+                    Description = "This is a mock result from the API test",
+                    Score = 0.95,
+                    Site = "api.example.com"
+                }
+            }
+        };
+    }
+    
+    private void FormatResponse()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(lastResponseBody))
+            {
+                var obj = JsonSerializer.Deserialize<object>(lastResponseBody);
+                lastResponseBody = JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
+            }
+        }
+        catch
+        {
+            // Response is not JSON, leave as is
+        }
+    }
+    
+    private async Task SaveResponse()
+    {
+        var fileName = $"api_response_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+        await JSRuntime.InvokeVoidAsync("downloadFile", fileName, lastResponseBody);
+    }
+    
+    private void LoadSavedRequest(SavedRequest saved)
+    {
+        selectedEndpoint = saved.Endpoint;
+        requestQuery = saved.Query;
+        requestMode = saved.Mode;
+        requestSite = saved.Site;
+        requestStreaming = saved.Streaming;
+    }
+    
+    private void ClearResults()
+    {
+        lastRequestDetails = "";
+        lastResponseBody = "";
+        lastResponseHeaders = "";
+        lastResponseStatus = "";
+        lastResponseTime = null;
+        activeTab = "request";
+    }
+}
+
+<script>
+    window.downloadFile = (filename, content) => {
+        const element = document.createElement('a');
+        element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(content));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    };
+</script>

@@ -1,0 +1,167 @@
+@using NLWebNet.Models
+@inject IJSRuntime JSRuntime
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-search me-2"></i>Query Interface
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label for="queryInput" class="form-label">Enter your query:</label>
+            <div class="input-group">
+                <textarea class="form-control" id="queryInput" rows="3" @bind="QueryText" 
+                         @onkeydown="HandleKeyDown"
+                         placeholder="Ask a question about the data..." 
+                         disabled="@IsLoading"></textarea>
+                <button class="btn btn-primary" type="button" @onclick="OnSubmitQuery" disabled="@(IsLoading || string.IsNullOrWhiteSpace(QueryText))">
+                    @if (IsLoading)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    }
+                    else
+                    {
+                        <i class="fas fa-paper-plane me-2"></i>
+                    }
+                    Submit
+                </button>
+            </div>
+            @if (!string.IsNullOrEmpty(ValidationMessage))
+            {
+                <div class="form-text text-danger">@ValidationMessage</div>
+            }
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <label for="modeSelect" class="form-label">Query Mode:</label>
+                <select class="form-select" id="modeSelect" @bind="SelectedMode" disabled="@IsLoading">
+                    <option value="@QueryMode.List">List - Show matching results</option>
+                    <option value="@QueryMode.Summarize">Summarize - Summarize results</option>
+                    <option value="@QueryMode.Generate">Generate - Generate answer</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="siteInput" class="form-label">Site (optional):</label>
+                <input type="text" class="form-control" id="siteInput" @bind="Site" 
+                       placeholder="e.g., docs, wiki" disabled="@IsLoading" />
+            </div>
+            <div class="col-md-4">
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" id="streamingCheck" @bind="EnableStreaming" disabled="@IsLoading" />
+                    <label class="form-check-label" for="streamingCheck">
+                        <i class="fas fa-stream me-1"></i>Enable Streaming
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        @if (ShowAdvanced)
+        {
+            <div class="mt-3 pt-3 border-top">
+                <h6>Advanced Options</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="prevInput" class="form-label">Previous Queries (comma-separated):</label>
+                        <input type="text" class="form-control" id="prevInput" @bind="PreviousQueries" 
+                               placeholder="previous query 1, previous query 2" disabled="@IsLoading" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="decontextualizedInput" class="form-label">Decontextualized Query:</label>
+                        <input type="text" class="form-control" id="decontextualizedInput" @bind="DecontextualizedQuery" 
+                               placeholder="Override automatic decontextualization" disabled="@IsLoading" />
+                    </div>
+                </div>
+            </div>
+        }
+        
+        <div class="mt-3">
+            <button type="button" class="btn btn-link btn-sm p-0" @onclick="ToggleAdvanced">
+                <i class="fas @(ShowAdvanced ? "fa-chevron-up" : "fa-chevron-down") me-1"></i>
+                @(ShowAdvanced ? "Hide" : "Show") Advanced Options
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string QueryText { get; set; } = "";
+    [Parameter] public EventCallback<string> QueryTextChanged { get; set; }
+    
+    [Parameter] public QueryMode SelectedMode { get; set; } = QueryMode.List;
+    [Parameter] public EventCallback<QueryMode> SelectedModeChanged { get; set; }
+    
+    [Parameter] public string Site { get; set; } = "";
+    [Parameter] public EventCallback<string> SiteChanged { get; set; }
+    
+    [Parameter] public bool EnableStreaming { get; set; } = true;
+    [Parameter] public EventCallback<bool> EnableStreamingChanged { get; set; }
+    
+    [Parameter] public string PreviousQueries { get; set; } = "";
+    [Parameter] public EventCallback<string> PreviousQueriesChanged { get; set; }
+    
+    [Parameter] public string DecontextualizedQuery { get; set; } = "";
+    [Parameter] public EventCallback<string> DecontextualizedQueryChanged { get; set; }
+    
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public EventCallback<NLWebRequest> OnSubmit { get; set; }
+    
+    private bool ShowAdvanced = false;
+    private string ValidationMessage = "";
+
+    private void ToggleAdvanced()
+    {
+        ShowAdvanced = !ShowAdvanced;
+    }
+
+    private async Task OnSubmitQuery()
+    {
+        if (ValidateInput())
+        {
+            var request = CreateRequest();
+            await OnSubmit.InvokeAsync(request);
+        }
+    }
+
+    private bool ValidateInput()
+    {
+        ValidationMessage = "";
+        
+        if (string.IsNullOrWhiteSpace(QueryText))
+        {
+            ValidationMessage = "Please enter a query.";
+            return false;
+        }
+        
+        if (QueryText.Length > 1000)
+        {
+            ValidationMessage = "Query is too long (max 1000 characters).";
+            return false;
+        }
+        
+        return true;
+    }
+
+    private NLWebRequest CreateRequest()
+    {
+        return new NLWebRequest
+        {
+            Query = QueryText.Trim(),
+            Mode = SelectedMode,
+            Site = string.IsNullOrWhiteSpace(Site) ? null : Site.Trim(),
+            Streaming = EnableStreaming,
+            Prev = string.IsNullOrWhiteSpace(PreviousQueries) ? null : PreviousQueries.Trim(),
+            DecontextualizedQuery = string.IsNullOrWhiteSpace(DecontextualizedQuery) ? null : DecontextualizedQuery.Trim(),
+            QueryId = Guid.NewGuid().ToString("N")[..8] // Short ID for demo
+        };
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && e.CtrlKey && !IsLoading)
+        {
+            await OnSubmitQuery();
+        }
+    }
+}

@@ -131,12 +131,11 @@ public static class AskEndpoints
          /// <param name="loggerFactory">The logger factory</param>
          /// <param name="mode">Query processing mode (list, summarize, generate)</param>
          /// <param name="site">Optional site parameter for scoped searches</param>
-         /// <param name="prev">Comma-separated list of previous queries</param>
-         /// <param name="decontextualizedQuery">Pre-decontextualized query</param>
+         /// <param name="prev">Comma-separated list of previous queries</param>         /// <param name="decontextualizedQuery">Pre-decontextualized query</param>
          /// <param name="queryId">Optional query ID for correlation</param>
          /// <param name="cancellationToken">Cancellation token</param>
          /// <returns>Streaming response</returns>
-    private static async Task<IResult> ProcessStreamingQueryAsync(
+    private static Task<IResult> ProcessStreamingQueryAsync(
         [FromQuery] string query,
         INLWebService nlWebService,
         ILoggerFactory loggerFactory,
@@ -149,31 +148,28 @@ public static class AskEndpoints
         var logger = loggerFactory.CreateLogger(nameof(AskEndpoints));
 
         try
-        {
-            // Validate required parameters
+        {            // Validate required parameters
             if (string.IsNullOrWhiteSpace(query))
             {
                 logger.LogWarning("Received streaming request with empty query");
-                return Results.BadRequest(new ProblemDetails
+                return Task.FromResult<IResult>(Results.BadRequest(new ProblemDetails
                 {
                     Title = "Bad Request",
                     Detail = "Query parameter is required and cannot be empty",
                     Status = StatusCodes.Status400BadRequest
-                });
-            }
-
-            // Parse mode
+                }));
+            }            // Parse mode
             var queryMode = QueryMode.List;
             if (!string.IsNullOrWhiteSpace(mode))
             {
                 if (!Enum.TryParse<QueryMode>(mode, true, out queryMode))
                 {
-                    return Results.BadRequest(new ProblemDetails
+                    return Task.FromResult<IResult>(Results.BadRequest(new ProblemDetails
                     {
                         Title = "Bad Request",
                         Detail = $"Invalid mode '{mode}'. Valid values are: {string.Join(", ", Enum.GetNames<QueryMode>())}",
                         Status = StatusCodes.Status400BadRequest
-                    });
+                    }));
                 }
             }            // Create request object
             var request = new NLWebRequest
@@ -190,7 +186,7 @@ public static class AskEndpoints
             logger.LogInformation("Processing streaming NLWeb query: {Query} (Mode: {Mode}, QueryId: {QueryId})",
                 request.Query, request.Mode, request.QueryId);            // Process the streaming query
             var streamingResults = nlWebService.ProcessRequestStreamAsync(request, cancellationToken);            // Return server-sent events
-            return Results.Stream(async stream =>
+            return Task.FromResult<IResult>(Results.Stream(async stream =>
             {
                 var writer = new StreamWriter(stream);
                 await writer.WriteLineAsync("Content-Type: text/event-stream");
@@ -210,24 +206,23 @@ public static class AskEndpoints
                 await writer.WriteLineAsync("data: [DONE]");
                 await writer.WriteLineAsync();
                 await writer.FlushAsync();
-            }, "text/event-stream");
-        }
-        catch (ValidationException ex)
+            }, "text/event-stream"));
+        }        catch (ValidationException ex)
         {
             logger.LogWarning(ex, "Validation error processing streaming query: {Message}", ex.Message);
 
-            return Results.BadRequest(new ProblemDetails
+            return Task.FromResult<IResult>(Results.BadRequest(new ProblemDetails
             {
                 Title = "Validation Error",
                 Detail = ex.Message,
                 Status = StatusCodes.Status400BadRequest
-            });
+            }));
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error processing streaming NLWeb query: {Message}", ex.Message);
 
-            return Results.StatusCode(StatusCodes.Status500InternalServerError);
+            return Task.FromResult<IResult>(Results.StatusCode(StatusCodes.Status500InternalServerError));
         }
     }    /// <summary>
          /// Process a simple query via GET request with query parameters.
