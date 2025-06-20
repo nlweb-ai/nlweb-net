@@ -47,16 +47,16 @@ public class AskControllerTests
                     Description = "A test result"
                 }
             }
-        };        _mockNLWebService
+        }; _mockNLWebService
             .ProcessRequestAsync(Arg.Any<NLWebRequest>(), Arg.Any<CancellationToken>())
             .Returns(expectedResponse);        // Act
         var result = await _controller.ProcessQuery(request);
-            
+
         // Assert
         Assert.IsInstanceOfType(result, typeof(OkObjectResult));
         var okResult = (OkObjectResult)result;
         Assert.IsInstanceOfType(okResult.Value, typeof(NLWebResponse));
-        
+
         var response = (NLWebResponse)okResult.Value!;
         Assert.AreEqual("test-123", response.QueryId);
         Assert.AreEqual(1, response.Results?.Count);
@@ -74,7 +74,7 @@ public class AskControllerTests
         Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
         var badRequestResult = (BadRequestObjectResult)result;
         Assert.IsInstanceOfType(badRequestResult.Value, typeof(ProblemDetails));
-        
+
         var problemDetails = (ProblemDetails)badRequestResult.Value!;
         Assert.AreEqual("Invalid Request", problemDetails.Title);
         Assert.AreEqual(400, problemDetails.Status);
@@ -97,7 +97,7 @@ public class AskControllerTests
         Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
         var badRequestResult = (BadRequestObjectResult)result;
         Assert.IsInstanceOfType(badRequestResult.Value, typeof(ProblemDetails));
-        
+
         var problemDetails = (ProblemDetails)badRequestResult.Value!;
         Assert.AreEqual("Invalid Query", problemDetails.Title);
         Assert.AreEqual(400, problemDetails.Status);
@@ -129,13 +129,13 @@ public class AskControllerTests
 
         // Assert
         Assert.IsInstanceOfType(result, typeof(OkObjectResult));
-        
+
         // Verify that QueryId was generated (not null or empty)
         Assert.IsNotNull(request.QueryId);
         Assert.IsFalse(string.IsNullOrEmpty(request.QueryId));
 
         await _mockNLWebService.Received(1).ProcessRequestAsync(
-            Arg.Is<NLWebRequest>(r => !string.IsNullOrEmpty(r.QueryId)), 
+            Arg.Is<NLWebRequest>(r => !string.IsNullOrEmpty(r.QueryId)),
             Arg.Any<CancellationToken>());
     }
 
@@ -160,8 +160,8 @@ public class AskControllerTests
         Assert.IsInstanceOfType(result, typeof(OkObjectResult));
 
         await _mockNLWebService.Received(1).ProcessRequestAsync(
-            Arg.Is<NLWebRequest>(r => 
-                r.Query == "test query" && 
+            Arg.Is<NLWebRequest>(r =>
+                r.Query == "test query" &&
                 r.Mode == QueryMode.Summarize &&
                 r.Site == "test-site" &&
                 r.Streaming == false),
@@ -176,7 +176,7 @@ public class AskControllerTests
         {
             Query = "test query",
             Mode = QueryMode.List
-        };        _mockNLWebService
+        }; _mockNLWebService
             .When(x => x.ProcessRequestAsync(Arg.Any<NLWebRequest>(), Arg.Any<CancellationToken>()))
             .Throw(new Exception("Service error"));
 
@@ -188,7 +188,7 @@ public class AskControllerTests
         var objectResult = (ObjectResult)result;
         Assert.AreEqual(500, objectResult.StatusCode);
         Assert.IsInstanceOfType(objectResult.Value, typeof(ProblemDetails));
-        
+
         var problemDetails = (ProblemDetails)objectResult.Value!;
         Assert.AreEqual("Internal Server Error", problemDetails.Title);
         Assert.AreEqual(500, problemDetails.Status);

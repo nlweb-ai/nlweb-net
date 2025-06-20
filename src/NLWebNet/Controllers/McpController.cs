@@ -38,17 +38,17 @@ public class McpController : ControllerBase
         try
         {
             _logger.LogDebug("Listing available MCP tools");
-            
+
             var response = await _mcpService.ListToolsAsync();
-            
+
             _logger.LogInformation("Listed {ToolCount} MCP tools", response.Tools?.Count ?? 0);
-            
+
             return Ok(response);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error listing MCP tools: {Message}", ex.Message);
-            
+
             return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails
             {
                 Title = "Internal Server Error",
@@ -71,17 +71,17 @@ public class McpController : ControllerBase
         try
         {
             _logger.LogDebug("Listing available MCP prompts");
-            
+
             var response = await _mcpService.ListPromptsAsync();
-            
+
             _logger.LogInformation("Listed {PromptCount} MCP prompts", response.Prompts?.Count ?? 0);
-            
+
             return Ok(response);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error listing MCP prompts: {Message}", ex.Message);
-            
+
             return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails
             {
                 Title = "Internal Server Error",
@@ -129,14 +129,14 @@ public class McpController : ControllerBase
                 });
             }
 
-            _logger.LogInformation("Calling MCP tool: {ToolName} with {ArgCount} arguments", 
+            _logger.LogInformation("Calling MCP tool: {ToolName} with {ArgCount} arguments",
                 request.Name, request.Arguments?.Count ?? 0);
 
             var response = await _mcpService.CallToolAsync(request);
 
             if (response.IsError)
             {
-                _logger.LogWarning("MCP tool call failed: {ToolName}, Error: {Error}", 
+                _logger.LogWarning("MCP tool call failed: {ToolName}, Error: {Error}",
                     request.Name, response.Content?.FirstOrDefault()?.Text);
             }
             else
@@ -149,7 +149,7 @@ public class McpController : ControllerBase
         catch (ArgumentNullException ex)
         {
             _logger.LogWarning(ex, "Null argument in MCP tool call: {Message}", ex.Message);
-            
+
             return BadRequest(new ProblemDetails
             {
                 Title = "Invalid Arguments",
@@ -164,9 +164,9 @@ public class McpController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error calling MCP tool {ToolName}: {Message}", 
+            _logger.LogError(ex, "Error calling MCP tool {ToolName}: {Message}",
                 request?.Name, ex.Message);
-            
+
             return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails
             {
                 Title = "Internal Server Error",
@@ -214,15 +214,15 @@ public class McpController : ControllerBase
                 });
             }
 
-            _logger.LogInformation("Getting MCP prompt: {PromptName} with {ArgCount} arguments", 
+            _logger.LogInformation("Getting MCP prompt: {PromptName} with {ArgCount} arguments",
                 request.Name, request.Arguments?.Count ?? 0);
 
             var response = await _mcpService.GetPromptAsync(request);
 
-            if (response.Messages?.Any() == true && 
+            if (response.Messages?.Any() == true &&
                 response.Messages.Any(m => m.Content?.Text?.Contains("Error:") == true))
             {
-                _logger.LogWarning("MCP prompt request failed: {PromptName}, Error: {Error}", 
+                _logger.LogWarning("MCP prompt request failed: {PromptName}, Error: {Error}",
                     request.Name, response.Description);
             }
             else
@@ -235,7 +235,7 @@ public class McpController : ControllerBase
         catch (ArgumentNullException ex)
         {
             _logger.LogWarning(ex, "Null argument in MCP prompt request: {Message}", ex.Message);
-            
+
             return BadRequest(new ProblemDetails
             {
                 Title = "Invalid Arguments",
@@ -250,9 +250,9 @@ public class McpController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting MCP prompt {PromptName}: {Message}", 
+            _logger.LogError(ex, "Error getting MCP prompt {PromptName}: {Message}",
                 request?.Name, ex.Message);
-            
+
             return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails
             {
                 Title = "Internal Server Error",
@@ -301,12 +301,12 @@ public class McpController : ControllerBase
                 });
             }
 
-            _logger.LogInformation("Processing NLWeb query via MCP: {Query}, Mode: {Mode}", 
+            _logger.LogInformation("Processing NLWeb query via MCP: {Query}, Mode: {Mode}",
                 request.Query, request.Mode);
 
             var response = await _mcpService.ProcessNLWebQueryAsync(request);
 
-            _logger.LogInformation("Successfully processed NLWeb query via MCP: {QueryId}", 
+            _logger.LogInformation("Successfully processed NLWeb query via MCP: {QueryId}",
                 response.QueryId);
 
             return Ok(response);
@@ -314,7 +314,7 @@ public class McpController : ControllerBase
         catch (ArgumentNullException ex)
         {
             _logger.LogWarning(ex, "Null argument in NLWeb query via MCP: {Message}", ex.Message);
-            
+
             return BadRequest(new ProblemDetails
             {
                 Title = "Invalid Arguments",
@@ -330,7 +330,7 @@ public class McpController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing NLWeb query via MCP: {Message}", ex.Message);
-            
+
             return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails
             {
                 Title = "Internal Server Error",

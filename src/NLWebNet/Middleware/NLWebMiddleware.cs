@@ -21,19 +21,19 @@ public class NLWebMiddleware
     public async Task InvokeAsync(HttpContext context)
     {
         // Add correlation ID for request tracking
-        var correlationId = context.Request.Headers["X-Correlation-ID"].FirstOrDefault() 
+        var correlationId = context.Request.Headers["X-Correlation-ID"].FirstOrDefault()
                            ?? Guid.NewGuid().ToString();
-        
+
         context.Response.Headers.Append("X-Correlation-ID", correlationId);
-        
+
         // Log incoming request
-        _logger.LogDebug("Processing {Method} {Path} with correlation ID {CorrelationId}", 
+        _logger.LogDebug("Processing {Method} {Path} with correlation ID {CorrelationId}",
             context.Request.Method, context.Request.Path, correlationId);
 
         try
         {
             // Add CORS headers for NLWeb endpoints
-            if (context.Request.Path.StartsWithSegments("/ask") || 
+            if (context.Request.Path.StartsWithSegments("/ask") ||
                 context.Request.Path.StartsWithSegments("/mcp"))
             {
                 AddCorsHeaders(context);
@@ -43,9 +43,9 @@ public class NLWebMiddleware
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception in NLWeb middleware for {Path} with correlation ID {CorrelationId}", 
+            _logger.LogError(ex, "Unhandled exception in NLWeb middleware for {Path} with correlation ID {CorrelationId}",
                 context.Request.Path, correlationId);
-            
+
             await HandleExceptionAsync(context, ex);
         }
     }
@@ -61,7 +61,7 @@ public class NLWebMiddleware
     private async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         context.Response.ContentType = "application/json";
-        
+
         var problemDetails = new
         {
             title = "Internal Server Error",

@@ -31,9 +31,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IResultGenerator, ResultGenerator>();
 
         // Register MCP services
-        services.AddScoped<IMcpService, McpService>();
-
-        // Register default data backend (can be overridden)
+        services.AddScoped<IMcpService, McpService>();        // Register default data backend (can be overridden)
         services.AddScoped<IDataBackend, MockDataBackend>();
 
         // Register controllers

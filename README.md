@@ -26,8 +26,10 @@ NLWebNet/
 ├── src/NLWebNet/              # 📦 Core library (future NuGet package)
 │   ├── Models/                # Request/response data models
 │   ├── Services/              # Business logic interfaces and implementations
-│   ├── Controllers/           # API endpoints (/ask, /mcp)
+│   ├── Endpoints/             # Minimal API endpoints (/ask, /mcp)
 │   ├── MCP/                   # Model Context Protocol integration
+│   ├── Extensions/            # DI and middleware extensions
+│   ├── Middleware/            # Request processing middleware
 │   ├── Middleware/            # ASP.NET Core middleware
 │   └── Extensions/            # Dependency injection extensions
 ├── demo/                      # 🎮 .NET 9 Blazor Web App demo application  
@@ -107,8 +109,9 @@ MCP-compatible interface with additional methods:
 ```mermaid
 graph TB
     subgraph "NLWebNet Library"
-        API[Controllers<br>/ask, /mcp]
+        API[Minimal APIs<br>/ask, /mcp]
         MW[Middleware<br>Pipeline]
+        EXT[Extensions<br>DI & Config]
         SVC[Business Logic<br>Services]
         MCP[MCP Integration]
         MODELS[Data Models]
@@ -143,6 +146,27 @@ graph TB
 ```
 
 ## 🚀 Quick Start
+
+### Using the Library in Your Project
+
+1. Add the NLWebNet library to your ASP.NET Core project:
+
+```csharp
+// Program.cs
+using NLWebNet.Extensions;
+
+// Add NLWebNet services
+builder.Services.AddNLWebNet(options =>
+{
+    // Configure options
+    options.DefaultMode = NLWebNet.Models.QueryMode.List;
+    options.EnableStreaming = true;
+});
+
+// Later in the pipeline configuration
+app.UseNLWebNet();     // Add NLWebNet middleware (optional)
+app.MapNLWebNet();     // Map NLWebNet minimal API endpoints
+```
 
 ### Prerequisites
 
@@ -228,6 +252,9 @@ Once the core library is implemented, you'll be able to test:
 
 ```bash
 # List mode query
+curl -X GET "http://localhost:5037/ask?query=find+recent+updates&mode=list"
+
+# POST request equivalent
 curl -X POST "http://localhost:5037/ask" \
   -H "Content-Type: application/json" \
   -d '{"query": "find recent updates", "mode": "list"}'

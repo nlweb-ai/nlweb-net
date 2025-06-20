@@ -1,14 +1,12 @@
+using Microsoft.AspNetCore.Builder;
 using NLWebNet.Extensions;
-using NLWebNet.Models;
+using NLWebNet.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
-// Add controllers for API endpoints
-builder.Services.AddControllers();
 
 // Add NLWebNet services
 builder.Services.AddNLWebNet(options =>
@@ -46,10 +44,7 @@ app.MapStaticAssets();
 app.MapRazorComponents<NLWebNet.Demo.Components.App>()
     .AddInteractiveServerRenderMode();
 
-// Map API controllers
-app.MapControllers();
-
-// Add NLWebNet endpoints (optional, controllers are already mapped)
+// Map NLWebNet minimal API endpoints
 app.MapNLWebNet();
 
 app.Run();

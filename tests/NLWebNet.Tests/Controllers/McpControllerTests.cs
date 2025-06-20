@@ -48,7 +48,7 @@ public class McpControllerTests
         Assert.IsInstanceOfType(result, typeof(OkObjectResult));
         var okResult = (OkObjectResult)result;
         Assert.IsInstanceOfType(okResult.Value, typeof(McpListToolsResponse));
-        
+
         var response = (McpListToolsResponse)okResult.Value!;
         Assert.AreEqual(1, response.Tools?.Count);
 
@@ -80,7 +80,7 @@ public class McpControllerTests
         Assert.IsInstanceOfType(result, typeof(OkObjectResult));
         var okResult = (OkObjectResult)result;
         Assert.IsInstanceOfType(okResult.Value, typeof(McpListPromptsResponse));
-        
+
         var response = (McpListPromptsResponse)okResult.Value!;
         Assert.AreEqual(1, response.Prompts?.Count);
 
@@ -122,7 +122,7 @@ public class McpControllerTests
         Assert.IsInstanceOfType(result, typeof(OkObjectResult));
         var okResult = (OkObjectResult)result;
         Assert.IsInstanceOfType(okResult.Value, typeof(McpCallToolResponse));
-        
+
         var response = (McpCallToolResponse)okResult.Value!;
         Assert.IsFalse(response.IsError);
         Assert.AreEqual(1, response.Content?.Count);
@@ -140,7 +140,7 @@ public class McpControllerTests
         Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
         var badRequestResult = (BadRequestObjectResult)result;
         Assert.IsInstanceOfType(badRequestResult.Value, typeof(ProblemDetails));
-        
+
         var problemDetails = (ProblemDetails)badRequestResult.Value!;
         Assert.AreEqual("Invalid Request", problemDetails.Title);
         Assert.AreEqual(400, problemDetails.Status);
@@ -163,7 +163,7 @@ public class McpControllerTests
         Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
         var badRequestResult = (BadRequestObjectResult)result;
         Assert.IsInstanceOfType(badRequestResult.Value, typeof(ProblemDetails));
-        
+
         var problemDetails = (ProblemDetails)badRequestResult.Value!;
         Assert.AreEqual("Invalid Tool Name", problemDetails.Title);
         Assert.AreEqual(400, problemDetails.Status);
@@ -180,7 +180,7 @@ public class McpControllerTests
             {
                 ["topic"] = "test topic"
             }
-        };        var expectedResponse = new McpGetPromptResponse
+        }; var expectedResponse = new McpGetPromptResponse
         {
             Description = "Search prompt",
             Messages = new List<McpPromptMessage>
@@ -206,7 +206,7 @@ public class McpControllerTests
         Assert.IsInstanceOfType(result, typeof(OkObjectResult));
         var okResult = (OkObjectResult)result;
         Assert.IsInstanceOfType(okResult.Value, typeof(McpGetPromptResponse));
-        
+
         var response = (McpGetPromptResponse)okResult.Value!;
         Assert.AreEqual("Search prompt", response.Description);
         Assert.AreEqual(1, response.Messages?.Count);
@@ -239,7 +239,7 @@ public class McpControllerTests
         Assert.IsInstanceOfType(result, typeof(OkObjectResult));
         var okResult = (OkObjectResult)result;
         Assert.IsInstanceOfType(okResult.Value, typeof(NLWebResponse));
-        
+
         var response = (NLWebResponse)okResult.Value!;
         Assert.AreEqual("mcp-test", response.QueryId);
 
@@ -256,7 +256,7 @@ public class McpControllerTests
         Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
         var badRequestResult = (BadRequestObjectResult)result;
         Assert.IsInstanceOfType(badRequestResult.Value, typeof(ProblemDetails));
-        
+
         var problemDetails = (ProblemDetails)badRequestResult.Value!;
         Assert.AreEqual("Invalid Request", problemDetails.Title);
         Assert.AreEqual(400, problemDetails.Status);
@@ -270,7 +270,7 @@ public class McpControllerTests
         {
             Name = "nlweb_search",
             Arguments = new Dictionary<string, object>()
-        };        _mockMcpService
+        }; _mockMcpService
             .When(x => x.CallToolAsync(Arg.Any<McpCallToolRequest>()))
             .Throw(new Exception("Service error"));
 
@@ -282,7 +282,7 @@ public class McpControllerTests
         var objectResult = (ObjectResult)result;
         Assert.AreEqual(500, objectResult.StatusCode);
         Assert.IsInstanceOfType(objectResult.Value, typeof(ProblemDetails));
-        
+
         var problemDetails = (ProblemDetails)objectResult.Value!;
         Assert.AreEqual("Internal Server Error", problemDetails.Title);
         Assert.AreEqual(500, problemDetails.Status);

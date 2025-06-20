@@ -73,7 +73,7 @@ public class AskController : ControllerBase
                 _logger.LogDebug("Generated query ID: {QueryId}", request.QueryId);
             }
 
-            _logger.LogInformation("Processing NLWeb query: {QueryId}, Mode: {Mode}, Query: {Query}", 
+            _logger.LogInformation("Processing NLWeb query: {QueryId}, Mode: {Mode}, Query: {Query}",
                 request.QueryId, request.Mode, request.Query);
 
             // Check if streaming is requested
@@ -84,17 +84,17 @@ public class AskController : ControllerBase
 
             // Process non-streaming query
             var response = await _nlWebService.ProcessRequestAsync(request, cancellationToken);
-            
-            _logger.LogInformation("Successfully processed query {QueryId} with {ResultCount} results", 
+
+            _logger.LogInformation("Successfully processed query {QueryId} with {ResultCount} results",
                 response.QueryId, response.Results?.Count ?? 0);
 
             return Ok(response);
         }
         catch (ValidationException ex)
         {
-            _logger.LogWarning(ex, "Validation error for query {QueryId}: {Message}", 
+            _logger.LogWarning(ex, "Validation error for query {QueryId}: {Message}",
                 request?.QueryId, ex.Message);
-            
+
             return BadRequest(new ProblemDetails
             {
                 Title = "Validation Error",
@@ -109,9 +109,9 @@ public class AskController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error processing query {QueryId}: {Message}", 
+            _logger.LogError(ex, "Error processing query {QueryId}: {Message}",
                 request?.QueryId, ex.Message);
-            
+
             return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails
             {
                 Title = "Internal Server Error",
@@ -157,7 +157,7 @@ public class AskController : ControllerBase
     /// Process a streaming query using Server-Sent Events.
     /// </summary>
     private async Task<IActionResult> ProcessStreamingQuery(
-        NLWebRequest request, 
+        NLWebRequest request,
         CancellationToken cancellationToken)
     {
         _logger.LogDebug("Starting streaming response for query {QueryId}", request.QueryId);
@@ -195,7 +195,7 @@ public class AskController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error during streaming for query {QueryId}: {Message}", 
+            _logger.LogError(ex, "Error during streaming for query {QueryId}: {Message}",
                 request.QueryId, ex.Message);
 
             // Send error as SSE
