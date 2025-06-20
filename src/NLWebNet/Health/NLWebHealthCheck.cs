@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using NLWebNet.Services;
+using NLWebNet.Metrics;
 
 namespace NLWebNet.Health;
 
@@ -20,15 +21,25 @@ public class NLWebHealthCheck : IHealthCheck
 
     public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        
         try
         {
             // Check if the service is responsive by testing a simple query
+            using var scope = _logger.BeginScope(new Dictionary<string, object>
+            {
+                ["HealthCheckName"] = "nlweb",
+                ["HealthCheckType"] = "Service"
+            });
+
             _logger.LogDebug("Performing NLWeb service health check");
 
             // Basic service availability check - we can test if services are registered and responsive
             if (_nlWebService == null)
             {
-                return Task.FromResult(HealthCheckResult.Unhealthy("NLWeb service is not available"));
+                var result = HealthCheckResult.Unhealthy("NLWeb service is not available");
+                RecordHealthCheckMetrics("nlweb", result.Status, stopwatch.ElapsedMilliseconds);
+                return Task.FromResult(result);
             }
 
             // Additional checks could include:
@@ -37,12 +48,28 @@ public class NLWebHealthCheck : IHealthCheck
             // - Validating configuration
 
             _logger.LogDebug("NLWeb service health check completed successfully");
-            return Task.FromResult(HealthCheckResult.Healthy("NLWeb service is operational"));
+            var healthyResult = HealthCheckResult.Healthy("NLWeb service is operational");
+            RecordHealthCheckMetrics("nlweb", healthyResult.Status, stopwatch.ElapsedMilliseconds);
+            return Task.FromResult(healthyResult);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "NLWeb service health check failed");
-            return Task.FromResult(HealthCheckResult.Unhealthy($"NLWeb service health check failed: {ex.Message}", ex));
+            var unhealthyResult = HealthCheckResult.Unhealthy($"NLWeb service health check failed: {ex.Message}", ex);
+            RecordHealthCheckMetrics("nlweb", unhealthyResult.Status, stopwatch.ElapsedMilliseconds);
+            return Task.FromResult(unhealthyResult);
+        }
+    }
+
+    private static void RecordHealthCheckMetrics(string checkName, HealthStatus status, double durationMs)
+    {
+        NLWebMetrics.HealthCheckExecutions.Add(1, 
+            new KeyValuePair<string, object?>(NLWebMetrics.Tags.HealthCheckName, checkName));
+
+        if (status != HealthStatus.Healthy)
+        {
+            NLWebMetrics.HealthCheckFailures.Add(1,
+                new KeyValuePair<string, object?>(NLWebMetrics.Tags.HealthCheckName, checkName));
         }
     }
 }
