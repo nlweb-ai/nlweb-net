@@ -17,6 +17,8 @@ public static class ApplicationBuilderExtensions
     /// <returns>The application builder for chaining</returns>
     public static IApplicationBuilder UseNLWebNet(this IApplicationBuilder app)
     {
+        app.UseMiddleware<RateLimitingMiddleware>();
+        app.UseMiddleware<MetricsMiddleware>();
         app.UseMiddleware<NLWebMiddleware>();
         return app;
     }    /// <summary>

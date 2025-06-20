@@ -5,6 +5,7 @@ using NLWebNet.Services;
 using NLWebNet.MCP;
 using NLWebNet.Controllers;
 using NLWebNet.Health;
+using NLWebNet.RateLimiting;
 
 namespace NLWebNet;
 
@@ -46,6 +47,12 @@ public static class ServiceCollectionExtensions
             .AddCheck<DataBackendHealthCheck>("data-backend")
             .AddCheck<AIServiceHealthCheck>("ai-service");
 
+        // Add metrics
+        services.AddMetrics();
+
+        // Add rate limiting
+        services.AddSingleton<IRateLimitingService, InMemoryRateLimitingService>();
+
         return services;
     }
 
@@ -81,6 +88,12 @@ public static class ServiceCollectionExtensions
             .AddCheck<NLWebHealthCheck>("nlweb")
             .AddCheck<DataBackendHealthCheck>("data-backend")
             .AddCheck<AIServiceHealthCheck>("ai-service");
+
+        // Add metrics
+        services.AddMetrics();
+
+        // Add rate limiting
+        services.AddSingleton<IRateLimitingService, InMemoryRateLimitingService>();
 
         return services;
     }
