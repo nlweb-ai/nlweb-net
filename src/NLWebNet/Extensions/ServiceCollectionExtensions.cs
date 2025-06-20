@@ -6,6 +6,8 @@ using NLWebNet.MCP;
 using NLWebNet.Controllers;
 using NLWebNet.Health;
 using NLWebNet.RateLimiting;
+using NLWebNet.Metrics;
+using System.Diagnostics;
 
 namespace NLWebNet;
 
