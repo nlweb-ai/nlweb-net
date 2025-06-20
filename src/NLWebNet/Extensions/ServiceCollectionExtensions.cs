@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using NLWebNet.Models;
+using NLWebNet.Services;
 
 namespace NLWebNet;
 
@@ -22,10 +23,40 @@ public static class ServiceCollectionExtensions
             services.Configure(configureOptions);
         }
 
-        // TODO: Register NLWebNet services here
-        // services.AddScoped<INLWebService, NLWebService>();
-        // services.AddScoped<IQueryProcessor, QueryProcessor>();
-        // services.AddScoped<IResultGenerator, ResultGenerator>();
+        // Register core NLWebNet services
+        services.AddScoped<INLWebService, NLWebService>();
+        services.AddScoped<IQueryProcessor, QueryProcessor>();
+        services.AddScoped<IResultGenerator, ResultGenerator>();
+
+        // Register default data backend (can be overridden)
+        services.AddScoped<IDataBackend, MockDataBackend>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Adds NLWebNet services with a custom data backend
+    /// </summary>
+    /// <typeparam name="TDataBackend">The custom data backend implementation</typeparam>
+    /// <param name="services">The service collection</param>
+    /// <param name="configureOptions">Optional configuration callback</param>
+    /// <returns>The service collection for chaining</returns>
+    public static IServiceCollection AddNLWebNet<TDataBackend>(this IServiceCollection services, Action<NLWebOptions>? configureOptions = null)
+        where TDataBackend : class, IDataBackend
+    {
+        // Configure options
+        if (configureOptions != null)
+        {
+            services.Configure(configureOptions);
+        }
+
+        // Register core NLWebNet services
+        services.AddScoped<INLWebService, NLWebService>();
+        services.AddScoped<IQueryProcessor, QueryProcessor>();
+        services.AddScoped<IResultGenerator, ResultGenerator>();
+
+        // Register custom data backend
+        services.AddScoped<IDataBackend, TDataBackend>();
 
         return services;
     }

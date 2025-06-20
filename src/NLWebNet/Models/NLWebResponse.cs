@@ -78,11 +78,27 @@ public class NLWebResponse
     /// Total number of results found (may be larger than the returned results array).
     /// </summary>
     [JsonPropertyName("total_results")]
-    public int? TotalResults { get; set; }
-
-    /// <summary>
-    /// Processing time in milliseconds.
-    /// </summary>
+    public int? TotalResults { get; set; }    /// <summary>
+                                              /// Processing time in milliseconds.
+                                              /// </summary>
     [JsonPropertyName("processing_time_ms")]
     public long? ProcessingTimeMs { get; set; }
+
+    /// <summary>
+    /// The processed/decontextualized query that was used for search.
+    /// </summary>
+    [JsonPropertyName("processed_query")]
+    public string? ProcessedQuery { get; set; }
+
+    /// <summary>
+    /// Error message if the request failed.
+    /// </summary>
+    [JsonPropertyName("error")]
+    public string? Error { get; set; }
+
+    /// <summary>
+    /// Indicates whether the streaming response is complete.
+    /// </summary>
+    [JsonPropertyName("is_complete")]
+    public bool IsComplete { get; set; } = true;
 }
