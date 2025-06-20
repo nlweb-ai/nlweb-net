@@ -1,0 +1,486 @@
+@page "/mcp-demo"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@inject HttpClient HttpClient
+@inject IJSRuntime JSRuntime
+@using System.Text.Json
+@using System.Text
+
+<PageTitle>MCP Demo - NLWebNet</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">
+                <i class="fas fa-tools text-info me-2"></i>
+                Model Context Protocol (MCP) Demo
+            </h1>
+            
+            <div class="alert alert-info">
+                <h5><i class="fas fa-info-circle me-2"></i>About MCP Integration</h5>
+                <p class="mb-0">The Model Context Protocol (MCP) provides a standardized way for AI clients to interact with external tools and data sources. NLWebNet exposes MCP-compatible endpoints for tools and prompts.</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-wrench me-2"></i>Available Tools
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            @if (tools.Any())
+                            {
+                                @foreach (var tool in tools)
+                                {
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                @tool.Name
+                                                <span class="badge bg-primary ms-2">Tool</span>
+                                            </h6>
+                                            <p class="card-text">@tool.Description</p>
+                                            
+                                            @if (tool.Name == selectedTool)
+                                            {
+                                                <div class="mt-3">
+                                                    <h6>Test Tool</h6>
+                                                    @if (tool.Name == "nlweb_search")
+                                                    {
+                                                        <div class="mb-2">
+                                                            <label class="form-label">Query</label>
+                                                            <input type="text" class="form-control" @bind="testQuery" 
+                                                                   placeholder="Enter search query..." />
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <label class="form-label">Mode</label>
+                                                            <select class="form-select" @bind="testMode">
+                                                                <option value="list">List</option>
+                                                                <option value="summarize">Summarize</option>
+                                                                <option value="generate">Generate</option>
+                                                            </select>
+                                                        </div>
+                                                    }
+                                                    else if (tool.Name == "nlweb_query_history")
+                                                    {
+                                                        <div class="mb-2">
+                                                            <label class="form-label">Current Query</label>
+                                                            <input type="text" class="form-control" @bind="testQuery" 
+                                                                   placeholder="Enter current query..." />
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <label class="form-label">Previous Queries</label>
+                                                            <textarea class="form-control" rows="2" @bind="testHistory" 
+                                                                      placeholder="Previous query 1, Previous query 2..."></textarea>
+                                                        </div>
+                                                    }
+                                                    
+                                                    <button class="btn btn-success btn-sm" @onclick="() => CallTool(tool.Name)" 
+                                                            disabled="@isTestingTool">
+                                                        @if (isTestingTool)
+                                                        {
+                                                            <span class="spinner-border spinner-border-sm me-1"></span>
+                                                        }
+                                                        <i class="fas fa-play me-1"></i>Call Tool
+                                                    </button>
+                                                    <button class="btn btn-outline-secondary btn-sm ms-2" 
+                                                            @onclick="() => selectedTool = null">
+                                                        <i class="fas fa-times me-1"></i>Cancel
+                                                    </button>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <button class="btn btn-outline-primary btn-sm" 
+                                                        @onclick="() => selectedTool = tool.Name">
+                                                    <i class="fas fa-play me-1"></i>Test Tool
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else if (isLoadingTools)
+                            {
+                                <div class="text-center py-3">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading tools...</span>
+                                    </div>
+                                    <p class="mt-2 text-muted">Loading available tools...</p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center py-3 text-muted">
+                                    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                                    <p>No tools available or failed to load.</p>
+                                    <button class="btn btn-outline-primary btn-sm" @onclick="LoadTools">
+                                        <i class="fas fa-retry me-1"></i>Retry
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-comment-alt me-2"></i>Available Prompts
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            @if (prompts.Any())
+                            {
+                                @foreach (var prompt in prompts)
+                                {
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                @prompt.Name
+                                                <span class="badge bg-success ms-2">Prompt</span>
+                                            </h6>
+                                            <p class="card-text">@prompt.Description</p>
+                                            
+                                            @if (prompt.Name == selectedPrompt)
+                                            {
+                                                <div class="mt-3">
+                                                    <h6>Test Prompt</h6>
+                                                    <div class="mb-2">
+                                                        <label class="form-label">Query</label>
+                                                        <input type="text" class="form-control" @bind="testPromptQuery" 
+                                                               placeholder="Enter query for prompt..." />
+                                                    </div>
+                                                    @if (prompt.Name == "nlweb_summarize_prompt")
+                                                    {
+                                                        <div class="mb-2">
+                                                            <label class="form-label">Results (JSON)</label>
+                                                            <textarea class="form-control" rows="3" @bind="testPromptResults" 
+                                                                      placeholder='[{"name": "Result 1", "description": "..."}, ...]'></textarea>
+                                                        </div>
+                                                    }
+                                                    
+                                                    <button class="btn btn-success btn-sm" @onclick="() => GetPrompt(prompt.Name)" 
+                                                            disabled="@isTestingPrompt">
+                                                        @if (isTestingPrompt)
+                                                        {
+                                                            <span class="spinner-border spinner-border-sm me-1"></span>
+                                                        }
+                                                        <i class="fas fa-eye me-1"></i>Get Prompt
+                                                    </button>
+                                                    <button class="btn btn-outline-secondary btn-sm ms-2" 
+                                                            @onclick="() => selectedPrompt = null">
+                                                        <i class="fas fa-times me-1"></i>Cancel
+                                                    </button>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <button class="btn btn-outline-success btn-sm" 
+                                                        @onclick="() => selectedPrompt = prompt.Name">
+                                                    <i class="fas fa-eye me-1"></i>Test Prompt
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else if (isLoadingPrompts)
+                            {
+                                <div class="text-center py-3">
+                                    <div class="spinner-border text-success" role="status">
+                                        <span class="visually-hidden">Loading prompts...</span>
+                                    </div>
+                                    <p class="mt-2 text-muted">Loading available prompts...</p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center py-3 text-muted">
+                                    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                                    <p>No prompts available or failed to load.</p>
+                                    <button class="btn btn-outline-success btn-sm" @onclick="LoadPrompts">
+                                        <i class="fas fa-retry me-1"></i>Retry
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            @if (!string.IsNullOrEmpty(lastResult))
+            {
+                <div class="card mt-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-terminal me-2"></i>Result
+                        </h5>
+                        <div>
+                            <button class="btn btn-outline-secondary btn-sm" @onclick="FormatResult">
+                                <i class="fas fa-code me-1"></i>Format JSON
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm ms-1" @onclick="CopyResult">
+                                <i class="fas fa-copy me-1"></i>Copy
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm ms-1" @onclick="ClearResult">
+                                <i class="fas fa-trash me-1"></i>Clear
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <pre class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto;">@lastResult</pre>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<McpTool> tools = new();
+    private List<McpPrompt> prompts = new();
+    private bool isLoadingTools = false;
+    private bool isLoadingPrompts = false;
+    private bool isTestingTool = false;
+    private bool isTestingPrompt = false;
+    
+    private string? selectedTool = null;
+    private string? selectedPrompt = null;
+    private string lastResult = "";
+    
+    // Tool testing parameters
+    private string testQuery = "What is artificial intelligence?";
+    private string testMode = "summarize";
+    private string testHistory = "";
+    
+    // Prompt testing parameters
+    private string testPromptQuery = "What is machine learning?";
+    private string testPromptResults = """[{"name": "ML Overview", "description": "Machine learning is a subset of AI"}]""";
+    
+    public class McpTool
+    {
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+    }
+    
+    public class McpPrompt
+    {
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTools();
+        await LoadPrompts();
+    }
+    
+    private async Task LoadTools()
+    {
+        isLoadingTools = true;
+        try
+        {
+            // Simulate MCP list_tools call - in a real implementation this would call the actual MCP endpoint
+            await Task.Delay(500);
+            
+            tools = new List<McpTool>
+            {
+                new McpTool
+                {
+                    Name = "nlweb_search",
+                    Description = "Search the web using NLWeb with different modes (list, summarize, generate)"
+                },
+                new McpTool
+                {
+                    Name = "nlweb_query_history",
+                    Description = "Search using conversation history for contextual queries"
+                }
+            };
+        }
+        catch (Exception ex)
+        {
+            lastResult = $"Error loading tools: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingTools = false;
+        }
+    }
+    
+    private async Task LoadPrompts()
+    {
+        isLoadingPrompts = true;
+        try
+        {
+            // Simulate MCP list_prompts call
+            await Task.Delay(500);
+            
+            prompts = new List<McpPrompt>
+            {
+                new McpPrompt
+                {
+                    Name = "nlweb_search_prompt",
+                    Description = "Generate structured search queries for NLWeb"
+                },
+                new McpPrompt
+                {
+                    Name = "nlweb_summarize_prompt",
+                    Description = "Create summaries from search results"
+                },
+                new McpPrompt
+                {
+                    Name = "nlweb_generate_prompt",
+                    Description = "Generate comprehensive answers from search results"
+                }
+            };
+        }
+        catch (Exception ex)
+        {
+            lastResult = $"Error loading prompts: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingPrompts = false;
+        }
+    }
+    
+    private async Task CallTool(string toolName)
+    {
+        isTestingTool = true;
+        try
+        {
+            var callRequest = new
+            {
+                method = "call_tool",
+                @params = new
+                {
+                    name = toolName,                    arguments = (object)(toolName switch
+                    {
+                        "nlweb_search" => new { query = testQuery, mode = testMode },
+                        "nlweb_query_history" => new { query = testQuery, history = testHistory },
+                        _ => new { }
+                    })
+                }
+            };
+            
+            // Simulate tool call - in real implementation, this would call the MCP endpoint
+            await Task.Delay(1000);
+            
+            var mockResponse = new
+            {
+                content = new[]
+                {
+                    new
+                    {
+                        type = "text",
+                        text = $"Mock response from {toolName}:\n\nQuery: {testQuery}\n" +
+                               (toolName == "nlweb_search" ? $"Mode: {testMode}\n" : "") +
+                               (toolName == "nlweb_query_history" ? $"History: {testHistory}\n" : "") +
+                               "\nThis would contain the actual NLWeb search results in a real implementation."
+                    }
+                }
+            };
+            
+            lastResult = JsonSerializer.Serialize(mockResponse, new JsonSerializerOptions { WriteIndented = true });
+            selectedTool = null;
+        }
+        catch (Exception ex)
+        {
+            lastResult = $"Error calling tool {toolName}: {ex.Message}";
+        }
+        finally
+        {
+            isTestingTool = false;
+        }
+    }
+    
+    private async Task GetPrompt(string promptName)
+    {
+        isTestingPrompt = true;
+        try
+        {
+            var promptRequest = new
+            {
+                method = "get_prompt",
+                @params = new
+                {
+                    name = promptName,                    arguments = (object)(promptName switch
+                    {
+                        "nlweb_search_prompt" => new { query = testPromptQuery },
+                        "nlweb_summarize_prompt" => new { query = testPromptQuery, results = testPromptResults },
+                        "nlweb_generate_prompt" => new { query = testPromptQuery },
+                        _ => new { }
+                    })
+                }
+            };
+            
+            // Simulate prompt retrieval
+            await Task.Delay(800);
+            
+            var mockPromptResponse = new
+            {
+                description = $"Generated prompt for {promptName}",
+                messages = new[]
+                {
+                    new
+                    {
+                        role = "user",
+                        content = new
+                        {
+                            type = "text",
+                            text = promptName switch
+                            {
+                                "nlweb_search_prompt" => $"Search for information about: {testPromptQuery}",
+                                "nlweb_summarize_prompt" => $"Please summarize the following search results for the query '{testPromptQuery}':\n\n{testPromptResults}",
+                                "nlweb_generate_prompt" => $"Generate a comprehensive answer for: {testPromptQuery}",
+                                _ => $"Prompt for {promptName} with query: {testPromptQuery}"
+                            }
+                        }
+                    }
+                }
+            };
+            
+            lastResult = JsonSerializer.Serialize(mockPromptResponse, new JsonSerializerOptions { WriteIndented = true });
+            selectedPrompt = null;
+        }
+        catch (Exception ex)
+        {
+            lastResult = $"Error getting prompt {promptName}: {ex.Message}";
+        }
+        finally
+        {
+            isTestingPrompt = false;
+        }
+    }
+    
+    private void FormatResult()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(lastResult))
+            {
+                var obj = JsonSerializer.Deserialize<object>(lastResult);
+                lastResult = JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
+            }
+        }
+        catch
+        {
+            // Result is not JSON, leave as is
+        }
+    }
+    
+    private async Task CopyResult()
+    {
+        if (!string.IsNullOrEmpty(lastResult))
+        {
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", lastResult);
+        }
+    }
+    
+    private void ClearResult()
+    {
+        lastResult = "";
+    }
+}

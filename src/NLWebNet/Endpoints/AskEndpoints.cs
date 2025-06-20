@@ -207,7 +207,8 @@ public static class AskEndpoints
                 await writer.WriteLineAsync();
                 await writer.FlushAsync();
             }, "text/event-stream"));
-        }        catch (ValidationException ex)
+        }
+        catch (ValidationException ex)
         {
             logger.LogWarning(ex, "Validation error processing streaming query: {Message}", ex.Message);
 

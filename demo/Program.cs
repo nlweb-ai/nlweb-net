@@ -8,6 +8,26 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// Add CORS configuration
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(corsBuilder =>
+    {
+        var corsSettings = builder.Configuration.GetSection("CORS");
+        var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>() ?? new[] { "*" };
+        var allowedMethods = corsSettings.GetSection("AllowedMethods").Get<string[]>() ?? new[] { "GET", "POST", "OPTIONS" };
+        var allowedHeaders = corsSettings.GetSection("AllowedHeaders").Get<string[]>() ?? new[] { "Content-Type", "Authorization" };
+        var allowCredentials = corsSettings.GetValue<bool>("AllowCredentials");
+
+        corsBuilder.WithOrigins(allowedOrigins)
+                   .WithMethods(allowedMethods)
+                   .WithHeaders(allowedHeaders);
+
+        if (allowCredentials)
+            corsBuilder.AllowCredentials();
+    });
+});
+
 // Add NLWebNet services
 builder.Services.AddNLWebNet(options =>
 {
@@ -34,6 +54,9 @@ else
 }
 
 app.UseHttpsRedirection();
+
+// Enable CORS
+app.UseCors();
 
 // Add NLWebNet middleware
 app.UseNLWebNet();

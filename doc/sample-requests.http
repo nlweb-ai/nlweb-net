@@ -1,0 +1,70 @@
+# NLWebNet API Test Requests
+
+## These are properly formatted sample requests for testing the NLWebNet API
+
+## Test 1: /ask endpoint GET request
+GET http://localhost:5037/ask?query=artificial%20intelligence&mode=List&streaming=false
+
+## Test 2: /ask endpoint POST request 
+POST http://localhost:5037/ask
+Content-Type: application/json
+
+{
+  "query": "machine learning algorithms",
+  "mode": "Summarize",
+  "site": "example",
+  "streaming": false
+}
+
+## Test 3: /mcp endpoint POST request
+POST http://localhost:5037/mcp
+Content-Type: application/json
+
+{
+  "query": "neural networks",
+  "mode": "List",
+  "streaming": false
+}
+
+## Test 4: MCP list_tools endpoint
+GET http://localhost:5037/mcp/list_tools
+
+## Test 5: MCP list_prompts endpoint  
+GET http://localhost:5037/mcp/list_prompts
+
+## Test 6: MCP call_tool endpoint
+POST http://localhost:5037/mcp/call_tool
+Content-Type: application/json
+
+{
+  "name": "nlweb_search",
+  "arguments": {
+    "query": "deep learning",
+    "mode": "list",
+    "site": "research"
+  }
+}
+
+## Test 7: MCP get_prompt endpoint
+POST http://localhost:5037/mcp/get_prompt
+Content-Type: application/json
+
+{
+  "name": "nlweb_search_prompt", 
+  "arguments": {
+    "query": "quantum computing",
+    "context": "research papers"
+  }
+}
+
+## Test 8: OpenAPI documentation
+GET http://localhost:5037/openapi/v1.json
+
+## Test 9: Error testing - missing query
+GET http://localhost:5037/ask
+
+## Test 10: CORS preflight request
+OPTIONS http://localhost:5037/ask
+Origin: http://localhost:3000
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: Content-Type
