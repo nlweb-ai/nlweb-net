@@ -2,8 +2,6 @@
 
 This repo is a proof of concept ASP.NET Core implementation of the NLWeb standard / protocol as defined in <https://github.com/microsoft/NLWeb/>
 
-**Recent Update (December 2024)**: The demo Blazor application has been successfully modernized from legacy Blazor Server structure to .NET 9 Blazor Web App best practices, including updated components, routing, layouts, and build configuration.
-
 ## NLWeb Rest API
 
 The REST API as copied from the source repo is as follows:
