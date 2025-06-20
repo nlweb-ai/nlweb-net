@@ -60,7 +60,8 @@ The next phase focuses on implementing the core NLWeb library functionality.
     - [x] `Microsoft.Extensions.AI` (for AI integration)
     - [x] `Microsoft.AspNetCore.Http.Abstractions` (for HTTP context)
     - [x] `Microsoft.Extensions.DependencyInjection.Abstractions` (for DI)
-    - [x] `Microsoft.Extensions.Logging.Abstractions` (for logging)    - [x] `Microsoft.Extensions.Options` (for configuration)
+    - [x] `Microsoft.Extensions.Logging.Abstractions` (for logging)
+    - [x] `Microsoft.Extensions.Options` (for configuration)
     - [x] `ModelContextProtocol` (official MCP SDK)
 - [x] Configure demo project structure in `/demo/`:
   - [x] Create modern .NET 9 Blazor Web App with NLWebNet library reference
