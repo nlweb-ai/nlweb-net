@@ -3,16 +3,17 @@
 		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<!-- Package Metadata -->
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>		<!-- Package Metadata -->
 		<PackageId>NLWebNet</PackageId>
-		<PackageVersion Condition="'$(PackageVersion)' == ''">1.0.0-dev</PackageVersion>
-		<Authors>NLWebNet Contributors</Authors>
-		<Description>A .NET library implementing the NLWeb protocol for natural language web interfaces</Description>
-		<PackageProjectUrl>https://github.com/microsoft/NLWeb</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/your-org/NLWebNet</RepositoryUrl>
+		<PackageVersion Condition="'$(PackageVersion)' == ''">1.0.0</PackageVersion>
+		<Authors>Jon Galloway</Authors>
+		<Description>A .NET library implementing the NLWeb protocol for natural language web interfaces. Provides minimal API endpoints, Model Context Protocol (MCP) integration, and streaming support for building conversational AI applications.</Description>
+		<PackageProjectUrl>https://github.com/jongalloway/NLWebNet</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/jongalloway/NLWebNet</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageTags>nlweb;ai;conversation;minimal-api;mcp;streaming;rag;search;llm;dotnet9</PackageTags>
+		<PackageReleaseNotes>Initial release: Complete NLWeb protocol implementation with Minimal API endpoints, MCP integration, streaming support, and comprehensive testing.</PackageReleaseNotes>
 
 		<!-- Symbol and Deterministic Build Configuration -->
 		<IncludeSymbols>true</IncludeSymbols>
