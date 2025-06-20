@@ -19,27 +19,27 @@ steps:
         fi
         exit 0
       fi
-      
+
       # Download and install .NET 9 SDK using official Microsoft install script
       echo "📦 Installing .NET 9 SDK..."
       curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 9.0 --install-dir ~/.dotnet
-      
+
       # Add .NET to PATH if not already present
       if [[ ":$PATH:" != *":$HOME/.dotnet:"* ]]; then
         echo 'export PATH="$HOME/.dotnet:$PATH"' >> ~/.bashrc
         export PATH="$HOME/.dotnet:$PATH"
       fi
-      
+
       # Set environment variables for subsequent steps (GitHub Actions specific)
       echo "DOTNET_ROOT=$HOME/.dotnet" >> $GITHUB_ENV
       echo "$HOME/.dotnet" >> $GITHUB_PATH
       echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-      
+
       # Verify installation
       echo "🔍 Verifying .NET installation..."
       dotnet --version
       dotnet --info
-      
+
       # Install required workloads including Aspire
       echo "📦 Installing required workloads..."
       dotnet workload install aspire

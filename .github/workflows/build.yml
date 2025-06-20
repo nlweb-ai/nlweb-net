@@ -104,7 +104,7 @@ jobs:
       run: dotnet build demo --configuration Release --no-restore --verbosity minimal
 
     - name: Publish test results
-      uses: dorny/test-reporter@v1
+      uses: dorny/test-reporter@v2
       if: success() || failure()
       with:
         name: Test Results (Release)
