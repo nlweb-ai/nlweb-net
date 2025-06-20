@@ -153,7 +153,7 @@ graph TB
 
 ```csharp
 // Program.cs
-using NLWebNet.Extensions;
+using NLWebNet;
 
 // Add NLWebNet services
 builder.Services.AddNLWebNet(options =>
@@ -221,6 +221,8 @@ Configure in your ASP.NET Core application:
 
 ```csharp
 // Program.cs
+using NLWebNet;
+
 builder.Services.AddNLWebNet(options =>
 {
     options.DefaultMode = QueryMode.List;
@@ -354,6 +356,8 @@ Access configuration in your application:
 
 ```csharp
 // Program.cs
+using NLWebNet;
+
 builder.Services.AddNLWebNet(options =>
 {
     // Bind from configuration
@@ -371,9 +375,9 @@ builder.Services.Configure<AzureSearchOptions>(
 
 ## 🛠️ Development Status
 
-This is a **fully functional implementation** of the NLWeb protocol, ready for production use.
+This is a **fully functional implementation** of the NLWeb protocol, ready for production use as a prerelease package.
 
-**✅ Completed (Phases 1-10):**
+**✅ Completed (Phases 1-10.5):**
 
 - [x] **Core Library**: Complete NLWeb protocol implementation with Minimal API endpoints
 - [x] **Data Models**: Request/response models with validation and JSON serialization
@@ -384,17 +388,14 @@ This is a **fully functional implementation** of the NLWeb protocol, ready for p
 - [x] **Configuration**: CORS, AI services, and multi-environment support
 - [x] **Documentation**: XML documentation, README, and API usage examples
 - [x] **CI/CD**: GitHub Actions workflow for build, test, and validation
-- [x] **Packaging**: NuGet package creation and metadata (API exposure issue identified)
+- [x] **NuGet Package**: Fully functional package with working extension methods (1.0.0-beta.1)
+- [x] **API Exposure**: Extension methods accessible via `using NLWebNet;` (Microsoft pattern)
+- [x] **End-to-End Validation**: Complete package installation and functionality testing
 
-**🚧 In Progress (Phase 11):**
+**📋 Next Steps (Phase 11):**
 
-- [x] Comprehensive API usage demonstrations in README and demo app
-- [x] NuGet package creation and production metadata
-- [ ] NuGet package API surface area fixes
-- [ ] Production deployment guides
-
-**📋 Planned (Phase 11):**
-
+- [ ] Final package validation before NuGet.org publication
+- [ ] Update documentation with confirmed usage patterns
 - [ ] Health check integration
 - [ ] Performance monitoring hooks
 - [ ] Rate limiting support
@@ -421,4 +422,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## 🏷️ Version
 
-Current version: `1.0.0-alpha` (Pre-release)
+Current version: `1.0.0-beta.1` (Prerelease - fully functional, marked as beta due to ModelContextProtocol dependency)
