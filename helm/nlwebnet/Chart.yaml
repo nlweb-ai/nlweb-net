@@ -1,0 +1,21 @@
+apiVersion: v2
+name: nlwebnet
+description: A Helm chart for NLWebNet - .NET NLWeb Protocol Implementation
+type: application
+version: 0.1.0
+appVersion: "latest"
+home: https://github.com/jongalloway/NLWebNet
+sources:
+  - https://github.com/jongalloway/NLWebNet
+maintainers:
+  - name: Jon Galloway
+    email: jongalloway@outlook.com
+keywords:
+  - nlweb
+  - ai
+  - dotnet
+  - aspnetcore
+  - blazor
+  - mcp
+annotations:
+  category: AI/ML

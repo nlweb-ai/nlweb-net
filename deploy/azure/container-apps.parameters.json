@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "appName": {
+      "value": "nlwebnet"
+    },
+    "environment": {
+      "value": "dev"
+    },
+    "containerImage": {
+      "value": "nlwebnet-demo:latest"
+    },
+    "minReplicas": {
+      "value": 1
+    },
+    "maxReplicas": {
+      "value": 3
+    },
+    "containerRegistryServer": {
+      "value": ""
+    },
+    "containerRegistryUsername": {
+      "value": ""
+    },
+    "containerRegistryPassword": {
+      "value": ""
+    },
+    "azureOpenAIApiKey": {
+      "value": ""
+    },
+    "azureOpenAIEndpoint": {
+      "value": ""
+    },
+    "azureOpenAIDeploymentName": {
+      "value": "gpt-4"
+    },
+    "azureSearchApiKey": {
+      "value": ""
+    },
+    "azureSearchServiceName": {
+      "value": ""
+    },
+    "azureSearchIndexName": {
+      "value": "nlweb-index"
+    }
+  }
+}

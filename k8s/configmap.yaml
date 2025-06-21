@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nlwebnet-config
+  labels:
+    app: nlwebnet-demo
+data:
+  # NLWebNet Configuration
+  nlwebnet-default-mode: "List"
+  nlwebnet-enable-streaming: "true"
+  nlwebnet-default-timeout: "30"
+  nlwebnet-max-results: "50"
+  
+  # Azure OpenAI Configuration (non-sensitive)
+  azure-openai-endpoint: "https://your-resource.openai.azure.com/"
+  azure-openai-deployment: "gpt-4"
+  azure-openai-api-version: "2024-02-01"
+  
+  # Azure Search Configuration (non-sensitive)
+  azure-search-service: "your-search-service"
+  azure-search-index: "nlweb-index"
+  
+  # CORS Configuration
+  cors-allowed-origins: "https://your-domain.com,https://api.your-domain.com"
+  cors-allowed-methods: "GET,POST,OPTIONS"
+  cors-allowed-headers: "Content-Type,Authorization,Accept"
+  cors-allow-credentials: "true"
+  
+  # Logging Configuration
+  logging-level: "Information"
+  aspnetcore-logging-level: "Warning"
+  nlwebnet-logging-level: "Information"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nlwebnet-secrets
+  labels:
+    app: nlwebnet-demo
+type: Opaque
+data:
+  # API Keys (base64 encoded)
+  # To encode: echo -n "your-api-key" | base64
+  # To create this secret, run:
+  # kubectl create secret generic nlwebnet-secrets \
+  #   --from-literal=azure-openai-api-key="your-azure-openai-key" \
+  #   --from-literal=azure-search-api-key="your-azure-search-key" \
+  #   --from-literal=openai-api-key="your-openai-key"
+  
+  # Placeholder values (replace with actual base64-encoded keys)
+  azure-openai-api-key: "eW91ci1henVyZS1vcGVuYWkta2V5"  # "your-azure-openai-key"
+  azure-search-api-key: "eW91ci1henVyZS1zZWFyY2gta2V5"  # "your-azure-search-key"
+  openai-api-key: "eW91ci1vcGVuYWkta2V5"               # "your-openai-key"
+
+---
+# Optional: HorizontalPodAutoscaler for automatic scaling
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nlwebnet-demo-hpa
+  labels:
+    app: nlwebnet-demo
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nlwebnet-demo
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percentage
+        value: 50
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percentage
+        value: 100
+        periodSeconds: 60
+      - type: Pods
+        value: 2
+        periodSeconds: 60

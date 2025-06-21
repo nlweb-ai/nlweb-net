@@ -402,6 +402,41 @@ builder.Services.Configure<AzureSearchOptions>(
     builder.Configuration.GetSection("AzureSearch"));
 ```
 
+## 🚀 Deployment
+
+NLWebNet supports multiple deployment options for different environments:
+
+### 🐳 Docker Deployment
+```bash
+# Quick start with Docker Compose
+git clone https://github.com/jongalloway/NLWebNet.git
+cd NLWebNet
+docker-compose up --build
+```
+
+### ☁️ Azure Cloud Deployment
+```bash
+# Deploy to Azure Container Apps
+./scripts/deploy/deploy-azure.sh -g myResourceGroup -t container-apps
+
+# Deploy to Azure App Service
+./scripts/deploy/deploy-azure.sh -g myResourceGroup -t app-service
+```
+
+### ⚙️ Kubernetes Deployment
+```bash
+# Deploy to any Kubernetes cluster
+kubectl apply -f k8s/
+```
+
+### 📦 Container Registry
+Pre-built images available soon. For now, build locally:
+```bash
+./scripts/deploy/build-docker.sh -t latest
+```
+
+📖 **[Complete Deployment Guide](doc/deployment/README.md)** - Comprehensive instructions for all deployment scenarios.
+
 ## 🛠️ Development Status
 
 This is a **proof of concept implementation** of the NLWeb protocol, available as an **alpha prerelease package** for testing and evaluation purposes only.

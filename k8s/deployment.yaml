@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nlwebnet-demo
+  labels:
+    app: nlwebnet-demo
+    version: v1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nlwebnet-demo
+  template:
+    metadata:
+      labels:
+        app: nlwebnet-demo
+        version: v1
+    spec:
+      containers:
+      - name: nlwebnet-demo
+        image: nlwebnet-demo:latest
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Production"
+        - name: ASPNETCORE_URLS
+          value: "http://+:8080"
+        - name: NLWebNet__DefaultMode
+          value: "List"
+        - name: NLWebNet__EnableStreaming
+          value: "true"
+        - name: NLWebNet__DefaultTimeoutSeconds
+          value: "30"
+        - name: NLWebNet__MaxResultsPerQuery
+          value: "50"
+        # AI Service Configuration (use ConfigMap or Secret)
+        - name: AzureOpenAI__Endpoint
+          valueFrom:
+            configMapKeyRef:
+              name: nlwebnet-config
+              key: azure-openai-endpoint
+              optional: true
+        - name: AzureOpenAI__DeploymentName
+          valueFrom:
+            configMapKeyRef:
+              name: nlwebnet-config
+              key: azure-openai-deployment
+              optional: true
+        - name: AzureOpenAI__ApiKey
+          valueFrom:
+            secretKeyRef:
+              name: nlwebnet-secrets
+              key: azure-openai-api-key
+              optional: true
+        - name: AzureSearch__ServiceName
+          valueFrom:
+            configMapKeyRef:
+              name: nlwebnet-config
+              key: azure-search-service
+              optional: true
+        - name: AzureSearch__IndexName
+          valueFrom:
+            configMapKeyRef:
+              name: nlwebnet-config
+              key: azure-search-index
+              optional: true
+        - name: AzureSearch__ApiKey
+          valueFrom:
+            secretKeyRef:
+              name: nlwebnet-secrets
+              key: azure-search-api-key
+              optional: true
+        # CORS Configuration
+        - name: CORS__AllowedOrigins__0
+          value: "https://your-domain.com"
+        - name: CORS__AllowCredentials
+          value: "true"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+      restartPolicy: Always
+      securityContext:
+        fsGroup: 1000
+        runAsNonRoot: true
