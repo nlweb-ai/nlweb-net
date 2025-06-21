@@ -410,3 +410,16 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Deployment and containerization artifacts
+deployment/ssl/
+deployment/secrets/
+*.env
+.env.*
+docker-compose.override.yml
+k8s-secrets.yaml
+helm-values-*.yaml
+
+# Container build artifacts
+.docker/
+.buildx-cache/

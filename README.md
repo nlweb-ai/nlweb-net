@@ -402,6 +402,59 @@ builder.Services.Configure<AzureSearchOptions>(
     builder.Configuration.GetSection("AzureSearch"));
 ```
 
+## 🚀 Deployment
+
+NLWebNet provides comprehensive deployment strategies for various environments.
+
+### Docker (Local Development)
+
+```bash
+# Quick start with Docker Compose
+docker-compose up -d
+
+# Access application at http://localhost:8080
+# Health checks at http://localhost:8080/health
+```
+
+### Kubernetes
+
+```bash
+# Deploy to Kubernetes
+kubectl apply -f deployment/kubernetes/
+
+# Or use Helm charts
+helm install nlwebnet deployment/helm/nlwebnet/
+```
+
+### Azure Cloud
+
+**Azure Container Apps:**
+```bash
+# Deploy using ARM template
+az deployment group create \
+  --resource-group myResourceGroup \
+  --template-file deployment/azure/container-apps.json \
+  --parameters containerImage=nlwebnet:latest
+```
+
+**Azure App Service:**
+```bash
+# Deploy using ARM template
+az deployment group create \
+  --resource-group myResourceGroup \
+  --template-file deployment/azure/app-service.json
+```
+
+### Production Features
+
+✅ **Security:** Non-root containers, minimal attack surface  
+✅ **Monitoring:** Health checks, metrics, structured logging  
+✅ **Scaling:** Horizontal Pod Autoscaler, load balancing  
+✅ **Reliability:** Rolling updates, blue-green deployments  
+✅ **Observability:** OpenTelemetry, Prometheus integration  
+
+For detailed deployment instructions, see [deployment/README.md](deployment/README.md).
+
 ## 🛠️ Development Status
 
 This is a **proof of concept implementation** of the NLWeb protocol, available as an **alpha prerelease package** for testing and evaluation purposes only.
