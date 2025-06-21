@@ -35,7 +35,7 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.6" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="9.0.6" />
-		<PackageReference Include="ModelContextProtocol" Version="0.2.0-preview.3" />
+		<PackageReference Include="ModelContextProtocol" Version="0.3.0-preview.1" />
 		
 		<!-- Health Checks and Monitoring -->
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.6" />
