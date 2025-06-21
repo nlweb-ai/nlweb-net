@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nlwebnet-demo-service
+  labels:
+    app: nlwebnet-demo
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: nlwebnet-demo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nlwebnet-demo-loadbalancer
+  labels:
+    app: nlwebnet-demo
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: nlwebnet-demo

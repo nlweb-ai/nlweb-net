@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # NLWebNet Demo Application
+  nlwebnet-demo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: final
+    container_name: nlwebnet-demo
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - NLWebNet__DefaultMode=List
+      - NLWebNet__EnableStreaming=true
+      - NLWebNet__DefaultTimeoutSeconds=30
+      - NLWebNet__MaxResultsPerQuery=50
+      # Override CORS for containerized development
+      - CORS__AllowedOrigins__0=http://localhost:8080
+      - CORS__AllowedOrigins__1=http://localhost:3000
+      - CORS__AllowedOrigins__2=http://localhost:5173
+      - CORS__AllowCredentials=true
+      # Optional: Add AI service configuration via environment variables
+      # - AzureOpenAI__Endpoint=https://your-resource.openai.azure.com/
+      # - AzureOpenAI__DeploymentName=gpt-4
+      # - AzureOpenAI__ApiKey=your-api-key
+      # - AzureSearch__ServiceName=your-search-service
+      # - AzureSearch__IndexName=nlweb-index
+      # - AzureSearch__ApiKey=your-search-api-key
+    volumes:
+      # Mount logs directory for persistent logs
+      - nlwebnet-logs:/app/logs
+      # Optional: Override appsettings for development
+      # - ./samples/Demo/appsettings.Development.json:/app/appsettings.Development.json:ro
+    networks:
+      - nlwebnet-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Optional: Redis for caching (uncomment if needed)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: nlwebnet-redis
+  #   ports:
+  #     - "6379:6379"
+  #   command: redis-server --appendonly yes
+  #   volumes:
+  #     - redis-data:/data
+  #   networks:
+  #     - nlwebnet-network
+  #   restart: unless-stopped
+
+  # Optional: PostgreSQL for data storage (uncomment if needed)
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: nlwebnet-postgres
+  #   environment:
+  #     POSTGRES_DB: nlwebnet
+  #     POSTGRES_USER: nlwebnet
+  #     POSTGRES_PASSWORD: nlwebnet123
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   networks:
+  #     - nlwebnet-network
+  #   restart: unless-stopped
+
+volumes:
+  nlwebnet-logs:
+    driver: local
+  # redis-data:
+  #   driver: local
+  # postgres-data:
+  #   driver: local
+
+networks:
+  nlwebnet-network:
+    driver: bridge

@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nlwebnet.fullname" . }}
+  labels:
+    {{- include "nlwebnet.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "nlwebnet.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "nlwebnet.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "nlwebnet.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: {{ .Values.app.environment | quote }}
+            - name: ASPNETCORE_URLS
+              value: "http://+:{{ .Values.service.targetPort }}"
+            - name: NLWebNet__DefaultMode
+              value: {{ .Values.app.nlwebnet.defaultMode | quote }}
+            - name: NLWebNet__EnableStreaming
+              value: {{ .Values.app.nlwebnet.enableStreaming | quote }}
+            - name: NLWebNet__DefaultTimeoutSeconds
+              value: {{ .Values.app.nlwebnet.defaultTimeoutSeconds | quote }}
+            - name: NLWebNet__MaxResultsPerQuery
+              value: {{ .Values.app.nlwebnet.maxResultsPerQuery | quote }}
+            {{- if .Values.app.azureOpenAI.endpoint }}
+            - name: AzureOpenAI__Endpoint
+              value: {{ .Values.app.azureOpenAI.endpoint | quote }}
+            - name: AzureOpenAI__DeploymentName
+              value: {{ .Values.app.azureOpenAI.deploymentName | quote }}
+            - name: AzureOpenAI__ApiVersion
+              value: {{ .Values.app.azureOpenAI.apiVersion | quote }}
+            {{- end }}
+            {{- if .Values.app.azureSearch.serviceName }}
+            - name: AzureSearch__ServiceName
+              value: {{ .Values.app.azureSearch.serviceName | quote }}
+            - name: AzureSearch__IndexName
+              value: {{ .Values.app.azureSearch.indexName | quote }}
+            {{- end }}
+            {{- if .Values.app.cors.allowedOrigins }}
+            {{- range $index, $origin := .Values.app.cors.allowedOrigins }}
+            - name: CORS__AllowedOrigins__{{ $index }}
+              value: {{ $origin | quote }}
+            {{- end }}
+            {{- end }}
+            - name: CORS__AllowCredentials
+              value: {{ .Values.app.cors.allowCredentials | quote }}
+            {{- if or .Values.secrets.useExisting (not (empty .Values.secrets.azureOpenAIApiKey)) }}
+            - name: AzureOpenAI__ApiKey
+              valueFrom:
+                secretKeyRef:
+                  name: {{ if .Values.secrets.useExisting }}{{ .Values.secrets.existingSecretName }}{{ else }}{{ include "nlwebnet.fullname" . }}-secrets{{ end }}
+                  key: azure-openai-api-key
+                  optional: true
+            {{- end }}
+            {{- if or .Values.secrets.useExisting (not (empty .Values.secrets.azureSearchApiKey)) }}
+            - name: AzureSearch__ApiKey
+              valueFrom:
+                secretKeyRef:
+                  name: {{ if .Values.secrets.useExisting }}{{ .Values.secrets.existingSecretName }}{{ else }}{{ include "nlwebnet.fullname" . }}-secrets{{ end }}
+                  key: azure-search-api-key
+                  optional: true
+            {{- end }}
+            {{- if or .Values.secrets.useExisting (not (empty .Values.secrets.openAIApiKey)) }}
+            - name: OpenAI__ApiKey
+              valueFrom:
+                secretKeyRef:
+                  name: {{ if .Values.secrets.useExisting }}{{ .Values.secrets.existingSecretName }}{{ else }}{{ include "nlwebnet.fullname" . }}-secrets{{ end }}
+                  key: openai-api-key
+                  optional: true
+            {{- end }}
+          {{- if .Values.healthCheck.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.healthCheck.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.healthCheck.periodSeconds }}
+            timeoutSeconds: {{ .Values.healthCheck.timeoutSeconds }}
+            failureThreshold: {{ .Values.healthCheck.failureThreshold }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.readinessProbe.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
