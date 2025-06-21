@@ -39,7 +39,7 @@ public class NLWebMiddleware
         });
 
         // Log incoming request with structured data
-        _logger.LogInformation("Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}",
+        _logger.LogDebug("Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}",
             context.Request.Method, context.Request.Path,
             context.Connection.RemoteIpAddress?.ToString() ?? "unknown", correlationId);
 
@@ -70,7 +70,17 @@ public class NLWebMiddleware
 
     private static void AddCorsHeaders(HttpContext context)
     {
-        context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+        var allowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")?.Split(',') ?? new[] { "*" };
+        var origin = context.Request.Headers["Origin"].FirstOrDefault();
+
+        if (origin != null && allowedOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase))
+        {
+            context.Response.Headers.Append("Access-Control-Allow-Origin", origin);
+        }
+        else if (allowedOrigins.Contains("*"))
+        {
+            context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+        }
         context.Response.Headers.Append("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         context.Response.Headers.Append("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Correlation-ID, X-Client-Id");
         context.Response.Headers.Append("Access-Control-Expose-Headers", "X-Correlation-ID, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset");

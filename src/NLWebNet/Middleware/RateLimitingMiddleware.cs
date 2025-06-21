@@ -47,9 +47,9 @@ public class RateLimitingMiddleware
 
         // Add rate limit headers
         var status = await _rateLimitingService.GetRateLimitStatusAsync(identifier);
-        context.Response.Headers.Append("X-RateLimit-Limit", _options.RequestsPerWindow.ToString());
-        context.Response.Headers.Append("X-RateLimit-Remaining", status.RequestsRemaining.ToString());
-        context.Response.Headers.Append("X-RateLimit-Reset", ((int)status.WindowResetTime.TotalSeconds).ToString());
+        context.Response.Headers["X-RateLimit-Limit"] = _options.RequestsPerWindow.ToString();
+        context.Response.Headers["X-RateLimit-Remaining"] = status.RequestsRemaining.ToString();
+        context.Response.Headers["X-RateLimit-Reset"] = ((int)status.WindowResetTime.TotalSeconds).ToString();
 
         await _next(context);
     }
