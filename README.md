@@ -45,17 +45,15 @@ NLWebNet/
 │   ├── Endpoints/             # Minimal API endpoints (/ask, /mcp)
 │   ├── MCP/                   # Model Context Protocol integration
 │   ├── Extensions/            # DI and middleware extensions
-│   ├── Middleware/            # Request processing middleware
-│   ├── Middleware/            # ASP.NET Core middleware
-│   └── Extensions/            # Dependency injection extensions
+│   └── Middleware/            # Request processing middleware
 ├── samples/                   # 🎯 Sample applications and usage examples
 │   ├── Demo/                  # 🎮 .NET 9 Blazor Web App demo application  
 │   └── AspireHost/            # 🏗️ .NET Aspire orchestration host  
-│   ├── Components/            # Modern Blazor components
-│   │   ├── Layout/            # Layout components (MainLayout, etc.)
-│   │   └── Pages/             # Page components (Home, NLWebDemo, Error)
-│   ├── wwwroot/               # Static assets (app.css, favicon, etc.)
-│   └── Properties/            # Launch settings and configuration
+├── deployment/                # 🚀 Deployment and infrastructure files
+│   ├── azure/                 # Azure deployment (Bicep templates)
+│   ├── kubernetes/            # Kubernetes manifests and Helm charts
+│   ├── docker/                # Docker and Docker Compose files
+│   └── scripts/               # Deployment and validation scripts
 ├── doc/                       # 📚 Documentation
 └── tests/                     # 🧪 Unit and integration tests
     └── NLWebNet.Tests/        # 📋 xUnit test project
@@ -411,28 +409,28 @@ NLWebNet supports multiple deployment options for different environments:
 # Quick start with Docker Compose
 git clone https://github.com/jongalloway/NLWebNet.git
 cd NLWebNet
-docker-compose up --build
+cd deployment/docker && docker-compose up --build
 ```
 
 ### ☁️ Azure Cloud Deployment
 ```bash
 # Deploy to Azure Container Apps
-./scripts/deploy/deploy-azure.sh -g myResourceGroup -t container-apps
+./deployment/scripts/deploy/deploy-azure.sh -g myResourceGroup -t container-apps
 
 # Deploy to Azure App Service
-./scripts/deploy/deploy-azure.sh -g myResourceGroup -t app-service
+./deployment/scripts/deploy/deploy-azure.sh -g myResourceGroup -t app-service
 ```
 
 ### ⚙️ Kubernetes Deployment
 ```bash
 # Deploy to any Kubernetes cluster
-kubectl apply -f k8s/
+kubectl apply -f deployment/kubernetes/manifests/
 ```
 
 ### 📦 Container Registry
 Pre-built images available soon. For now, build locally:
 ```bash
-./scripts/deploy/build-docker.sh -t latest
+./deployment/scripts/deploy/build-docker.sh -t latest
 ```
 
 📖 **[Complete Deployment Guide](doc/deployment/README.md)** - Comprehensive instructions for all deployment scenarios.

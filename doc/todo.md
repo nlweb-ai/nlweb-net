@@ -511,7 +511,7 @@ Comprehensive testing and validation infrastructure has been implemented coverin
   - [x] ✅ **VALIDATED**: Minimal API endpoint registration works correctly
 - [x] **Production Readiness**:
   - [x] ✅ **RESOLVED**: ModelContextProtocol prerelease dependency - NLWebNet marked as 0.1.0-alpha.1  - [x] ✅ **Final package validation before publication**:
-    - [x] ✅ Run comprehensive validation script (`scripts/validate-package.ps1`) - ALL CHECKS PASSED
+    - [x] ✅ Run comprehensive validation script (`deployment/scripts/validate-package.ps1`) - ALL CHECKS PASSED
     - [x] ✅ Verify package content and assembly metadata - Confirmed correct structure
     - [x] ✅ Confirm no vulnerable or deprecated dependencies - Clean
     - [x] ✅ Test integration with fresh consumer project - Successful compilation

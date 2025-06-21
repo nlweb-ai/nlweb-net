@@ -80,11 +80,11 @@ while [[ $# -gt 0 ]]; do
         -t|--template)
             case "$2" in
                 container-apps)
-                    TEMPLATE_FILE="deploy/azure/container-apps.bicep"
-                    PARAMETERS_FILE="deploy/azure/container-apps.parameters.json"
+                    TEMPLATE_FILE="../../../deployment/azure/container-apps.bicep"
+                    PARAMETERS_FILE="../../../deployment/azure/container-apps.parameters.json"
                     ;;
                 app-service)
-                    TEMPLATE_FILE="deploy/azure/app-service.bicep"
+                    TEMPLATE_FILE="../../../deployment/azure/app-service.bicep"
                     ;;
                 *)
                     print_error "Invalid template: $2. Use 'container-apps' or 'app-service'"

@@ -29,7 +29,7 @@ git clone https://github.com/jongalloway/NLWebNet.git
 cd NLWebNet
 
 # Run with Docker Compose
-docker-compose up --build
+cd deployment/docker && docker-compose up --build
 
 # Or run locally (requires .NET 9)
 cd samples/Demo
@@ -46,13 +46,13 @@ Use the provided build script for easy Docker image creation:
 
 ```bash
 # Build with default settings
-./scripts/deploy/build-docker.sh
+./deployment/scripts/deploy/build-docker.sh
 
 # Build with specific tag
-./scripts/deploy/build-docker.sh -t v1.0.0
+./deployment/scripts/deploy/build-docker.sh -t v1.0.0
 
 # Build and push to registry
-./scripts/deploy/build-docker.sh -t v1.0.0 -r myregistry.azurecr.io -p
+./deployment/scripts/deploy/build-docker.sh -t v1.0.0 -r myregistry.azurecr.io -p
 ```
 
 ### Manual Docker Build
@@ -75,7 +75,7 @@ For local development with dependencies:
 
 ```bash
 # Start all services
-docker-compose up -d
+cd deployment/docker && docker-compose up -d
 
 # View logs
 docker-compose logs -f nlwebnet-demo
@@ -105,7 +105,7 @@ Key environment variables for Docker deployment:
 
 ```bash
 # Deploy all resources
-kubectl apply -f k8s/
+kubectl apply -f deployment/kubernetes/manifests/
 
 # Check deployment status
 kubectl get pods -l app=nlwebnet-demo
@@ -129,14 +129,14 @@ kubectl get ingress
      --from-literal=azure-search-api-key="your-key"
    
    # Apply configuration
-   kubectl apply -f k8s/configmap.yaml
+   kubectl apply -f deployment/kubernetes/manifests/configmap.yaml
    ```
 
 3. **Deploy application**:
    ```bash
-   kubectl apply -f k8s/deployment.yaml
-   kubectl apply -f k8s/service.yaml
-   kubectl apply -f k8s/ingress.yaml
+   kubectl apply -f deployment/kubernetes/manifests/deployment.yaml
+   kubectl apply -f deployment/kubernetes/manifests/service.yaml
+   kubectl apply -f deployment/kubernetes/manifests/ingress.yaml
    ```
 
 4. **Verify deployment**:
@@ -185,25 +185,25 @@ az account set --subscription "your-subscription-id"
 
 ```bash
 # Deploy using script
-./scripts/deploy/deploy-azure.sh -g myResourceGroup -t container-apps
+./deployment/scripts/deploy/deploy-azure.sh -g myResourceGroup -t container-apps
 
 # Or manual deployment
 az deployment group create \
   --resource-group myResourceGroup \
-  --template-file deploy/azure/container-apps.bicep \
-  --parameters @deploy/azure/container-apps.parameters.json
+  --template-file deployment/azure/container-apps.bicep \
+  --parameters @deployment/azure/container-apps.parameters.json
 ```
 
 ### App Service Deployment
 
 ```bash
 # Deploy to App Service
-./scripts/deploy/deploy-azure.sh -g myResourceGroup -t app-service -e prod
+./deployment/scripts/deploy/deploy-azure.sh -g myResourceGroup -t app-service -e prod
 
 # Manual deployment
 az deployment group create \
   --resource-group myResourceGroup \
-  --template-file deploy/azure/app-service.bicep \
+  --template-file deployment/azure/app-service.bicep \
   --parameters appName=nlwebnet environment=prod
 ```
 
@@ -225,7 +225,7 @@ az deployment group create \
 
 3. **Deploy application**:
    ```bash
-   kubectl apply -f k8s/
+   kubectl apply -f deployment/kubernetes/manifests/
    ```
 
 ## Production Considerations
@@ -323,7 +323,7 @@ kubectl get events --sort-by=.metadata.creationTimestamp
 
 ```bash
 # Docker logs
-docker-compose logs -f nlwebnet-demo
+cd deployment/docker && docker-compose logs -f nlwebnet-demo
 
 # Kubernetes logs
 kubectl logs -f -l app=nlwebnet-demo

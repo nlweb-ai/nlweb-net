@@ -11,7 +11,7 @@ This guide outlines the comprehensive validation process for the NLWebNet NuGet 
 
 ### Linux/macOS (Bash)
 ```bash
-./scripts/validate-package.sh
+./deployment/scripts/validate-package.sh
 ```
 
 ## 📋 Manual Validation Checklist

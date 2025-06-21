@@ -9,7 +9,8 @@ set -e  # Exit on any error
 IMAGE_NAME="nlwebnet-demo"
 DEFAULT_TAG="latest"
 REGISTRY=""
-DOCKERFILE="Dockerfile"
+DOCKERFILE="deployment/docker/Dockerfile"
+BUILD_CONTEXT="../../../"
 
 # Colors for output
 RED='\033[0;31m'
@@ -95,8 +96,8 @@ print_status "Image name: $FULL_IMAGE_NAME"
 print_status "Dockerfile: $DOCKERFILE"
 
 # Check if Dockerfile exists
-if [[ ! -f "$DOCKERFILE" ]]; then
-    print_error "Dockerfile not found: $DOCKERFILE"
+if [[ ! -f "$BUILD_CONTEXT$DOCKERFILE" ]]; then
+    print_error "Dockerfile not found: $BUILD_CONTEXT$DOCKERFILE"
     exit 1
 fi
 
@@ -107,7 +108,7 @@ if [[ "$NO_CACHE" == true ]]; then
     BUILD_CMD="$BUILD_CMD --no-cache"
 fi
 
-BUILD_CMD="$BUILD_CMD -t $FULL_IMAGE_NAME -f $DOCKERFILE ."
+BUILD_CMD="$BUILD_CMD -t $FULL_IMAGE_NAME -f $DOCKERFILE $BUILD_CONTEXT"
 
 print_status "Running: $BUILD_CMD"
 
