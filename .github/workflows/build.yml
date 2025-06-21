@@ -100,9 +100,6 @@ jobs:
         fi
       continue-on-error: false
 
-    - name: Build demo application
-      run: dotnet build demo --configuration Release --no-restore --verbosity minimal
-
     - name: Publish test results
       uses: dorny/test-reporter@v2
       if: success() || failure()
