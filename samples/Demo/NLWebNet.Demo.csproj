@@ -7,6 +7,14 @@
     <RootNamespace>NLWebNet.Demo</RootNamespace>
     <UserSecretsId>031db3ba-2870-4c49-b002-5f532463e55e</UserSecretsId>
   </PropertyGroup>
+
+  <!-- Container configuration -->
+  <PropertyGroup>
+    <ContainerImageName>nlwebnet-demo</ContainerImageName>
+    <ContainerImageTag>latest</ContainerImageTag>
+    <ContainerPort>8080</ContainerPort>
+    <ContainerWorkingDirectory>/app</ContainerWorkingDirectory>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\NLWebNet\NLWebNet.csproj" />
   </ItemGroup><ItemGroup>

@@ -40,6 +40,10 @@ Access the application at `http://localhost:8080`
 
 ## Docker Deployment
 
+NLWebNet supports two container build approaches:
+1. **Traditional Dockerfile** (recommended for CI/CD and complex scenarios)
+2. **.NET SDK Container Build** (modern, simplified approach for development)
+
 ### Building the Container
 
 Use the provided build script for easy Docker image creation:
@@ -58,8 +62,8 @@ Use the provided build script for easy Docker image creation:
 ### Manual Docker Build
 
 ```bash
-# Build the image
-docker build -t nlwebnet-demo:latest .
+# Build the image (traditional Dockerfile approach)
+docker build -f deployment/docker/Dockerfile -t nlwebnet-demo:latest .
 
 # Run the container
 docker run -p 8080:8080 \
@@ -67,6 +71,39 @@ docker run -p 8080:8080 \
   -e NLWebNet__DefaultMode=List \
   -e NLWebNet__EnableStreaming=true \
   nlwebnet-demo:latest
+```
+
+### .NET SDK Container Build (Modern Approach)
+
+.NET 9 SDK includes built-in container support that eliminates the need for a traditional Dockerfile:
+
+```bash
+# Navigate to the demo project
+cd samples/Demo
+
+# Build and publish as container
+dotnet publish -c Release -p:PublishProfile=DefaultContainer
+
+# The container image will be available as 'nlwebnet-demo:latest'
+# Run the container
+docker run -p 8080:8080 nlwebnet-demo:latest
+```
+
+**Benefits of .NET SDK Container Build:**
+- No Dockerfile required
+- Optimized .NET base images
+- Automatic security updates
+- Simplified build process
+- Better layer caching
+
+**Configuration:**
+Container settings can be customized in the project file:
+```xml
+<PropertyGroup>
+  <ContainerImageName>nlwebnet-demo</ContainerImageName>
+  <ContainerImageTag>latest</ContainerImageTag>
+  <ContainerPort>8080</ContainerPort>
+</PropertyGroup>
 ```
 
 ### Docker Compose
