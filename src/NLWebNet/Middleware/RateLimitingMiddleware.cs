@@ -80,7 +80,7 @@ public class RateLimitingMiddleware
     private async Task HandleRateLimitExceeded(HttpContext context, string identifier)
     {
         var status = await _rateLimitingService.GetRateLimitStatusAsync(identifier);
-        
+
         context.Response.StatusCode = 429; // Too Many Requests
         context.Response.Headers.Append("X-RateLimit-Limit", _options.RequestsPerWindow.ToString());
         context.Response.Headers.Append("X-RateLimit-Remaining", "0");

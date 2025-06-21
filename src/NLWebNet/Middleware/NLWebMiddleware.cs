@@ -40,7 +40,7 @@ public class NLWebMiddleware
 
         // Log incoming request with structured data
         _logger.LogInformation("Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}",
-            context.Request.Method, context.Request.Path, 
+            context.Request.Method, context.Request.Path,
             context.Connection.RemoteIpAddress?.ToString() ?? "unknown", correlationId);
 
         try

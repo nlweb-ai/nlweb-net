@@ -33,7 +33,7 @@ public class AIServiceHealthCheck : IHealthCheck
             // Test basic connectivity by checking available tools
             // This is a lightweight operation that validates the service is operational
             var toolsResult = await _mcpService.ListToolsAsync(cancellationToken);
-            
+
             if (toolsResult == null)
             {
                 return HealthCheckResult.Degraded("AI/MCP service responded but returned null tools list");

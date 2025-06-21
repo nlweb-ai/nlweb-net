@@ -31,7 +31,7 @@ public class MetricsMiddleware
         activity?.SetTag("http.method", method);
         activity?.SetTag("http.route", path);
         activity?.SetTag("http.scheme", context.Request.Scheme);
-        
+
         // Add correlation ID to activity if present
         if (context.Request.Headers.TryGetValue("X-Correlation-ID", out var correlationId))
         {
@@ -41,7 +41,7 @@ public class MetricsMiddleware
         try
         {
             await _next(context);
-            
+
             // Set success status
             activity?.SetTag("http.status_code", context.Response.StatusCode);
             activity?.SetStatus(context.Response.StatusCode >= 400 ? ActivityStatusCode.Error : ActivityStatusCode.Ok);
@@ -49,7 +49,7 @@ public class MetricsMiddleware
         catch (Exception ex)
         {
             // Record error metrics
-            NLWebMetrics.RequestErrors.Add(1, 
+            NLWebMetrics.RequestErrors.Add(1,
                 new KeyValuePair<string, object?>(NLWebMetrics.Tags.Endpoint, path),
                 new KeyValuePair<string, object?>(NLWebMetrics.Tags.Method, method),
                 new KeyValuePair<string, object?>(NLWebMetrics.Tags.ErrorType, ex.GetType().Name));

@@ -54,7 +54,7 @@ else
         options.DefaultMode = NLWebNet.Models.QueryMode.List;
         options.EnableStreaming = true;
     });
-    
+
     // Add OpenTelemetry for non-Aspire environments (development/testing)
     builder.Services.AddNLWebNetOpenTelemetry("NLWebNet.Demo", "1.0.0", otlBuilder =>
     {

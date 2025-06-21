@@ -37,7 +37,7 @@ public static class OpenTelemetryExtensions
                     new KeyValuePair<string, object>("service.namespace", "nlwebnet"),
                     new KeyValuePair<string, object>("service.instance.id", Environment.MachineName)
                 }));
-            
+
             // Apply additional configuration if provided
             configure?.Invoke(builder);
         });
@@ -68,7 +68,7 @@ public static class OpenTelemetryExtensions
             .AddMeter(NLWebMetrics.MeterName)
             .AddMeter("Microsoft.AspNetCore.Hosting")
             .AddMeter("Microsoft.AspNetCore.Server.Kestrel"));
-            // .AddRuntimeInstrumentation() - This requires additional packages
+        // .AddRuntimeInstrumentation() - This requires additional packages
 
         // Configure tracing
         builder.WithTracing(tracing => tracing

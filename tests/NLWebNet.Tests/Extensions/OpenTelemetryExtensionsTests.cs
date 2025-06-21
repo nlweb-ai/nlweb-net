@@ -27,7 +27,7 @@ public class OpenTelemetryExtensionsTests
         var serviceProvider = services.BuildServiceProvider();
         var meterProvider = serviceProvider.GetService<MeterProvider>();
         var tracerProvider = serviceProvider.GetService<TracerProvider>();
-        
+
         Assert.IsNotNull(meterProvider);
         Assert.IsNotNull(tracerProvider);
     }
@@ -87,7 +87,7 @@ public class OpenTelemetryExtensionsTests
         var serviceProvider = services.BuildServiceProvider();
         var meterProvider = serviceProvider.GetService<MeterProvider>();
         var tracerProvider = serviceProvider.GetService<TracerProvider>();
-        
+
         Assert.IsNotNull(meterProvider);
         Assert.IsNotNull(tracerProvider);
     }
@@ -107,7 +107,7 @@ public class OpenTelemetryExtensionsTests
         var serviceProvider = services.BuildServiceProvider();
         var meterProvider = serviceProvider.GetService<MeterProvider>();
         var tracerProvider = serviceProvider.GetService<TracerProvider>();
-        
+
         Assert.IsNotNull(meterProvider);
         Assert.IsNotNull(tracerProvider);
     }
@@ -144,7 +144,7 @@ public class OpenTelemetryExtensionsTests
         var serviceProvider = services.BuildServiceProvider();
         var meterProvider = serviceProvider.GetService<MeterProvider>();
         var tracerProvider = serviceProvider.GetService<TracerProvider>();
-        
+
         Assert.IsNotNull(meterProvider);
         Assert.IsNotNull(tracerProvider);
     }

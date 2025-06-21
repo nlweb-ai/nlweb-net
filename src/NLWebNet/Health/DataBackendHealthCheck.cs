@@ -33,10 +33,10 @@ public class DataBackendHealthCheck : IHealthCheck
             // Test basic connectivity by attempting a simple query
             // This is a lightweight check that doesn't impact performance
             var testResults = await _dataBackend.SearchAsync("health-check", cancellationToken: cancellationToken);
-            
+
             // The search should complete without throwing an exception
             // We don't care about the results, just that the backend is responsive
-            
+
             _logger.LogDebug("Data backend health check completed successfully");
             return HealthCheckResult.Healthy($"Data backend ({_dataBackend.GetType().Name}) is operational");
         }

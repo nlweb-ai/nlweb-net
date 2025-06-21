@@ -26,12 +26,12 @@ public class AspireExtensionsTests
 
         // Assert
         var serviceProvider = services.BuildServiceProvider();
-        
+
         // Check core NLWebNet services are registered
         Assert.IsNotNull(serviceProvider.GetService<INLWebService>());
         Assert.IsNotNull(serviceProvider.GetService<IQueryProcessor>());
         Assert.IsNotNull(serviceProvider.GetService<IResultGenerator>());
-        
+
         // Check OpenTelemetry services are registered (service discovery may not be directly accessible)
         Assert.IsNotNull(serviceProvider.GetService<OpenTelemetry.Metrics.MeterProvider>());
         Assert.IsNotNull(serviceProvider.GetService<OpenTelemetry.Trace.TracerProvider>());
@@ -69,10 +69,10 @@ public class AspireExtensionsTests
         // Assert
         var app = builder.Build();
         var serviceProvider = app.Services;
-        
+
         // Check NLWebNet services are registered
         Assert.IsNotNull(serviceProvider.GetService<INLWebService>());
-        
+
         // Check OpenTelemetry services are registered
         Assert.IsNotNull(serviceProvider.GetService<OpenTelemetry.Metrics.MeterProvider>());
         Assert.IsNotNull(serviceProvider.GetService<OpenTelemetry.Trace.TracerProvider>());

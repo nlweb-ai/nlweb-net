@@ -58,31 +58,31 @@ public static class HealthEndpoints
         try
         {
             var healthReport = await healthCheckService.CheckHealthAsync(cancellationToken);
-            
+
             var response = new HealthCheckResponse
             {
                 Status = healthReport.Status.ToString(),
                 TotalDuration = healthReport.TotalDuration
             };
 
-            var statusCode = healthReport.Status == HealthStatus.Healthy 
-                ? StatusCodes.Status200OK 
+            var statusCode = healthReport.Status == HealthStatus.Healthy
+                ? StatusCodes.Status200OK
                 : StatusCodes.Status503ServiceUnavailable;
 
             logger.LogInformation("Health check completed with status: {Status}", healthReport.Status);
-            
+
             return Results.Json(response, statusCode: statusCode);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Health check failed with exception");
-            
+
             var response = new HealthCheckResponse
             {
                 Status = "Unhealthy",
                 TotalDuration = TimeSpan.Zero
             };
-            
+
             return Results.Json(response, statusCode: StatusCodes.Status503ServiceUnavailable);
         }
     }
@@ -97,7 +97,7 @@ public static class HealthEndpoints
         try
         {
             var healthReport = await healthCheckService.CheckHealthAsync(cancellationToken);
-            
+
             var response = new DetailedHealthCheckResponse
             {
                 Status = healthReport.Status.ToString(),
@@ -114,19 +114,19 @@ public static class HealthEndpoints
                     })
             };
 
-            var statusCode = healthReport.Status == HealthStatus.Healthy 
-                ? StatusCodes.Status200OK 
+            var statusCode = healthReport.Status == HealthStatus.Healthy
+                ? StatusCodes.Status200OK
                 : StatusCodes.Status503ServiceUnavailable;
 
-            logger.LogInformation("Detailed health check completed with status: {Status}, Entries: {EntryCount}", 
+            logger.LogInformation("Detailed health check completed with status: {Status}, Entries: {EntryCount}",
                 healthReport.Status, healthReport.Entries.Count);
-            
+
             return Results.Json(response, statusCode: statusCode);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Detailed health check failed with exception");
-            
+
             var response = new DetailedHealthCheckResponse
             {
                 Status = "Unhealthy",
@@ -142,7 +142,7 @@ public static class HealthEndpoints
                     }
                 }
             };
-            
+
             return Results.Json(response, statusCode: StatusCodes.Status503ServiceUnavailable);
         }
     }

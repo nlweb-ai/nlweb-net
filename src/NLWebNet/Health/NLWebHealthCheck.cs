@@ -22,7 +22,7 @@ public class NLWebHealthCheck : IHealthCheck
     public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-        
+
         try
         {
             // Check if the service is responsive by testing a simple query
@@ -63,7 +63,7 @@ public class NLWebHealthCheck : IHealthCheck
 
     private static void RecordHealthCheckMetrics(string checkName, HealthStatus status, double durationMs)
     {
-        NLWebMetrics.HealthCheckExecutions.Add(1, 
+        NLWebMetrics.HealthCheckExecutions.Add(1,
             new KeyValuePair<string, object?>(NLWebMetrics.Tags.HealthCheckName, checkName));
 
         if (status != HealthStatus.Healthy)
