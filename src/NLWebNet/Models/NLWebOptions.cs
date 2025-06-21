@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using NLWebNet.RateLimiting;
 
 namespace NLWebNet.Models;
 
@@ -65,4 +66,9 @@ public class NLWebOptions
     /// </summary>
     [Range(1, 1440)]
     public int CacheExpirationMinutes { get; set; } = 60;
+
+    /// <summary>
+    /// Rate limiting configuration
+    /// </summary>
+    public RateLimitingOptions RateLimiting { get; set; } = new();
 }

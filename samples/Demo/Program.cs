@@ -1,8 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using NLWebNet;
+using NLWebNet.Extensions;
 using NLWebNet.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Detect if running in Aspire and configure accordingly
+var isAspireEnabled = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_ASPIRE_URLS")) ||
+                     !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT"));
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -28,13 +33,34 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Add NLWebNet services
-builder.Services.AddNLWebNet(options =>
+// Add NLWebNet services - use Aspire-optimized version if available
+if (isAspireEnabled)
 {
-    // Configure NLWebNet options here
-    options.DefaultMode = NLWebNet.Models.QueryMode.List;
-    options.EnableStreaming = true;
-});
+    builder.Services.AddNLWebNetForAspire(options =>
+    {
+        // Configure NLWebNet options here
+        options.DefaultMode = NLWebNet.Models.QueryMode.List;
+        options.EnableStreaming = true;
+        // Aspire environments typically handle more load
+        options.RateLimiting.RequestsPerWindow = 1000;
+        options.RateLimiting.WindowSizeInMinutes = 1;
+    });
+}
+else
+{
+    builder.Services.AddNLWebNet(options =>
+    {
+        // Configure NLWebNet options here
+        options.DefaultMode = NLWebNet.Models.QueryMode.List;
+        options.EnableStreaming = true;
+    });
+
+    // Add OpenTelemetry for non-Aspire environments (development/testing)
+    builder.Services.AddNLWebNetOpenTelemetry("NLWebNet.Demo", "1.0.0", otlBuilder =>
+    {
+        otlBuilder.AddConsoleExporters(); // Simple console output for development
+    });
+}
 
 // Add OpenAPI for API documentation
 builder.Services.AddOpenApi();

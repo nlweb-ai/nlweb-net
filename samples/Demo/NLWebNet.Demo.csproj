@@ -7,10 +7,9 @@
     <RootNamespace>NLWebNet.Demo</RootNamespace>
     <UserSecretsId>031db3ba-2870-4c49-b002-5f532463e55e</UserSecretsId>
   </PropertyGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\src\NLWebNet\NLWebNet.csproj" />
-  </ItemGroup>  <ItemGroup>
+    <ProjectReference Include="..\..\src\NLWebNet\NLWebNet.csproj" />
+  </ItemGroup><ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
   </ItemGroup>
 

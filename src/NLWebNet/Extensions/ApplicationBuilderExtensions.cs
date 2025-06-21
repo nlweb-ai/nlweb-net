@@ -17,6 +17,8 @@ public static class ApplicationBuilderExtensions
     /// <returns>The application builder for chaining</returns>
     public static IApplicationBuilder UseNLWebNet(this IApplicationBuilder app)
     {
+        app.UseMiddleware<RateLimitingMiddleware>();
+        app.UseMiddleware<MetricsMiddleware>();
         app.UseMiddleware<NLWebMiddleware>();
         return app;
     }    /// <summary>
@@ -29,6 +31,7 @@ public static class ApplicationBuilderExtensions
         // Map minimal API endpoints directly
         AskEndpoints.MapAskEndpoints(app);
         McpEndpoints.MapMcpEndpoints(app);
+        HealthEndpoints.MapHealthEndpoints(app);
 
         return app;
     }
@@ -43,6 +46,7 @@ public static class ApplicationBuilderExtensions
         // Map minimal API endpoints directly
         AskEndpoints.MapAskEndpoints(app);
         McpEndpoints.MapMcpEndpoints(app);
+        HealthEndpoints.MapHealthEndpoints(app);
 
         return app;
     }

@@ -1,8 +1,13 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NLWebNet.Models;
 using NLWebNet.Services;
 using NLWebNet.MCP;
 using NLWebNet.Controllers;
+using NLWebNet.Health;
+using NLWebNet.RateLimiting;
+using NLWebNet.Metrics;
+using System.Diagnostics;
 
 namespace NLWebNet;
 
@@ -38,6 +43,18 @@ public static class ServiceCollectionExtensions
         services.AddTransient<AskController>();
         services.AddTransient<McpController>();
 
+        // Add health checks
+        services.AddHealthChecks()
+            .AddCheck<NLWebHealthCheck>("nlweb")
+            .AddCheck<DataBackendHealthCheck>("data-backend")
+            .AddCheck<AIServiceHealthCheck>("ai-service");
+
+        // Add metrics
+        services.AddMetrics();
+
+        // Add rate limiting
+        services.AddSingleton<IRateLimitingService, InMemoryRateLimitingService>();
+
         return services;
     }
 
@@ -62,8 +79,23 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IQueryProcessor, QueryProcessor>();
         services.AddScoped<IResultGenerator, ResultGenerator>();
 
+        // Register MCP services
+        services.AddScoped<IMcpService, McpService>();
+
         // Register custom data backend
         services.AddScoped<IDataBackend, TDataBackend>();
+
+        // Add health checks
+        services.AddHealthChecks()
+            .AddCheck<NLWebHealthCheck>("nlweb")
+            .AddCheck<DataBackendHealthCheck>("data-backend")
+            .AddCheck<AIServiceHealthCheck>("ai-service");
+
+        // Add metrics
+        services.AddMetrics();
+
+        // Add rate limiting
+        services.AddSingleton<IRateLimitingService, InMemoryRateLimitingService>();
 
         return services;
     }
