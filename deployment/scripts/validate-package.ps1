@@ -18,7 +18,7 @@ function Test-Command($command) {
 
 # 1. Build and Test
 Write-Host "`n📦 Step 1: Building and Testing..." -ForegroundColor Yellow
-dotnet build src/NLWebNet --configuration Release
+dotnet build ../../src/NLWebNet --configuration Release
 if ($LASTEXITCODE -ne 0) { throw "Build failed" }
 
 dotnet test --configuration Release --no-build
@@ -26,9 +26,9 @@ if ($LASTEXITCODE -ne 0) { throw "Tests failed" }
 
 # 2. Create Package
 Write-Host "`n📦 Step 2: Creating Package..." -ForegroundColor Yellow
-$outputDir = ".\packages-validation"
+$outputDir = "..\..\packages-validation"
 Remove-Item $outputDir -Recurse -Force -ErrorAction SilentlyContinue
-dotnet pack src/NLWebNet --configuration Release --output $outputDir
+dotnet pack ../../src/NLWebNet --configuration Release --output $outputDir
 if ($LASTEXITCODE -ne 0) { throw "Pack failed" }
 
 # Find the created package
@@ -121,7 +121,7 @@ Write-Host "`n📦 Step 5: Analyzing Dependencies..." -ForegroundColor Yellow
 if (-not $SkipDependencyCheck) {
     # Check for vulnerable dependencies
     Write-Host "Checking for vulnerable dependencies..."
-    $vulnerableOutput = dotnet list src/NLWebNet package --vulnerable --include-transitive 2>&1
+    $vulnerableOutput = dotnet list ../../src/NLWebNet package --vulnerable --include-transitive 2>&1
     if ($vulnerableOutput -match "has the following vulnerable packages") {
         Write-Host "❌ Vulnerable dependencies found:" -ForegroundColor Red
         Write-Host $vulnerableOutput -ForegroundColor Red
@@ -132,7 +132,7 @@ if (-not $SkipDependencyCheck) {
     
     # Check for deprecated dependencies
     Write-Host "Checking for deprecated dependencies..."
-    $deprecatedOutput = dotnet list src/NLWebNet package --deprecated 2>&1
+    $deprecatedOutput = dotnet list ../../src/NLWebNet package --deprecated 2>&1
     if ($deprecatedOutput -match "has the following deprecated packages") {
         Write-Host "⚠️ Deprecated dependencies found:" -ForegroundColor Yellow
         Write-Host $deprecatedOutput -ForegroundColor Yellow

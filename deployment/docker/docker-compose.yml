@@ -4,8 +4,8 @@ services:
   # NLWebNet Demo Application
   nlwebnet-demo:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../../
+      dockerfile: deployment/docker/Dockerfile
       target: final
     container_name: nlwebnet-demo
     ports:

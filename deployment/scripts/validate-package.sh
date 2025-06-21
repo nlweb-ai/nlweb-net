@@ -9,14 +9,14 @@ echo "====================================="
 
 # 1. Build and Test
 echo -e "\n📦 Step 1: Building and Testing..."
-dotnet build src/NLWebNet --configuration Release
+dotnet build ../../src/NLWebNet --configuration Release
 dotnet test --configuration Release --no-build
 
 # 2. Create Package  
 echo -e "\n📦 Step 2: Creating Package..."
-OUTPUT_DIR="./packages-validation"
+OUTPUT_DIR="../../packages-validation"
 rm -rf "$OUTPUT_DIR"
-dotnet pack src/NLWebNet --configuration Release --output "$OUTPUT_DIR"
+dotnet pack ../../src/NLWebNet --configuration Release --output "$OUTPUT_DIR"
 
 # Find the created package
 NUPKG_FILE=$(find "$OUTPUT_DIR" -name "*.nupkg" ! -name "*.symbols.nupkg" | head -n 1)
@@ -73,18 +73,18 @@ fi
 # 5. Dependency Analysis
 echo -e "\n📦 Step 5: Analyzing Dependencies..."
 echo "Checking for vulnerable dependencies..."
-if dotnet list src/NLWebNet package --vulnerable --include-transitive 2>&1 | grep -q "has the following vulnerable packages"; then
+if dotnet list ../../src/NLWebNet package --vulnerable --include-transitive 2>&1 | grep -q "has the following vulnerable packages"; then
     echo "❌ Vulnerable dependencies found"
-    dotnet list src/NLWebNet package --vulnerable --include-transitive
+    dotnet list ../../src/NLWebNet package --vulnerable --include-transitive
     exit 1
 else
     echo "✅ No vulnerable dependencies found"
 fi
 
 echo "Checking for deprecated dependencies..."
-if dotnet list src/NLWebNet package --deprecated 2>&1 | grep -q "has the following deprecated packages"; then
+if dotnet list ../../src/NLWebNet package --deprecated 2>&1 | grep -q "has the following deprecated packages"; then
     echo "⚠️ Deprecated dependencies found"
-    dotnet list src/NLWebNet package --deprecated
+    dotnet list ../../src/NLWebNet package --deprecated
 else
     echo "✅ No deprecated dependencies found"
 fi
@@ -99,7 +99,7 @@ dotnet new web -n TestConsumer -o "$TEST_CONSUMER_DIR" --force
 cd "$TEST_CONSUMER_DIR"
 
 # Add the local package
-dotnet add package NLWebNet --source ../packages-validation --prerelease --prerelease
+dotnet add package NLWebNet --source ../../packages-validation --prerelease --prerelease
 
 # Create test Program.cs
 cat > Program.cs << 'EOF'
