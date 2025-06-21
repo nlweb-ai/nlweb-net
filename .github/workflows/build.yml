@@ -282,7 +282,7 @@ jobs:
     - name: Build Docker image (test build)
       run: |
         echo "🐳 Building Docker image for testing..."
-        docker build -t nlwebnet-demo:test .
+        docker build -f deployment/docker/Dockerfile -t nlwebnet-demo:test .
         echo "✅ Docker build successful"
 
     - name: Test Docker image
