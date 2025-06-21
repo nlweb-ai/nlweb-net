@@ -48,14 +48,17 @@ NLWebNet/
 │   ├── Middleware/            # Request processing middleware
 │   ├── Middleware/            # ASP.NET Core middleware
 │   └── Extensions/            # Dependency injection extensions
-├── demo/                      # 🎮 .NET 9 Blazor Web App demo application  
+├── samples/                   # 🎯 Sample applications and usage examples
+│   ├── Demo/                  # 🎮 .NET 9 Blazor Web App demo application  
+│   └── AspireHost/            # 🏗️ .NET Aspire orchestration host  
 │   ├── Components/            # Modern Blazor components
 │   │   ├── Layout/            # Layout components (MainLayout, etc.)
 │   │   └── Pages/             # Page components (Home, NLWebDemo, Error)
 │   ├── wwwroot/               # Static assets (app.css, favicon, etc.)
 │   └── Properties/            # Launch settings and configuration
 ├── doc/                       # 📚 Documentation
-└── tests/                     # 🧪 Unit and integration tests (planned)
+└── tests/                     # 🧪 Unit and integration tests
+    └── NLWebNet.Tests/        # 📋 xUnit test project
 ```
 
 ## 🔄 NLWeb Protocol Flow
