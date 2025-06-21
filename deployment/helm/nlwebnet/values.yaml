@@ -1,0 +1,158 @@
+# Default values for nlwebnet.
+# This is a YAML-formatted file.
+
+# Replica count
+replicaCount: 3
+
+image:
+  repository: nlwebnet
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+    - ALL
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: false
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: nlwebnet.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: nlwebnet-tls
+      hosts:
+        - nlwebnet.example.com
+
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# NLWebNet specific configuration
+nlwebnet:
+  config:
+    defaultMode: "List"
+    enableStreaming: true
+    defaultTimeoutSeconds: 30
+    maxResultsPerQuery: 50
+    enableCaching: true
+    cacheExpirationMinutes: 60
+    enableDetailedLogging: false
+    
+  rateLimiting:
+    enabled: true
+    requestsPerWindow: 1000
+    windowSizeInMinutes: 1
+    enableIPBasedLimiting: true
+    enableClientBasedLimiting: false
+
+  cors:
+    allowedOrigins:
+      - "https://nlwebnet.example.com"
+      - "https://www.nlwebnet.example.com"
+    allowedMethods:
+      - "GET"
+      - "POST"
+      - "OPTIONS"
+    allowedHeaders:
+      - "Content-Type"
+      - "Authorization"
+      - "Accept"
+    allowCredentials: true
+
+# External service configuration (secrets should be provided separately)
+azureOpenAI:
+  endpoint: ""
+  deploymentName: "gpt-4"
+  apiVersion: "2024-02-01"
+  # apiKey should be provided via secret
+
+openAI:
+  model: "gpt-4"
+  baseUrl: "https://api.openai.com/v1"
+  # apiKey should be provided via secret
+
+azureSearch:
+  serviceName: ""
+  indexName: "nlweb-index"
+  # apiKey should be provided via secret
+
+# Monitoring and observability
+monitoring:
+  enabled: true
+  
+health:
+  enabled: true
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 3
+  readinessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+# Logging configuration
+logging:
+  level:
+    default: "Information"
+    aspnetcore: "Warning"
+    nlwebnet: "Information"

@@ -1,0 +1,237 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "appServiceName": {
+      "type": "string",
+      "defaultValue": "nlwebnet-app",
+      "metadata": {
+        "description": "Name of the App Service"
+      }
+    },
+    "appServicePlanName": {
+      "type": "string",
+      "defaultValue": "nlwebnet-plan",
+      "metadata": {
+        "description": "Name of the App Service Plan"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    },
+    "containerRegistryName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Container Registry"
+      }
+    },
+    "containerImage": {
+      "type": "string",
+      "defaultValue": "nlwebnet:latest",
+      "metadata": {
+        "description": "Container image to deploy"
+      }
+    },
+    "azureOpenAIApiKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Azure OpenAI API Key"
+      }
+    },
+    "azureOpenAIEndpoint": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure OpenAI Endpoint"
+      }
+    },
+    "azureSearchApiKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Azure Search API Key"
+      }
+    },
+    "azureSearchServiceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure Search Service Name"
+      }
+    }
+  },
+  "variables": {
+    "appInsightsName": "[concat(parameters('appServiceName'), '-insights')]",
+    "logAnalyticsWorkspaceName": "[concat(parameters('appServiceName'), '-logs')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2021-06-01",
+      "name": "[variables('logAnalyticsWorkspaceName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "sku": {
+          "name": "PerGB2018"
+        },
+        "retentionInDays": 30
+      }
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02",
+      "name": "[variables('appInsightsName')]",
+      "location": "[parameters('location')]",
+      "kind": "web",
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
+      ],
+      "properties": {
+        "Application_Type": "web",
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
+      }
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2022-03-01",
+      "name": "[parameters('appServicePlanName')]",
+      "location": "[parameters('location')]",
+      "kind": "linux",
+      "properties": {
+        "reserved": true
+      },
+      "sku": {
+        "name": "P1v3",
+        "tier": "PremiumV3",
+        "size": "P1v3",
+        "family": "Pv3",
+        "capacity": 1
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-03-01",
+      "name": "[parameters('appServiceName')]",
+      "location": "[parameters('location')]",
+      "kind": "app,linux,container",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "[resourceId('Microsoft.Insights/components', variables('appInsightsName'))]"
+      ],
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "siteConfig": {
+          "linuxFxVersion": "[concat('DOCKER|', parameters('containerRegistryName'), '.azurecr.io/', parameters('containerImage'))]",
+          "appSettings": [
+            {
+              "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+              "value": "false"
+            },
+            {
+              "name": "DOCKER_REGISTRY_SERVER_URL",
+              "value": "[concat('https://', parameters('containerRegistryName'), '.azurecr.io')]"
+            },
+            {
+              "name": "ASPNETCORE_ENVIRONMENT",
+              "value": "Production"
+            },
+            {
+              "name": "ASPNETCORE_URLS",
+              "value": "http://+:8080"
+            },
+            {
+              "name": "NLWebNet__DefaultMode",
+              "value": "List"
+            },
+            {
+              "name": "NLWebNet__EnableStreaming",
+              "value": "true"
+            },
+            {
+              "name": "NLWebNet__RateLimiting__RequestsPerWindow",
+              "value": "1000"
+            },
+            {
+              "name": "NLWebNet__RateLimiting__WindowSizeInMinutes",
+              "value": "1"
+            },
+            {
+              "name": "AzureOpenAI__ApiKey",
+              "value": "[parameters('azureOpenAIApiKey')]"
+            },
+            {
+              "name": "AzureOpenAI__Endpoint",
+              "value": "[parameters('azureOpenAIEndpoint')]"
+            },
+            {
+              "name": "AzureOpenAI__DeploymentName",
+              "value": "gpt-4"
+            },
+            {
+              "name": "AzureSearch__ApiKey",
+              "value": "[parameters('azureSearchApiKey')]"
+            },
+            {
+              "name": "AzureSearch__ServiceName",
+              "value": "[parameters('azureSearchServiceName')]"
+            },
+            {
+              "name": "AzureSearch__IndexName",
+              "value": "nlweb-index"
+            },
+            {
+              "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName'))).ConnectionString]"
+            }
+          ],
+          "alwaysOn": true,
+          "httpLoggingEnabled": true,
+          "logsDirectorySizeLimit": 35,
+          "detailedErrorLoggingEnabled": true,
+          "healthCheckPath": "/health"
+        },
+        "httpsOnly": true,
+        "clientAffinityEnabled": false
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "name": "[concat(parameters('appServiceName'), '/web')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('appServiceName'))]"
+      ],
+      "properties": {
+        "healthCheckPath": "/health",
+        "autoHealEnabled": true,
+        "autoHealRules": {
+          "triggers": {
+            "requests": {
+              "count": 100,
+              "timeInterval": "00:01:00"
+            },
+            "slowRequests": {
+              "timeTaken": "00:01:00",
+              "count": 10,
+              "timeInterval": "00:02:00"
+            }
+          },
+          "actions": {
+            "actionType": "Recycle"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "appServiceUrl": {
+      "type": "string",
+      "value": "[concat('https://', reference(resourceId('Microsoft.Web/sites', parameters('appServiceName'))).defaultHostName)]"
+    },
+    "appInsightsInstrumentationKey": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName'))).InstrumentationKey]"
+    }
+  }
+}

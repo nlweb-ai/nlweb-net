@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nlwebnet
+  labels:
+    app: nlwebnet
+    version: v1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nlwebnet
+  template:
+    metadata:
+      labels:
+        app: nlwebnet
+        version: v1
+    spec:
+      containers:
+      - name: nlwebnet
+        image: nlwebnet:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Production"
+        - name: ASPNETCORE_URLS
+          value: "http://+:8080"
+        - name: NLWebNet__DefaultMode
+          value: "List"
+        - name: NLWebNet__EnableStreaming
+          value: "true"
+        - name: NLWebNet__RateLimiting__RequestsPerWindow
+          value: "1000"
+        - name: NLWebNet__RateLimiting__WindowSizeInMinutes
+          value: "1"
+        # Configuration from ConfigMap
+        envFrom:
+        - configMapRef:
+            name: nlwebnet-config
+        # Secrets from Secret
+        - secretRef:
+            name: nlwebnet-secrets
+            optional: true
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+      securityContext:
+        fsGroup: 1000
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30

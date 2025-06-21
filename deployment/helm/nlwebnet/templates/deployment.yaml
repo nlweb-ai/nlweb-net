@@ -1,0 +1,152 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nlwebnet.fullname" . }}
+  labels:
+    {{- include "nlwebnet.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "nlwebnet.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "nlwebnet.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "nlwebnet.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Production"
+            - name: ASPNETCORE_URLS
+              value: "http://+:8080"
+            # NLWebNet Configuration
+            - name: NLWebNet__DefaultMode
+              value: {{ .Values.nlwebnet.config.defaultMode | quote }}
+            - name: NLWebNet__EnableStreaming
+              value: {{ .Values.nlwebnet.config.enableStreaming | quote }}
+            - name: NLWebNet__DefaultTimeoutSeconds
+              value: {{ .Values.nlwebnet.config.defaultTimeoutSeconds | quote }}
+            - name: NLWebNet__MaxResultsPerQuery
+              value: {{ .Values.nlwebnet.config.maxResultsPerQuery | quote }}
+            - name: NLWebNet__EnableCaching
+              value: {{ .Values.nlwebnet.config.enableCaching | quote }}
+            - name: NLWebNet__CacheExpirationMinutes
+              value: {{ .Values.nlwebnet.config.cacheExpirationMinutes | quote }}
+            - name: NLWebNet__EnableDetailedLogging
+              value: {{ .Values.nlwebnet.config.enableDetailedLogging | quote }}
+            # Rate Limiting
+            - name: NLWebNet__RateLimiting__Enabled
+              value: {{ .Values.nlwebnet.rateLimiting.enabled | quote }}
+            - name: NLWebNet__RateLimiting__RequestsPerWindow
+              value: {{ .Values.nlwebnet.rateLimiting.requestsPerWindow | quote }}
+            - name: NLWebNet__RateLimiting__WindowSizeInMinutes
+              value: {{ .Values.nlwebnet.rateLimiting.windowSizeInMinutes | quote }}
+            - name: NLWebNet__RateLimiting__EnableIPBasedLimiting
+              value: {{ .Values.nlwebnet.rateLimiting.enableIPBasedLimiting | quote }}
+            - name: NLWebNet__RateLimiting__EnableClientBasedLimiting
+              value: {{ .Values.nlwebnet.rateLimiting.enableClientBasedLimiting | quote }}
+            # CORS Configuration
+            {{- range $index, $origin := .Values.nlwebnet.cors.allowedOrigins }}
+            - name: CORS__AllowedOrigins__{{ $index }}
+              value: {{ $origin | quote }}
+            {{- end }}
+            {{- range $index, $method := .Values.nlwebnet.cors.allowedMethods }}
+            - name: CORS__AllowedMethods__{{ $index }}
+              value: {{ $method | quote }}
+            {{- end }}
+            {{- range $index, $header := .Values.nlwebnet.cors.allowedHeaders }}
+            - name: CORS__AllowedHeaders__{{ $index }}
+              value: {{ $header | quote }}
+            {{- end }}
+            - name: CORS__AllowCredentials
+              value: {{ .Values.nlwebnet.cors.allowCredentials | quote }}
+            # Logging Configuration
+            - name: Logging__LogLevel__Default
+              value: {{ .Values.logging.level.default | quote }}
+            - name: Logging__LogLevel__Microsoft.AspNetCore
+              value: {{ .Values.logging.level.aspnetcore | quote }}
+            - name: Logging__LogLevel__NLWebNet
+              value: {{ .Values.logging.level.nlwebnet | quote }}
+            # Azure OpenAI Configuration
+            {{- if .Values.azureOpenAI.endpoint }}
+            - name: AzureOpenAI__Endpoint
+              value: {{ .Values.azureOpenAI.endpoint | quote }}
+            {{- end }}
+            - name: AzureOpenAI__DeploymentName
+              value: {{ .Values.azureOpenAI.deploymentName | quote }}
+            - name: AzureOpenAI__ApiVersion
+              value: {{ .Values.azureOpenAI.apiVersion | quote }}
+            # OpenAI Configuration
+            - name: OpenAI__Model
+              value: {{ .Values.openAI.model | quote }}
+            - name: OpenAI__BaseUrl
+              value: {{ .Values.openAI.baseUrl | quote }}
+            # Azure Search Configuration
+            {{- if .Values.azureSearch.serviceName }}
+            - name: AzureSearch__ServiceName
+              value: {{ .Values.azureSearch.serviceName | quote }}
+            {{- end }}
+            - name: AzureSearch__IndexName
+              value: {{ .Values.azureSearch.indexName | quote }}
+          # Load secrets from configmap and secrets
+          envFrom:
+            - configMapRef:
+                name: {{ include "nlwebnet.fullname" . }}-config
+            - secretRef:
+                name: {{ include "nlwebnet.fullname" . }}-secrets
+                optional: true
+          {{- if .Values.health.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: {{ .Values.health.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.health.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.health.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.health.livenessProbe.failureThreshold }}
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: {{ .Values.health.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.health.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.health.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.health.readinessProbe.failureThreshold }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

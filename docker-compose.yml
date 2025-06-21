@@ -1,0 +1,93 @@
+# Docker Compose for NLWebNet Local Development
+version: '3.8'
+
+services:
+  nlwebnet:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: nlwebnet-demo
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - NLWebNet__DefaultMode=List
+      - NLWebNet__EnableStreaming=true
+      - NLWebNet__RateLimiting__RequestsPerWindow=100
+      - NLWebNet__RateLimiting__WindowSizeInMinutes=1
+      - Logging__LogLevel__Default=Information
+      - Logging__LogLevel__NLWebNet=Debug
+    volumes:
+      # Mount appsettings for development (optional)
+      - ./samples/Demo/appsettings.Development.json:/app/appsettings.Development.json:ro
+    networks:
+      - nlwebnet-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Add a reverse proxy for production-like setup
+  nginx:
+    image: nginx:alpine
+    container_name: nlwebnet-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deployment/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deployment/nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - nlwebnet
+    networks:
+      - nlwebnet-network
+    restart: unless-stopped
+    profiles:
+      - "with-proxy"
+
+  # Optional: Monitoring stack (development)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: nlwebnet-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./deployment/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - nlwebnet-network
+    restart: unless-stopped
+    profiles:
+      - "monitoring"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: nlwebnet-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - nlwebnet-network
+    restart: unless-stopped
+    profiles:
+      - "monitoring"
+
+networks:
+  nlwebnet-network:
+    driver: bridge
+
+volumes:
+  grafana-storage:

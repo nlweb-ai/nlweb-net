@@ -1,0 +1,20 @@
+apiVersion: v2
+name: nlwebnet
+description: A Helm chart for NLWebNet - .NET NLWeb Protocol Implementation
+type: application
+version: 0.1.0
+appVersion: "0.1.0-alpha.3"
+keywords:
+  - nlweb
+  - ai
+  - conversation
+  - minimal-api
+  - mcp
+home: https://github.com/jongalloway/NLWebNet
+sources:
+  - https://github.com/jongalloway/NLWebNet
+maintainers:
+  - name: Jon Galloway
+    url: https://github.com/jongalloway
+annotations:
+  category: AI/ML

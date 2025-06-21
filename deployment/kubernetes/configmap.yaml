@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nlwebnet-config
+  labels:
+    app: nlwebnet
+data:
+  # NLWebNet Configuration
+  NLWebNet__DefaultMode: "List"
+  NLWebNet__EnableStreaming: "true"
+  NLWebNet__DefaultTimeoutSeconds: "30"
+  NLWebNet__MaxResultsPerQuery: "50"
+  NLWebNet__EnableCaching: "true"
+  NLWebNet__CacheExpirationMinutes: "60"
+  
+  # Rate Limiting
+  NLWebNet__RateLimiting__Enabled: "true"
+  NLWebNet__RateLimiting__RequestsPerWindow: "1000"
+  NLWebNet__RateLimiting__WindowSizeInMinutes: "1"
+  NLWebNet__RateLimiting__EnableIPBasedLimiting: "true"
+  
+  # CORS Configuration
+  CORS__AllowedOrigins__0: "https://nlwebnet.example.com"
+  CORS__AllowedOrigins__1: "https://www.nlwebnet.example.com"
+  CORS__AllowedMethods__0: "GET"
+  CORS__AllowedMethods__1: "POST"
+  CORS__AllowedMethods__2: "OPTIONS"
+  CORS__AllowedHeaders__0: "Content-Type"
+  CORS__AllowedHeaders__1: "Authorization"
+  CORS__AllowedHeaders__2: "Accept"
+  CORS__AllowCredentials: "true"
+  
+  # Logging Configuration
+  Logging__LogLevel__Default: "Information"
+  Logging__LogLevel__Microsoft.AspNetCore: "Warning"
+  Logging__LogLevel__NLWebNet: "Information"
+  
+  # Other Configuration
+  AllowedHosts: "*"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nlwebnet-secrets
+  labels:
+    app: nlwebnet
+type: Opaque
+stringData:
+  # Azure OpenAI Configuration (placeholder - replace with actual values)
+  AzureOpenAI__ApiKey: "your-azure-openai-api-key"
+  AzureOpenAI__Endpoint: "https://your-resource.openai.azure.com/"
+  AzureOpenAI__DeploymentName: "gpt-4"
+  
+  # OpenAI Configuration (placeholder - replace with actual values)
+  OpenAI__ApiKey: "your-openai-api-key"
+  
+  # Azure Search Configuration (placeholder - replace with actual values)
+  AzureSearch__ApiKey: "your-azure-search-api-key"
+  AzureSearch__ServiceName: "your-search-service"
+  AzureSearch__IndexName: "nlweb-index"

@@ -1,0 +1,75 @@
+# .dockerignore for NLWebNet
+# Exclude files and directories that are not needed in the Docker build context
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Build outputs
+**/bin/
+**/obj/
+**/out/
+**/packages/
+**/TestResults/
+
+# IDE and editor files
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Documentation and README files (not needed for runtime)
+**/*.md
+doc/
+docs/
+
+# Temporary and cache files
+tmp/
+temp/
+*.tmp
+*.cache
+.nuget/
+.dotnet/
+
+# Test files and scripts (not needed for runtime)
+tests/
+**/test-results/
+scripts/
+*.ps1
+*.sh
+
+# Docker files (avoid recursion)
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# CI/CD files
+.github/
+.gitlab-ci.yml
+azure-pipelines.yml
+copilot-setup-steps.yml
+
+# Logs
+*.log
+logs/
+
+# Runtime files that shouldn't be in the build context
+appsettings.Development.json
+*.pfx
+*.p12
+*.key
+*.pem
