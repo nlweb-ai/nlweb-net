@@ -49,18 +49,17 @@
                     </div>
 
                     @if (ViewMode == "card")
-                    {
-                        <div class="row">
+                    {                        <div class="row">
                             @foreach (var result in Response.Results.Take(DisplayLimit))
                             {
                                 <div class="col-md-6 col-lg-4 mb-3">
-                                    <div class="card h-100 result-card">
+                                    <div class="card h-100 result-card" style="cursor: pointer;" @onclick="() => HandleResultClick(result)">
                                         <div class="card-body">
                                             <div class="d-flex justify-content-between align-items-start mb-2">
                                                 <h6 class="card-title">
                                                     @if (!string.IsNullOrEmpty(result.Url))
                                                     {
-                                                        <a href="@result.Url" target="_blank" class="text-decoration-none">
+                                                        <a href="@result.Url" target="_blank" class="text-decoration-none" @onclick:stopPropagation="true">
                                                             @result.Name
                                                             <i class="fas fa-external-link-alt fa-sm ms-1"></i>
                                                         </a>
@@ -89,16 +88,15 @@
                         </div>
                     }
                     else
-                    {
-                        <div class="list-group">
+                    {                        <div class="list-group">
                             @foreach (var result in Response.Results.Take(DisplayLimit))
                             {
-                                <div class="list-group-item">
+                                <div class="list-group-item" style="cursor: pointer;" @onclick="() => HandleResultClick(result)">
                                     <div class="d-flex w-100 justify-content-between align-items-center">
                                         <h6 class="mb-1">
                                             @if (!string.IsNullOrEmpty(result.Url))
                                             {
-                                                <a href="@result.Url" target="_blank" class="text-decoration-none">
+                                                <a href="@result.Url" target="_blank" class="text-decoration-none" @onclick:stopPropagation="true">
                                                     @result.Name
                                                     <i class="fas fa-external-link-alt fa-sm ms-1"></i>
                                                 </a>
@@ -182,9 +180,10 @@
 @code {
     [Parameter] public NLWebResponse? Response { get; set; }
     [Parameter] public bool ShowDebugInfo { get; set; } = false;
+    [Parameter] public EventCallback<NLWebResult> OnResultClicked { get; set; }
     
     private string ViewMode = "card";
-    private int DisplayLimit = 6;    private void ToggleDebugInfo()
+    private int DisplayLimit = 6;private void ToggleDebugInfo()
     {
         ShowDebugInfo = !ShowDebugInfo;
     }
@@ -197,11 +196,17 @@
     private void SetCardView()
     {
         ViewMode = "card";
-    }
-
-    private void SetListView()
+    }    private void SetListView()
     {
         ViewMode = "list";
+    }
+    
+    private async Task HandleResultClick(NLWebResult result)
+    {
+        if (OnResultClicked.HasDelegate)
+        {
+            await OnResultClicked.InvokeAsync(result);
+        }
     }
 
     private string FormatGeneratedAnswer(string answer)

@@ -13,6 +13,9 @@ var isAspireEnabled = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// Add HttpClient for Blazor components
+builder.Services.AddHttpClient();
+
 // Add CORS configuration
 builder.Services.AddCors(options =>
 {
