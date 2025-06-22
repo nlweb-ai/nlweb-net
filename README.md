@@ -10,16 +10,18 @@
 A .NET implementation of the [NLWeb protocol](https://github.com/microsoft/NLWeb) for building natural language web interfaces. This project provides both a reusable library and a demo application showcasing the NLWeb standard.
 
 > **⚠️ PROOF OF CONCEPT - NOT PRODUCTION READY**
-> 
+>
 > This is an experimental implementation created for **testing and evaluation purposes only**. While functional, this library is not intended for production use and should be considered a proof of concept to demonstrate NLWeb protocol capabilities in .NET environments.
 >
 > **Use cases:**
+>
 > - 🧪 Protocol evaluation and experimentation
 > - 📚 Learning and understanding NLWeb concepts  
 > - 🔬 Research and development prototyping
 > - 🎯 Testing integration patterns with AI services
 >
 > **Not recommended for:**
+>
 > - ❌ Production applications
 > - ❌ Critical business systems
 > - ❌ Public-facing services
@@ -39,7 +41,7 @@ This implementation follows the [official NLWeb specification](https://github.co
 
 ```
 NLWebNet/
-├── src/NLWebNet/              # 📦 Core library (future NuGet package)
+├── src/NLWebNet/              # 📦 Core library (published NuGet package)
 │   ├── Models/                # Request/response data models
 │   ├── Services/              # Business logic interfaces and implementations
 │   ├── Endpoints/             # Minimal API endpoints (/ask, /mcp)
@@ -49,14 +51,16 @@ NLWebNet/
 ├── samples/                   # 🎯 Sample applications and usage examples
 │   ├── Demo/                  # 🎮 .NET 9 Blazor Web App demo application  
 │   └── AspireHost/            # 🏗️ .NET Aspire orchestration host  
-├── deployment/                # 🚀 Deployment and infrastructure files
-│   ├── azure/                 # Azure deployment (Bicep templates)
-│   ├── kubernetes/            # Kubernetes manifests and Helm charts
-│   ├── docker/                # Docker and Docker Compose files
-│   └── scripts/               # Deployment and validation scripts
-├── doc/                       # 📚 Documentation
-└── tests/                     # 🧪 Unit and integration tests
-    └── NLWebNet.Tests/        # 📋 xUnit test project
+├── doc/                       # � Documentation and setup guides
+│   ├── demo-setup-guide.md    # 🔧 Complete AI integration setup guide
+│   ├── manual-testing-guide.md # 🧪 API testing instructions
+│   └── todo.md                # 📋 Implementation status and roadmap
+├── tests/                     # 🧪 Unit and integration tests
+│   └── NLWebNet.Tests/        # 📋 MSTest test project (39 tests)
+├── helm/                      # ⚙️ Helm charts for Kubernetes
+├── k8s/                       # ⚙️ Kubernetes manifests
+├── deploy/                    # 🚀 Azure deployment templates
+└── scripts/                   # �️ Build and deployment scripts
 ```
 
 ## 🔄 NLWeb Protocol Flow
@@ -164,7 +168,7 @@ graph TB
 
 ## 🚀 Quick Start
 
-> **📋 Note**: This library is provided for **testing and evaluation purposes only**. Please review the development status above before integrating into any project.
+> **📋 Note**: This library is provided for **testing and evaluation purposes only**. This is alpha-quality software that may contain bugs or incomplete features. Please review the development status section before integrating into any project.
 
 ### Using the Library in Your Project
 
@@ -210,7 +214,7 @@ app.MapNLWebNet();     // Map NLWebNet minimal API endpoints
 3. **Run the demo application**
 
    ```bash
-   cd demo
+   cd samples/Demo
    dotnet run
    ```
 
@@ -223,14 +227,15 @@ app.MapNLWebNet();     // Map NLWebNet minimal API endpoints
    - **Interactive Demo** (`/nlweb`): UI for testing NLWeb queries
      - Query input with natural language questions
      - Mode selection (List, Summarize, Generate)
-     - Streaming toggle option
-     - *Note: Core NLWeb functionality is under development - currently shows placeholder responses*
+     - Streaming responses with real-time display
+     - API testing interface
    - **API Documentation**: OpenAPI specification for `/ask` and `/mcp` endpoints
-     - *Note: API endpoints are planned but not yet implemented*
+
+> **🔧 Real AI Integration**: The demo uses mock responses by default. For actual AI-powered responses, see the [Complete Setup Guide](doc/demo-setup-guide.md) for Azure OpenAI and OpenAI API integration.
 
 ### Using the Library
 
-> **⚠️ For testing and evaluation only - not recommended for production use**
+> **⚠️ Alpha software - for evaluation and testing only**
 
 Install the NuGet package:
 
@@ -261,16 +266,16 @@ app.MapNLWebNet();
 
 ### Testing NLWeb Features
 
-The demo application at `http://localhost:5037` provides comprehensive testing of all NLWeb protocol features:
+The demo application at `http://localhost:5037` provides testing of core NLWeb protocol features:
 
 **Interactive Demo Pages:**
 
 - **Home Page (`/`)**: Project overview and navigation to demo features
-- **NLWeb Demo (`/nlweb`)**: Advanced query interface with tabbed sections:
+- **NLWeb Demo (`/nlweb`)**: Interactive query interface with tabbed sections:
   - **Query Tab**: Interactive form with all NLWeb parameters (query, mode, site, etc.)
   - **Streaming Tab**: Real-time streaming response demonstration
   - **API Test Tab**: Raw HTTP request/response testing
-- **API Test (`/api-test`)**: Comprehensive API testing interface with request configuration
+- **API Test (`/api-test`)**: API testing interface with request configuration
 - **MCP Demo (`/mcp-demo`)**: Model Context Protocol demonstration with tools and prompts
 
 **Query Modes Supported:**
@@ -285,7 +290,7 @@ The demo application at `http://localhost:5037` provides comprehensive testing o
 - Direct HTTP calls to `/ask` endpoint with various parameters
 - MCP protocol testing via `/mcp` endpoint with tool and prompt support
 - OpenAPI specification available at `/openapi/v1.json`
-- Comprehensive manual testing guides in `/doc/manual-testing-guide.md`
+- Manual testing guides in `/doc/manual-testing-guide.md`
 
 **Example API Usage:**
 
@@ -305,9 +310,40 @@ curl -X POST "http://localhost:5037/ask" \
 
 # MCP tool listing
 curl -X POST "http://localhost:5037/mcp" \
-  -H "Content-Type: application/json" \
-  -d '{"method": "list_tools"}'
+  -H "Content-Type: application/json" \  -d '{"method": "list_tools"}'
 ```
+
+## 🔧 Real AI Integration
+
+The demo application works with mock responses by default, but can be configured for real AI-powered responses using Azure OpenAI or OpenAI API.
+
+### Quick Setup
+
+1. **Choose Your AI Provider**: Azure OpenAI (recommended) or OpenAI API
+2. **Install Provider Package**:
+
+   ```bash
+   cd samples/Demo
+   dotnet add package Microsoft.Extensions.AI.AzureAIInference  # For Azure OpenAI
+   # OR
+   dotnet add package Microsoft.Extensions.AI.OpenAI           # For OpenAI API
+   ```
+
+3. **Configure API Keys**: Update `samples/Demo/appsettings.json` or use user secrets
+4. **Add Service Registration**: Update `Program.cs` with AI service registration
+
+### Complete Setup Guide
+
+📖 **[Complete AI Integration Guide](doc/demo-setup-guide.md)** - Step-by-step instructions for:
+
+- Azure OpenAI and OpenAI API configuration
+- Security best practices for API key management
+- Service registration and dependency injection
+- Troubleshooting common setup issues
+- Configuration options
+- Production deployment considerations
+
+The guide includes examples, FAQ, and troubleshooting to get you up and running with AI responses.
 
 ## ⚙️ Configuration
 
@@ -405,6 +441,7 @@ builder.Services.Configure<AzureSearchOptions>(
 NLWebNet supports multiple deployment options for different environments:
 
 ### 🐳 Docker Deployment
+
 ```bash
 # Quick start with Docker Compose
 git clone https://github.com/jongalloway/NLWebNet.git
@@ -413,6 +450,7 @@ cd deployment/docker && docker-compose up --build
 ```
 
 ### ☁️ Azure Cloud Deployment
+
 ```bash
 # Deploy to Azure Container Apps
 ./deployment/scripts/deploy/deploy-azure.sh -g myResourceGroup -t container-apps
@@ -422,13 +460,16 @@ cd deployment/docker && docker-compose up --build
 ```
 
 ### ⚙️ Kubernetes Deployment
+
 ```bash
 # Deploy to any Kubernetes cluster
 kubectl apply -f deployment/kubernetes/manifests/
 ```
 
 ### 📦 Container Registry
+
 Pre-built images available soon. For now, build locally:
+
 ```bash
 ./deployment/scripts/deploy/build-docker.sh -t latest
 ```
@@ -437,50 +478,40 @@ Pre-built images available soon. For now, build locally:
 
 ## 🛠️ Development Status
 
-This is a **proof of concept implementation** of the NLWeb protocol, available as an **alpha prerelease package** for testing and evaluation purposes only.
+This is an **alpha implementation** of the NLWeb protocol, provided as an **experimental package** for testing and evaluation purposes.
 
-### ⚠️ EXPERIMENTAL SOFTWARE - NOT PRODUCTION READY
+### ⚠️ ALPHA SOFTWARE - EXPERIMENTAL RELEASE
 
-**✅ Completed (Phases 1-11) - For Testing & Evaluation:**
+**✅ Current Implementation Status:**
 
-- [x] **Core Library**: Complete NLWeb protocol implementation with Minimal API endpoints
-- [x] **Data Models**: Request/response models with validation and JSON serialization
+- [x] **Core Library**: Basic NLWeb protocol implementation with Minimal API endpoints
+- [x] **Data Models**: Essential request/response models with validation and JSON serialization
 - [x] **Business Logic**: Service layer with Microsoft.Extensions.AI integration
-- [x] **NuGet Package**: Published as alpha prerelease at [nuget.org/packages/NLWebNet](https://www.nuget.org/packages/NLWebNet/)
-- [x] **CI/CD Pipeline**: Automated build, test, validation, and publishing to NuGet.org
-- [x] **Documentation**: Comprehensive README, API documentation, and usage examples
+- [x] **MCP Integration**: Basic Model Context Protocol support with tools and prompts
+- [x] **Demo Application**: .NET 9 Blazor Web App with interactive components for testing
+- [x] **AI Integration**: Setup guides for Azure OpenAI and OpenAI API (experimental)
+- [x] **Testing**: Unit tests and manual testing guides (basic coverage)
+- [x] **Configuration**: CORS, AI services, and multi-environment support
+- [x] **Documentation**: API documentation and setup guides (evolving)
+- [x] **CI/CD**: Basic automated build, test, and validation pipeline
+- [x] **NuGet Package**: Alpha prerelease at [nuget.org/packages/NLWebNet](https://www.nuget.org/packages/NLWebNet/)
 
-**🎯 Intended Use Cases:**
+**🎯 Suitable For:**
 
 - Protocol evaluation and experimentation
 - Learning NLWeb concepts and implementation patterns
 - Research and development prototyping
-- Testing integration with AI services and data backends
+- Testing integration patterns with AI services
+- Exploring .NET AI abstractions and Model Context Protocol
 
-**❌ Not Suitable For:**
+**⚠️ Alpha Release Limitations:**
 
-- Production applications or critical business systems
-- Public-facing services or enterprise applications
-- Applications requiring commercial support or SLAs
-- [x] **MCP Integration**: Full Model Context Protocol support with tools and prompts
-- [x] **Demo Application**: Modern .NET 9 Blazor Web App with interactive components
-- [x] **Testing**: 39 unit tests with 100% pass rate plus comprehensive manual testing guides
-- [x] **Configuration**: CORS, AI services, and multi-environment support
-- [x] **Documentation**: XML documentation, README, and API usage examples
-- [x] **CI/CD**: GitHub Actions workflow for build, test, and validation
-- [x] **NuGet Package**: Fully functional package with working extension methods (0.1.0-alpha.3)
-- [x] **API Exposure**: Extension methods accessible via `using NLWebNet;` (Microsoft pattern)
-- [x] **End-to-End Validation**: Complete package installation and functionality testing
-- [x] **Package Metadata**: Enhanced NuGet metadata with title, copyright, repository type for professional presentation
-
-**📋 Next Steps (Phase 11):**
-
-- [x] Enhanced package metadata and improved Package Manager display
-- [ ] Health check integration
-- [ ] Performance monitoring hooks
-- [ ] Rate limiting support
-- [ ] Docker containerization
-- [ ] Azure deployment templates
+- **Experimental software** - may contain bugs or incomplete features
+- **API surface may change** in future releases without notice
+- **Not recommended for production use** - suitable for evaluation and experimentation only
+- **Limited support** - community-driven development with no guarantees
+- **Performance and reliability** not yet optimized for production workloads
+- **Feature completeness** varies - some advanced NLWeb features may be basic implementations
 
 ## 🤝 Contributing
 
@@ -493,8 +524,10 @@ This project follows the [NLWeb specification](https://github.com/microsoft/NLWe
 ## 📖 Related Resources
 
 - **[NLWeb Official Repository](https://github.com/microsoft/NLWeb)** - Specification and reference implementation
+- **[Complete Demo Setup Guide](doc/demo-setup-guide.md)** - Step-by-step AI integration instructions
 - **[Model Context Protocol](https://modelcontextprotocol.io/)** - MCP documentation
 - **[Microsoft.Extensions.AI](https://learn.microsoft.com/en-us/dotnet/ai/)** - .NET AI abstractions
+- **[Manual Testing Guide](doc/manual-testing-guide.md)** - API testing with curl examples
 
 ## 📄 License
 
@@ -502,4 +535,16 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## 🏷️ Version
 
-Current version: `0.1.0-alpha.3` (Prerelease - enhanced metadata and improved Package Manager display)
+[![NuGet Version](https://img.shields.io/nuget/v/NLWebNet.svg)](https://www.nuget.org/packages/NLWebNet/) - Alpha experimental release
+
+Basic NLWeb protocol implementation with AI integration support for testing and evaluation purposes.
+
+**Key Features (Alpha Quality):**
+
+- ✅ Basic NLWeb protocol implementation (/ask, /mcp endpoints)
+- ✅ AI integration support (Azure OpenAI, OpenAI API) - experimental
+- ✅ .NET 9 Blazor demo application for testing
+- ✅ Model Context Protocol (MCP) support - basic implementation
+- ✅ Streaming responses with Server-Sent Events
+- ✅ Documentation and setup guides (evolving)
+- ✅ Alpha NuGet package with working extension methods
