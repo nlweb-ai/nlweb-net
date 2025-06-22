@@ -1,70 +1,30 @@
-# GitHub Copilot Setup Steps for NLWebNet
-# This file defines the setup steps needed to work with the NLWebNet repository
+name: "Copilot Setup Steps"
 
-name: Setup .NET 9 Environment for NLWebNet
-description: Install .NET 9 SDK and restore dependencies for the NLWebNet library and demo application
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
 
-steps:
-  - name: Install .NET 9 SDK
-    description: Download and install the .NET 9 SDK for Ubuntu using the official Microsoft install script
-    run: |
-      # Check if .NET 9 is already installed
-      if command -v dotnet &> /dev/null && dotnet --list-sdks | grep -q "9\."; then
-        echo "✅ .NET 9 SDK is already installed"
-        dotnet --version
-        # Still need to install Aspire workload if not present
-        if ! dotnet workload list | grep -q "aspire"; then
-          echo "📦 Installing Aspire workload..."
+jobs:
+  # This job MUST be named exactly `copilot-setup-steps`
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Install .NET 9 SDK
+        shell: bash
+        run: |
+          curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 9.0
+          echo "PATH=$HOME/.dotnet:$PATH" >> $GITHUB_ENV
+
+      - name: Install .NET Aspire workload
+        shell: bash
+        run: |
+          export PATH="$HOME/.dotnet:$PATH"
           dotnet workload install aspire
-        fi
-        exit 0
-      fi
-
-      # Download and install .NET 9 SDK using official Microsoft install script
-      echo "📦 Installing .NET 9 SDK..."
-      curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 9.0 --install-dir ~/.dotnet
-
-      # Add .NET to PATH if not already present
-      if [[ ":$PATH:" != *":$HOME/.dotnet:"* ]]; then
-        echo 'export PATH="$HOME/.dotnet:$PATH"' >> ~/.bashrc
-        export PATH="$HOME/.dotnet:$PATH"
-      fi
-
-      # Set environment variables for subsequent steps (GitHub Actions specific)
-      echo "DOTNET_ROOT=$HOME/.dotnet" >> $GITHUB_ENV
-      echo "$HOME/.dotnet" >> $GITHUB_PATH
-      echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-
-      # Verify installation
-      echo "🔍 Verifying .NET installation..."
-      dotnet --version
-      dotnet --info
-
-      # Install required workloads including Aspire
-      echo "📦 Installing required workloads..."
-      dotnet workload install aspire
-
-  - name: Restore NuGet packages
-    description: Restore all NuGet package dependencies for the solution
-    run: |
-      dotnet restore
-
-  - name: Build solution
-    description: Build the entire solution to verify setup is working
-    run: |
-      dotnet build --configuration Debug --no-restore
-
-  - name: Verify setup
-    description: Run a quick verification that everything is set up correctly
-    run: |
-      echo "✅ .NET 9 SDK installed successfully"
-      echo "✅ Required workloads (including Aspire) installed"
-      echo "✅ NuGet packages restored"
-      echo "✅ Solution builds successfully"
-      echo ""
-      echo "🚀 You can now work with the NLWebNet repository!"
-      echo ""
-      echo "Quick start commands:"
-      echo "  - Build: dotnet build"
-      echo "  - Test: dotnet test"
-      echo "  - Run demo: dotnet run --project demo"
