@@ -5,6 +5,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
+# Set essential environment variables for .NET in containerized environments
+ENV DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=true
+ENV NUGET_XMLDOC_MODE=skip
+
 # Copy solution file and project files for dependency resolution
 COPY ["NLWebNet.sln", "./"]
 COPY ["src/NLWebNet/NLWebNet.csproj", "src/NLWebNet/"]
