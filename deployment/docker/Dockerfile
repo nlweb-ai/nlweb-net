@@ -29,14 +29,15 @@ RUN dotnet publish "NLWebNet.Demo.csproj" -c Release -o /app/publish /p:UseAppHo
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 
-# Create a non-root user for security
-RUN groupadd -r nlwebnet && useradd -r -g nlwebnet nlwebnet
+# Install curl for health checks and create a non-root user for security
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* \
+    && groupadd -r nlwebnet && useradd -r -g nlwebnet nlwebnet
 
 # Set working directory
 WORKDIR /app
 
 # Copy published application
-COPY --from=publish /app/publish .
+COPY --from=build /app/publish .
 
 # Create directory for logs and ensure proper permissions
 RUN mkdir -p /app/logs && chown -R nlwebnet:nlwebnet /app
