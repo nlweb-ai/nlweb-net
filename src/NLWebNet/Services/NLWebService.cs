@@ -33,40 +33,44 @@ public class NLWebService : INLWebService
     /// <inheritdoc />
     public async Task<NLWebResponse> ProcessRequestAsync(NLWebRequest request, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Processing NLWeb request for query: {Query}", request.Query);
+        _logger.LogInformation("[START] ProcessRequestAsync for QueryId={QueryId}, Query='{Query}'", request.QueryId, request.Query);
 
         try
         {
-            // Validate the request
+            _logger.LogDebug("Validating request for QueryId={QueryId}", request.QueryId);
             if (!_queryProcessor.ValidateRequest(request))
             {
+                _logger.LogWarning("Request validation failed for QueryId={QueryId}", request.QueryId);
                 return CreateErrorResponse("Invalid request. Please check your query and try again.", request.QueryId);
             }
 
-            // Generate query ID if not provided
             var queryId = _queryProcessor.GenerateQueryId(request);
+            _logger.LogDebug("Generated QueryId={QueryId}", queryId);
 
-            // Process the query (decontextualization)
+            _logger.LogDebug("Calling ProcessQueryAsync for QueryId={QueryId}", queryId);
             var processedQuery = await _queryProcessor.ProcessQueryAsync(request, cancellationToken);
+            _logger.LogDebug("ProcessQueryAsync complete for QueryId={QueryId}", queryId);
 
-            // Get initial results from data backend
+            _logger.LogDebug("Calling GenerateListAsync for QueryId={QueryId}", queryId);
             var searchResults = await _resultGenerator.GenerateListAsync(processedQuery, request.Site, cancellationToken);
             var resultsList = searchResults.ToList();
+            _logger.LogDebug("GenerateListAsync complete for QueryId={QueryId}, ResultCount={ResultCount}", queryId, resultsList.Count);
 
-            // Generate response based on mode
+            _logger.LogDebug("Calling GenerateResponseByModeAsync for QueryId={QueryId}", queryId);
             var response = await GenerateResponseByModeAsync(request.Mode, processedQuery, resultsList, queryId, cancellationToken);
+            _logger.LogDebug("GenerateResponseByModeAsync complete for QueryId={QueryId}", queryId);
 
-            _logger.LogInformation("Successfully processed request {QueryId} with {ResultCount} results", queryId, resultsList.Count);
+            _logger.LogInformation("[END] Successfully processed request {QueryId} with {ResultCount} results", queryId, resultsList.Count);
             return response;
         }
         catch (OperationCanceledException)
         {
-            _logger.LogWarning("Request processing was cancelled");
+            _logger.LogWarning("Request processing was cancelled for QueryId={QueryId}", request.QueryId);
             throw;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error processing NLWeb request");
+            _logger.LogError(ex, "Error processing NLWeb request for QueryId={QueryId}", request.QueryId);
             return CreateErrorResponse("An error occurred while processing your request. Please try again.", request.QueryId);
         }
     }    /// <inheritdoc />
@@ -74,23 +78,48 @@ public class NLWebService : INLWebService
         NLWebRequest request,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Processing streaming NLWeb request for query: {Query}", request.Query);
+        _logger.LogInformation("[START] ProcessRequestStreamAsync for QueryId={QueryId}, Query='{Query}'", request.QueryId, request.Query);
 
-        // Validate the request
         if (!_queryProcessor.ValidateRequest(request))
         {
+            _logger.LogWarning("Streaming request validation failed for QueryId={QueryId}", request.QueryId);
             yield return CreateErrorResponse("Invalid request. Please check your query and try again.", request.QueryId);
             yield break;
         }
 
-        // Generate query ID if not provided
         var queryId = _queryProcessor.GenerateQueryId(request);
+        _logger.LogDebug("Generated QueryId={QueryId} (streaming)", queryId);
 
-        // Process the request and yield results, handling exceptions appropriately
-        await foreach (var response in ProcessRequestStreamInternalAsync(request, queryId, cancellationToken))
+        List<NLWebResponse> bufferedResponses = new();
+        bool hadException = false;
+        try
+        {
+            _logger.LogDebug("Calling ProcessRequestStreamInternalAsync for QueryId={QueryId}", queryId);
+            await foreach (var response in ProcessRequestStreamInternalAsync(request, queryId, cancellationToken))
+            {
+                bufferedResponses.Add(response);
+            }
+            _logger.LogInformation("[END] ProcessRequestStreamAsync completed for QueryId={QueryId}", queryId);
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning("Streaming request processing was cancelled for QueryId={QueryId}", request.QueryId);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in ProcessRequestStreamAsync for QueryId={QueryId}", request.QueryId);
+            bufferedResponses.Clear();
+            bufferedResponses.Add(CreateErrorResponse("An error occurred while processing your request. Please try again.", request.QueryId));
+            hadException = true;
+        }
+
+        foreach (var response in bufferedResponses)
         {
             yield return response;
         }
+        if (hadException)
+            yield break;
     }
 
     /// <summary>
@@ -104,38 +133,48 @@ public class NLWebService : INLWebService
         IAsyncEnumerable<NLWebResponse>? responseStream = null;
         Exception? processingException = null;
 
+        List<NLWebResponse> bufferedResponses = new();
+        bool hadException = false;
         try
         {
-            // Process the query (decontextualization)
+            _logger.LogDebug("[StreamInternal] Calling ProcessQueryAsync for QueryId={QueryId}", queryId);
             var processedQuery = await _queryProcessor.ProcessQueryAsync(request, cancellationToken);
+            _logger.LogDebug("[StreamInternal] ProcessQueryAsync complete for QueryId={QueryId}", queryId);
 
-            // Get initial results from data backend
+            _logger.LogDebug("[StreamInternal] Calling GenerateListAsync for QueryId={QueryId}", queryId);
             var searchResults = await _resultGenerator.GenerateListAsync(processedQuery, request.Site, cancellationToken);
             var resultsList = searchResults.ToList();
+            _logger.LogDebug("[StreamInternal] GenerateListAsync complete for QueryId={QueryId}, ResultCount={ResultCount}", queryId, resultsList.Count);
 
             responseStream = GenerateStreamingResponsesAsync(request, queryId, processedQuery, resultsList, cancellationToken);
         }
         catch (OperationCanceledException)
         {
-            _logger.LogWarning("Request processing was cancelled");
+            _logger.LogWarning("[StreamInternal] Request processing was cancelled for QueryId={QueryId}", queryId);
             throw;
         }
         catch (Exception ex)
         {
             processingException = ex;
+            hadException = true;
         }
 
         if (responseStream != null)
         {
             await foreach (var response in responseStream)
             {
-                yield return response;
+                bufferedResponses.Add(response);
             }
         }
-        else
+        else if (hadException)
         {
-            _logger.LogError(processingException, "Error processing streaming NLWeb request");
-            yield return CreateErrorResponse("An error occurred while processing your request. Please try again.", queryId);
+            _logger.LogError(processingException, "[StreamInternal] Error processing streaming NLWeb request for QueryId={QueryId}", queryId);
+            bufferedResponses.Add(CreateErrorResponse("An error occurred while processing your request. Please try again.", queryId));
+        }
+
+        foreach (var response in bufferedResponses)
+        {
+            yield return response;
         }
     }
 
@@ -149,7 +188,7 @@ public class NLWebService : INLWebService
         List<NLWebResult> resultsList,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        // First, yield the basic response structure with results
+        _logger.LogDebug("[StreamingResponses] Yielding initial response for QueryId={QueryId}", queryId);
         var initialResponse = new NLWebResponse
         {
             QueryId = queryId,
@@ -161,15 +200,15 @@ public class NLWebService : INLWebService
 
         yield return initialResponse;
 
-        // For List mode, we're done after sending results
         if (request.Mode == QueryMode.List)
         {
+            _logger.LogDebug("[StreamingResponses] List mode complete for QueryId={QueryId}", queryId);
             yield break;
         }
 
-        // For other modes, stream the generated content
         var contentChunks = new List<string>();
 
+        _logger.LogDebug("[StreamingResponses] Starting streaming content for QueryId={QueryId}, Mode={Mode}", queryId, request.Mode);
         await foreach (var chunk in _resultGenerator.GenerateStreamingResponseAsync(processedQuery, resultsList, request.Mode, cancellationToken))
         {
             contentChunks.Add(chunk);
@@ -187,10 +226,10 @@ public class NLWebService : INLWebService
                 IsComplete = false
             };
 
+            _logger.LogTrace("[StreamingResponses] Yielding chunk for QueryId={QueryId}, ChunkLength={ChunkLength}", queryId, chunk?.Length ?? 0);
             yield return streamingResponse;
         }
 
-        // Send final complete response
         var finalResponse = new NLWebResponse
         {
             QueryId = queryId,
@@ -204,6 +243,7 @@ public class NLWebService : INLWebService
             IsComplete = true
         };
 
+        _logger.LogDebug("[StreamingResponses] Yielding final response for QueryId={QueryId}", queryId);
         yield return finalResponse;
 
         _logger.LogInformation("Successfully processed streaming request {QueryId} with {ResultCount} results", queryId, resultsList.Count);
@@ -220,6 +260,7 @@ public class NLWebService : INLWebService
         CancellationToken cancellationToken)
     {
         var startTime = DateTimeOffset.UtcNow;
+        _logger.LogDebug("[GenerateResponseByModeAsync] Entry for QueryId={QueryId}, Mode={Mode}", queryId, mode);
 
         var response = new NLWebResponse
         {
@@ -232,17 +273,21 @@ public class NLWebService : INLWebService
         switch (mode)
         {
             case QueryMode.List:
-                // For list mode, we just return the results as-is
+                _logger.LogDebug("[GenerateResponseByModeAsync] List mode for QueryId={QueryId}", queryId);
                 break;
 
             case QueryMode.Summarize:
+                _logger.LogDebug("[GenerateResponseByModeAsync] Calling GenerateSummaryAsync for QueryId={QueryId}", queryId);
                 var (summary, _) = await _resultGenerator.GenerateSummaryAsync(processedQuery, results, cancellationToken);
                 response.Summary = summary;
+                _logger.LogDebug("[GenerateResponseByModeAsync] GenerateSummaryAsync complete for QueryId={QueryId}", queryId);
                 break;
 
             case QueryMode.Generate:
+                _logger.LogDebug("[GenerateResponseByModeAsync] Calling GenerateResponseAsync for QueryId={QueryId}", queryId);
                 var (generatedResponse, _) = await _resultGenerator.GenerateResponseAsync(processedQuery, results, cancellationToken);
                 response.GeneratedResponse = generatedResponse;
+                _logger.LogDebug("[GenerateResponseByModeAsync] GenerateResponseAsync complete for QueryId={QueryId}", queryId);
                 break;
 
             default:
@@ -251,6 +296,7 @@ public class NLWebService : INLWebService
         }
 
         response.ProcessingTimeMs = (int)(DateTimeOffset.UtcNow - startTime).TotalMilliseconds;
+        _logger.LogDebug("[GenerateResponseByModeAsync] Exit for QueryId={QueryId}", queryId);
         return response;
     }
 

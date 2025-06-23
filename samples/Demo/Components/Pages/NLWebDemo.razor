@@ -2,8 +2,11 @@
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 @inject IJSRuntime JSRuntime
 @inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+@inject NLWebNet.Demo.Services.IAIConfigurationService AIConfigService
 @using NLWebNet.Models
 @using System.Text.Json
+@using NLWebNet.Demo.Components
 
 <PageTitle>NLWebNet Demo</PageTitle>
 
@@ -14,35 +17,49 @@
                 <h1 class="mb-0">
                     <i class="fas fa-globe-americas text-primary me-2"></i>
                     NLWebNet Interactive Demo
-                </h1>                <div class="btn-group" role="group">
-                    <button type="button" class="btn @(activeTab == "query" ? "btn-primary" : "btn-outline-primary")" 
-                            @onclick='() => SetActiveTab("query")'>
+                </h1>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn @(activeTab == "query" ? "btn-primary" : "btn-outline-primary")"
+                        @onclick='() => SetActiveTab("query")'>
                         <i class="fas fa-search me-1"></i>Query
                     </button>
-                    <button type="button" class="btn @(activeTab == "streaming" ? "btn-primary" : "btn-outline-primary")" 
-                            @onclick='() => SetActiveTab("streaming")'>
+                    <button type="button"
+                        class="btn @(activeTab == "streaming" ? "btn-primary" : "btn-outline-primary")"
+                        @onclick='() => SetActiveTab("streaming")'>
                         <i class="fas fa-stream me-1"></i>Streaming
                     </button>
-                    <button type="button" class="btn @(activeTab == "api" ? "btn-primary" : "btn-outline-primary")" 
-                            @onclick='() => SetActiveTab("api")'>
+                    <button type="button" class="btn @(activeTab == "api" ? "btn-primary" : "btn-outline-primary")"
+                        @onclick='() => SetActiveTab("api")'>
                         <i class="fas fa-code me-1"></i>API Test
                     </button>
                 </div>
             </div>
-            
             @if (activeTab == "query")
             {
                 <div class="row">
-                    <div class="col-lg-6">                        <QueryInput OnSubmit="HandleQuerySubmitted" 
-                                  IsLoading="isLoading" 
-                                  @ref="queryInputComponent" />
+                    @if (!AIConfigService.IsAIConfigured)
+                    {
+                        <div class="col-12 mb-4">
+                            <GitHubTokenInput OnTokenConfigured="HandleTokenConfigured" IsLoading="isLoading" />
+                        </div>
+                    }
+
+                    <div class="col-lg-6">
+                        @if (AIConfigService.IsAIConfigured)
+                        {
+                            <div class="alert alert-success mb-3">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <strong>AI Provider:</strong> @AIConfigService.GetCurrentProvider()
+                            </div>
+                        }
+
+                        <QueryInput OnSubmit="HandleQuerySubmitted" IsLoading="isLoading" @ref="queryInputComponent" />
                     </div>
                     <div class="col-lg-6">
                         @if (currentResponse != null)
                         {
-                            <ResultsDisplay Response="currentResponse" 
-                                          ShowDebugInfo="true"
-                                          OnResultClicked="HandleResultClicked" />
+                            <ResultsDisplay Response="currentResponse" ShowDebugInfo="true"
+                                OnResultClicked="HandleResultClicked" />
                         }
                         else if (!string.IsNullOrEmpty(errorMessage))
                         {
@@ -69,11 +86,11 @@
                             <div class="card-body">
                                 <div class="mb-3">
                                     <label class="form-label">Query</label>
-                                    <input type="text" class="form-control" @bind="streamingQuery" 
-                                           placeholder="Enter streaming query..." />
+                                    <input type="text" class="form-control" @bind="streamingQuery"
+                                        placeholder="Enter streaming query..." />
                                 </div>
-                                <button class="btn btn-primary" @onclick="StartStreamingQuery" 
-                                        disabled="@(isStreaming || string.IsNullOrWhiteSpace(streamingQuery))">
+                                <button class="btn btn-primary" @onclick="StartStreamingQuery"
+                                    disabled="@(isStreaming || string.IsNullOrWhiteSpace(streamingQuery))">
                                     @if (isStreaming)
                                     {
                                         <span class="spinner-border spinner-border-sm me-2"></span>
@@ -84,11 +101,8 @@
                         </div>
                     </div>
                     <div class="col-lg-8">
-                        <StreamingDisplay IsStreaming="isStreaming" 
-                                        IsCompleted="streamingCompleted"
-                                        QueryId="streamingQueryId"
-                                        OnStopStreaming="StopStreaming"
-                                        @ref="streamingDisplay" />
+                        <StreamingDisplay IsStreaming="isStreaming" IsCompleted="streamingCompleted"
+                            QueryId="streamingQueryId" OnStopStreaming="StopStreaming" @ref="streamingDisplay" />
                     </div>
                 </div>
             }
@@ -103,7 +117,8 @@
                             <div class="card-body">
                                 <div class="alert alert-info">
                                     <i class="fas fa-info-circle me-2"></i>
-                                    Test the NLWebNet API endpoints directly. This will be implemented in the next iteration.
+                                    Test the NLWebNet API endpoints directly. This will be implemented in the next
+                                    iteration.
                                 </div>
                             </div>
                         </div>
@@ -118,129 +133,168 @@
     private string activeTab = "query";
     private bool isLoading = false;
     private string errorMessage = "";
-    
+
     // Query tab
     private QueryInput? queryInputComponent;
     private NLWebResponse? currentResponse;
-    
+
     // Streaming tab
     private string streamingQuery = "";
     private bool isStreaming = false;
-    private bool streamingCompleted = false;    private string streamingQueryId = "";
+    private bool streamingCompleted = false; private string streamingQueryId = "";
     private StreamingDisplay? streamingDisplay;
-    
+
     private void SetActiveTab(string tab)
     {
         activeTab = tab;
         errorMessage = "";
     }
-    
     private async Task HandleQuerySubmitted(NLWebRequest request)
     {
         isLoading = true;
         errorMessage = "";
         currentResponse = null;
-        
+
         try
         {
-            // Simulate API call for now - will be replaced with actual NLWebNet API calls
-            await Task.Delay(1000); // Simulate network delay
-            
-            currentResponse = CreateMockResponse(request);
+            // Dynamically set BaseAddress if not already set
+            if (HttpClient.BaseAddress == null)
+            {
+                var baseUri = NavigationManager.BaseUri;
+                if (!string.IsNullOrEmpty(baseUri))
+                {
+                    HttpClient.BaseAddress = new Uri(baseUri);
+                    Console.WriteLine($"[Blazor] Set HttpClient.BaseAddress to: {baseUri}");
+                }
+            }
+            // Enhanced client logging: log outgoing request
+            Console.WriteLine($"[Blazor] Sending POST to /ask with payload: {JsonSerializer.Serialize(request)}");
+            var response = await HttpClient.PostAsJsonAsync("/ask", request);
+            Console.WriteLine($"[Blazor] Received response: StatusCode={response.StatusCode}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"[Blazor] Response content: {responseContent}");
+                currentResponse = JsonSerializer.Deserialize<NLWebResponse>(responseContent, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"[Blazor] API Error ({response.StatusCode}): {errorContent}");
+                errorMessage = $"API Error ({response.StatusCode}): {errorContent}";
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Network Error: {ex.Message} (StackTrace: {ex.StackTrace})";
+            Console.WriteLine($"[Blazor] Network Error: {ex.Message}\n{ex.StackTrace}");
+        }
+        catch (JsonException ex)
+        {
+            errorMessage = $"Response Parsing Error: {ex.Message} (StackTrace: {ex.StackTrace})";
+            Console.WriteLine($"[Blazor] Response Parsing Error: {ex.Message}\n{ex.StackTrace}");
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            errorMessage = $"Unexpected Error: {ex.Message} (StackTrace: {ex.StackTrace})";
+            Console.WriteLine($"[Blazor] Unexpected Error: {ex.Message}\n{ex.StackTrace}");
         }
         finally
         {
             isLoading = false;
         }
     }
-    
-    private NLWebResponse CreateMockResponse(NLWebRequest request)
-    {        var response = new NLWebResponse
-        {
-            QueryId = Guid.NewGuid().ToString(),
-            Query = request.Query,
-            Mode = request.Mode,
-            Summary = $"Mock summary for query: '{request.Query}' in {request.Mode} mode",
-            GeneratedResponse = request.Mode == QueryMode.Generate 
-                ? $"Generated response: Based on your query '{request.Query}', here is a comprehensive answer with relevant information and insights."
-                : null,
-            Results = new List<NLWebResult>()
-        };
-        
-        // Add mock results
-        for (int i = 1; i <= 5; i++)
-        {
-            response.Results.Add(new NLWebResult
-            {
-                Name = $"Result {i}",
-                Url = $"https://example.com/result{i}",
-                Description = $"This is a mock description for result {i} related to '{request.Query}'",
-                Score = 0.9 - (i * 0.1),
-                Site = "example.com"
-            });
-        }
-        
-        return response;
-    }
-    
     private void HandleResultClicked(NLWebResult result)
     {
         // Handle result click - could navigate, show details, etc.
         JSRuntime.InvokeVoidAsync("open", result.Url, "_blank");
     }
-    
     private async Task StartStreamingQuery()
     {
         if (string.IsNullOrWhiteSpace(streamingQuery))
             return;
-            
+
         isStreaming = true;
         streamingCompleted = false;
         streamingQueryId = Guid.NewGuid().ToString();
-        
+
         // Clear previous results
         streamingDisplay?.ClearStream();
-        
-        // Simulate streaming response
-        await SimulateStreamingResponse();
-    }
-    
-    private async Task SimulateStreamingResponse()
-    {
+
         try
         {
-            streamingDisplay?.AddTextChunk("Starting query processing...");
-            await Task.Delay(500);
-            
-            streamingDisplay?.AddTextChunk("Searching web sources...");
-            await Task.Delay(800);
-            
-            // Add some mock results
-            for (int i = 1; i <= 3; i++)
-            {                var result = new NLWebResult
+            // Make actual HTTP call to NLWebNet streaming API
+            var streamingRequest = new NLWebRequest
+            {
+                Query = streamingQuery,
+                Mode = QueryMode.Summarize, // Use summarize for better streaming demo
+                Streaming = true,
+                QueryId = streamingQueryId
+            };
+
+            streamingDisplay?.AddTextChunk("Starting streaming query...");
+
+            // Call the streaming endpoint
+            var response = await HttpClient.PostAsJsonAsync("/ask", streamingRequest);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var nlwebResponse = JsonSerializer.Deserialize<NLWebResponse>(responseContent, new JsonSerializerOptions
                 {
-                    Name = $"Streaming Result {i}",
-                    Url = $"https://example.com/streaming{i}",
-                    Description = $"Streamed result {i} for query: {streamingQuery}",
-                    Score = 0.95 - (i * 0.05),
-                    Site = "example.com"
-                };
-                
-                streamingDisplay?.AddResultChunk(result);
-                await Task.Delay(600);
+                    PropertyNameCaseInsensitive = true
+                });
+
+                if (nlwebResponse != null)
+                {
+                    streamingDisplay?.AddTextChunk($"Query ID: {nlwebResponse.QueryId}");
+
+                    // Add results
+                    if (nlwebResponse.Results != null)
+                    {
+                        foreach (var result in nlwebResponse.Results)
+                        {
+                            streamingDisplay?.AddResultChunk(result);
+                            await Task.Delay(200); // Small delay for visual effect
+                        }
+                    }
+
+                    // Add summary if available
+                    if (!string.IsNullOrEmpty(nlwebResponse.Summary))
+                    {
+                        streamingDisplay?.AddSummaryChunk(nlwebResponse.Summary);
+                    }
+
+                    // Add generated response if available
+                    if (!string.IsNullOrEmpty(nlwebResponse.GeneratedResponse))
+                    {
+                        streamingDisplay?.AddTextChunk($"Generated Response: {nlwebResponse.GeneratedResponse}");
+                    }
+
+                    streamingDisplay?.AddTextChunk("Streaming query completed successfully.");
+                }
+                else
+                {
+                    streamingDisplay?.AddErrorChunk("Failed to parse API response.");
+                }
             }
-            
-            streamingDisplay?.AddTextChunk("Processing results...");
-            await Task.Delay(400);
-            
-            streamingDisplay?.AddSummaryChunk($"Found 3 relevant results for '{streamingQuery}'. The results show comprehensive information about the topic.");
-            await Task.Delay(300);
-            
-            streamingDisplay?.AddTextChunk("Query completed successfully.");
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                streamingDisplay?.AddErrorChunk($"API Error ({response.StatusCode}): {errorContent}");
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            streamingDisplay?.AddErrorChunk($"Network Error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            streamingDisplay?.AddErrorChunk($"Response Parsing Error: {ex.Message}");
         }
         catch (Exception ex)
         {
@@ -252,13 +306,35 @@
             streamingCompleted = true;
         }
     }
-      private Task StopStreaming()
+    private Task StopStreaming()
     {
         isStreaming = false;
         streamingDisplay?.AddTextChunk("Streaming stopped by user.");
         return Task.CompletedTask;
     }
-      public void Dispose()
+    private async Task HandleTokenConfigured(string token)
+    {
+        if (!string.IsNullOrEmpty(token))
+        {
+            var success = await AIConfigService.ConfigureGitHubModelsAsync(token, "gpt-4o");
+            if (success)
+            {
+                StateHasChanged(); // Refresh the UI to show the configuration status
+            }
+            else
+            {
+                // Log error but still refresh UI
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            await AIConfigService.ClearGitHubConfigurationAsync();
+            StateHasChanged(); // Refresh the UI
+        }
+    }
+
+    public void Dispose()
     {
         // Cleanup if needed
     }

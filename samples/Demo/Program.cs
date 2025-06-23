@@ -16,6 +16,19 @@ builder.Services.AddRazorComponents()
 // Add HttpClient for Blazor components
 builder.Services.AddHttpClient();
 
+// Add AI configuration service
+builder.Services.AddScoped<NLWebNet.Demo.Services.IAIConfigurationService, NLWebNet.Demo.Services.AIConfigurationService>();
+
+// Add dynamic chat client factory
+builder.Services.AddScoped<NLWebNet.Demo.Services.IDynamicChatClientFactory, NLWebNet.Demo.Services.DynamicChatClientFactory>();
+
+// Register a factory-based IChatClient for NLWebNet
+builder.Services.AddScoped<Microsoft.Extensions.AI.IChatClient>(serviceProvider =>
+{
+    var factory = serviceProvider.GetRequiredService<NLWebNet.Demo.Services.IDynamicChatClientFactory>();
+    return factory.GetChatClient() ?? new NLWebNet.Demo.Services.NullChatClient();
+});
+
 // Add CORS configuration
 builder.Services.AddCors(options =>
 {
@@ -97,6 +110,7 @@ app.MapRazorComponents<NLWebNet.Demo.Components.App>()
     .AddInteractiveServerRenderMode();
 
 // Map NLWebNet minimal API endpoints
+
 app.MapNLWebNet();
 
 app.Run();

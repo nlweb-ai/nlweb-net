@@ -1,0 +1,242 @@
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@inject IJSRuntime JSRuntime
+@using System.ComponentModel.DataAnnotations
+
+<div class="card border-warning">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="card-title mb-0">
+            <i class="fab fa-github me-2"></i>
+            Quick AI Setup with GitHub Models
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>No AI provider configured!</strong> Enter a GitHub Personal Access Token below to test with GitHub Models instantly.
+        </div>
+        
+        <div class="mb-3">
+            <label for="githubToken" class="form-label">
+                <i class="fab fa-github me-1"></i>GitHub Personal Access Token
+            </label>
+            <div class="input-group">
+                <input type="@(showToken ? "text" : "password")" 
+                       class="form-control @(IsValidToken ? "is-valid" : "")"
+                       id="githubToken"
+                       @bind="GitHubToken" 
+                       placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                       disabled="@IsLoading" />
+                <button type="button" 
+                        class="btn btn-outline-secondary" 
+                        @onclick="ToggleTokenVisibility"
+                        disabled="@IsLoading">
+                    <i class="fas @(showToken ? "fa-eye-slash" : "fa-eye")"></i>
+                </button>
+            </div>
+            @if (!string.IsNullOrEmpty(validationMessage))
+            {
+                <div class="form-text text-danger">
+                    <i class="fas fa-exclamation-triangle me-1"></i>@validationMessage
+                </div>
+            }
+        </div>
+
+        <div class="mb-3">
+            <label for="modelSelect" class="form-label">
+                <i class="fas fa-robot me-1"></i>AI Model
+            </label>
+            <select class="form-select" id="modelSelect" @bind="SelectedModel" disabled="@(IsLoading || string.IsNullOrEmpty(GitHubToken))">
+                <option value="gpt-4o">GPT-4o (Recommended)</option>
+                <option value="gpt-4o-mini">GPT-4o Mini (Faster)</option>
+                <option value="Phi-3.5-mini-instruct">Phi-3.5 Mini</option>
+                <option value="Llama-3.1-8B-Instruct">Llama 3.1 8B</option>
+            </select>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="button" 
+                    class="btn btn-success" 
+                    @onclick="ConfigureGitHubModels"
+                    disabled="@(IsLoading || string.IsNullOrEmpty(GitHubToken))">
+                @if (IsLoading)
+                {
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                }
+                <i class="fas fa-check me-1"></i>Configure AI
+            </button>
+            
+            @if (IsValidToken)
+            {
+                <button type="button" 
+                        class="btn btn-outline-danger" 
+                        @onclick="ClearConfiguration">
+                    <i class="fas fa-times me-1"></i>Clear
+                </button>
+            }
+        </div>
+
+        <div class="mt-3">
+            <div class="accordion" id="gitHubTokenHelp">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHelp">
+                            <i class="fas fa-question-circle me-2"></i>How to get a GitHub Personal Access Token
+                        </button>
+                    </h2>
+                    <div id="collapseHelp" class="accordion-collapse collapse" data-bs-parent="#gitHubTokenHelp">
+                        <div class="accordion-body">
+                            <ol>
+                                <li>Go to <a href="https://github.com/settings/tokens" target="_blank" class="text-decoration-none">GitHub Settings → Personal Access Tokens</a></li>
+                                <li>Click "Generate new token" → "Fine-grained personal access token"</li>
+                                <li>Set expiration and select "All repositories" or specific ones</li>
+                                <li>Under "Account permissions", enable: <code>Model access</code></li>
+                                <li>Generate and copy the token (starts with <code>ghp_</code>)</li>
+                            </ol>
+                            <div class="alert alert-warning mt-2">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Security Note:</strong> This token is only stored in your browser session and never sent to our servers.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback<string> OnTokenConfigured { get; set; }
+    [Parameter] public bool IsLoading { get; set; }
+
+    private string gitHubToken = string.Empty;
+    private string selectedModel = "gpt-4o";
+    private bool showToken = false;
+    private string validationMessage = string.Empty;
+    private bool isValidToken = false;
+
+    public string GitHubToken
+    {
+        get => gitHubToken;
+        set
+        {
+            if (gitHubToken != value)
+            {
+                gitHubToken = value;
+                ValidateToken();
+                StateHasChanged();
+            }
+        }
+    }
+
+    public string SelectedModel
+    {
+        get => selectedModel;
+        set => selectedModel = value;
+    }
+
+    public bool IsValidToken => isValidToken;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Try to restore token from session storage
+            try
+            {
+                var storedToken = await JSRuntime.InvokeAsync<string>("sessionStorage.getItem", "github-token");
+                var storedModel = await JSRuntime.InvokeAsync<string>("sessionStorage.getItem", "github-model");
+                
+                if (!string.IsNullOrEmpty(storedToken))
+                {
+                    GitHubToken = storedToken;
+                    SelectedModel = storedModel ?? "gpt-4o";
+                    StateHasChanged();
+                }
+            }
+            catch
+            {
+                // Session storage not available or error - ignore
+            }
+        }
+    }
+
+    private void ToggleTokenVisibility()
+    {
+        showToken = !showToken;
+    }
+
+    private void ValidateToken()
+    {
+        validationMessage = string.Empty;
+        isValidToken = false;
+
+        if (string.IsNullOrEmpty(gitHubToken))
+        {
+            return;
+        }
+
+        if (!gitHubToken.StartsWith("ghp_"))
+        {
+            validationMessage = "GitHub Personal Access Token should start with 'ghp_'";
+            return;
+        }
+
+        if (gitHubToken.Length < 40)
+        {
+            validationMessage = "Token appears to be too short";
+            return;
+        }
+
+        isValidToken = true;
+    }
+
+    private async Task ConfigureGitHubModels()
+    {
+        if (!IsValidToken)
+        {
+            validationMessage = "Please enter a valid GitHub Personal Access Token";
+            return;
+        }
+
+        try
+        {
+            // Store in session storage for this session only
+            await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "github-token", GitHubToken);
+            await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "github-model", SelectedModel);
+            
+            // Notify parent component
+            if (OnTokenConfigured.HasDelegate)
+            {
+                await OnTokenConfigured.InvokeAsync(GitHubToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            validationMessage = $"Error configuring GitHub Models: {ex.Message}";
+        }
+    }
+
+    private async Task ClearConfiguration()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", "github-token");
+            await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", "github-model");
+            
+            GitHubToken = string.Empty;
+            SelectedModel = "gpt-4o";
+            isValidToken = false;
+            validationMessage = string.Empty;
+            
+            // Notify parent component
+            if (OnTokenConfigured.HasDelegate)
+            {
+                await OnTokenConfigured.InvokeAsync(string.Empty);
+            }
+        }
+        catch (Exception ex)
+        {
+            validationMessage = $"Error clearing configuration: {ex.Message}";
+        }
+    }
+}

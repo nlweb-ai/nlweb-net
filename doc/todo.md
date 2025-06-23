@@ -570,6 +570,20 @@ The NLWebNet library is now successfully deployed as a production-ready NuGet pa
   - [x] Deployment automation scripts
 - [x] **DEPLOYMENT INFRASTRUCTURE COMPLETED**: Comprehensive deployment strategy implemented with Docker, Kubernetes, and Azure support
 
+### Phase 11.5: GitHub Models Demo Integration ✅
+
+#### Status: **COMPLETED SUCCESSFULLY**
+
+Enhanced the demo application to provide seamless GitHub Models integration for users without AI provider setup:
+
+- [x] **AI Provider Detection**: Created `AIConfigurationService` to detect when no AI provider is configured
+- [x] **GitHub Models Client**: Implemented `GitHubModelsChatClient` with Microsoft.Extensions.AI compatibility  
+- [x] **Token Input UI**: Built `GitHubTokenInput.razor` component with secure session-based token storage
+- [x] **Demo Integration**: Updated `NLWebDemo.razor` to show GitHub token input when no AI is configured
+- [x] **User Experience**: Added model selection, token validation, and comprehensive help documentation
+
+**Key Benefits**: Users can instantly test real AI responses using GitHub Models without complex configuration setup, providing an excellent out-of-the-box demo experience.
+
 ### Open Questions to Resolve
 
 **✅ RESOLVED Questions:**

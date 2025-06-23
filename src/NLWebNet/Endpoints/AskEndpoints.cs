@@ -71,9 +71,15 @@ public static class AskEndpoints
     {
         var logger = loggerFactory.CreateLogger(nameof(AskEndpoints));
 
+        logger.LogInformation("[ENTRY] /ask POST ProcessQueryAsync. Request: {@Request}", request);
+        if (request != null)
+        {
+            logger.LogDebug("Request.Query: {Query}, Request.Mode: {Mode}, Request.Site: {Site}, Request.QueryId: {QueryId}",
+                request.Query, request.Mode, request.Site, request.QueryId);
+        }
+
         try
         {
-            // Validate the request
             if (request == null)
             {
                 logger.LogWarning("Received null request");
@@ -95,21 +101,22 @@ public static class AskEndpoints
                     Status = StatusCodes.Status400BadRequest
                 });
             }
-            logger.LogInformation("Processing NLWeb query: {Query} (Mode: {Mode}, QueryId: {QueryId})",
+            logger.LogInformation("[PROCESSING] NLWeb query: {Query} (Mode: {Mode}, QueryId: {QueryId})",
                 request.Query, request.Mode, request.QueryId);
 
-            // Process the query
+            logger.LogDebug("Calling ProcessRequestAsync in NLWebService for QueryId={QueryId}", request.QueryId);
             var response = await nlWebService.ProcessRequestAsync(request, cancellationToken);
+            logger.LogDebug("ProcessRequestAsync in NLWebService complete for QueryId={QueryId}", response.QueryId);
 
-            logger.LogInformation("Successfully processed query {QueryId} with {ResultCount} results",
+            logger.LogInformation("[SUCCESS] Processed query {QueryId} with {ResultCount} results",
                 response.QueryId, response.Results?.Count ?? 0);
 
+            logger.LogInformation("[EXIT] /ask POST ProcessQueryAsync for QueryId={QueryId}", response.QueryId);
             return Results.Ok(response);
         }
         catch (ValidationException ex)
         {
             logger.LogWarning(ex, "Validation error processing query: {Message}", ex.Message);
-
             return Results.BadRequest(new ProblemDetails
             {
                 Title = "Validation Error",
@@ -119,8 +126,7 @@ public static class AskEndpoints
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error processing NLWeb query: {Message}", ex.Message);
-
+            logger.LogError(ex, "[FAIL] Error processing NLWeb query: {Message}", ex.Message);
             return Results.StatusCode(StatusCodes.Status500InternalServerError);
         }
     }    /// <summary>
@@ -147,8 +153,9 @@ public static class AskEndpoints
     {
         var logger = loggerFactory.CreateLogger(nameof(AskEndpoints));
 
+        logger.LogInformation("[ENTRY] /ask/stream GET ProcessStreamingQueryAsync. Query: {Query}, Mode: {Mode}, QueryId: {QueryId}", query, mode, queryId);
         try
-        {            // Validate required parameters
+        {
             if (string.IsNullOrWhiteSpace(query))
             {
                 logger.LogWarning("Received streaming request with empty query");
@@ -158,7 +165,8 @@ public static class AskEndpoints
                     Detail = "Query parameter is required and cannot be empty",
                     Status = StatusCodes.Status400BadRequest
                 }));
-            }            // Parse mode
+            }
+
             var queryMode = QueryMode.List;
             if (!string.IsNullOrWhiteSpace(mode))
             {
@@ -171,7 +179,8 @@ public static class AskEndpoints
                         Status = StatusCodes.Status400BadRequest
                     }));
                 }
-            }            // Create request object
+            }
+
             var request = new NLWebRequest
             {
                 Query = query,
@@ -183,9 +192,13 @@ public static class AskEndpoints
                 Streaming = true
             };
 
-            logger.LogInformation("Processing streaming NLWeb query: {Query} (Mode: {Mode}, QueryId: {QueryId})",
-                request.Query, request.Mode, request.QueryId);            // Process the streaming query
-            var streamingResults = nlWebService.ProcessRequestStreamAsync(request, cancellationToken);            // Return server-sent events
+            logger.LogInformation("[PROCESSING] Streaming NLWeb query: {Query} (Mode: {Mode}, QueryId: {QueryId})",
+                request.Query, request.Mode, request.QueryId);
+
+            logger.LogDebug("Calling ProcessRequestStreamAsync in NLWebService for QueryId={QueryId}", request.QueryId);
+            var streamingResults = nlWebService.ProcessRequestStreamAsync(request, cancellationToken);
+            logger.LogDebug("ProcessRequestStreamAsync in NLWebService started for QueryId={QueryId}", request.QueryId);
+
             return Task.FromResult<IResult>(Results.Stream(async stream =>
             {
                 var writer = new StreamWriter(stream);
@@ -195,11 +208,19 @@ public static class AskEndpoints
                 await writer.WriteLineAsync();
                 await writer.FlushAsync();
 
-                await foreach (var chunk in streamingResults.WithCancellation(cancellationToken))
+                try
                 {
-                    await writer.WriteLineAsync($"data: {JsonSerializer.Serialize(chunk)}");
-                    await writer.WriteLineAsync();
-                    await writer.FlushAsync();
+                    await foreach (var chunk in streamingResults.WithCancellation(cancellationToken))
+                    {
+                        logger.LogTrace("[STREAM] Sending chunk for QueryId={QueryId}", request.QueryId);
+                        await writer.WriteLineAsync($"data: {JsonSerializer.Serialize(chunk)}");
+                        await writer.WriteLineAsync();
+                        await writer.FlushAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "[STREAM] Exception while streaming for QueryId={QueryId}", request.QueryId);
                 }
 
                 // Send end-of-stream marker
@@ -211,7 +232,6 @@ public static class AskEndpoints
         catch (ValidationException ex)
         {
             logger.LogWarning(ex, "Validation error processing streaming query: {Message}", ex.Message);
-
             return Task.FromResult<IResult>(Results.BadRequest(new ProblemDetails
             {
                 Title = "Validation Error",
@@ -221,8 +241,7 @@ public static class AskEndpoints
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error processing streaming NLWeb query: {Message}", ex.Message);
-
+            logger.LogError(ex, "[FAIL] Error processing streaming NLWeb query: {Message}", ex.Message);
             return Task.FromResult<IResult>(Results.StatusCode(StatusCodes.Status500InternalServerError));
         }
     }    /// <summary>
@@ -250,9 +269,9 @@ public static class AskEndpoints
     {
         var logger = loggerFactory.CreateLogger(nameof(AskEndpoints));
 
+        logger.LogInformation("[ENTRY] /ask GET ProcessSimpleQueryAsync. Query: {Query}, Mode: {Mode}, QueryId: {QueryId}", query, mode, queryId);
         try
         {
-            // Validate required parameters
             if (string.IsNullOrWhiteSpace(query))
             {
                 logger.LogWarning("Received simple request with empty query");
@@ -264,7 +283,6 @@ public static class AskEndpoints
                 });
             }
 
-            // Parse mode
             var queryMode = QueryMode.List;
             if (!string.IsNullOrWhiteSpace(mode))
             {
@@ -279,7 +297,6 @@ public static class AskEndpoints
                 }
             }
 
-            // Create request object
             var request = new NLWebRequest
             {
                 Query = query,
@@ -291,21 +308,22 @@ public static class AskEndpoints
                 Streaming = false
             };
 
-            logger.LogInformation("Processing simple NLWeb query: {Query} (Mode: {Mode}, QueryId: {QueryId})",
+            logger.LogInformation("[PROCESSING] Simple NLWeb query: {Query} (Mode: {Mode}, QueryId: {QueryId})",
                 request.Query, request.Mode, request.QueryId);
 
-            // Process the query
+            logger.LogDebug("Calling ProcessRequestAsync in NLWebService for QueryId={QueryId}", request.QueryId);
             var response = await nlWebService.ProcessRequestAsync(request, cancellationToken);
+            logger.LogDebug("ProcessRequestAsync in NLWebService complete for QueryId={QueryId}", response.QueryId);
 
-            logger.LogInformation("Successfully processed simple query {QueryId} with {ResultCount} results",
+            logger.LogInformation("[SUCCESS] Processed simple query {QueryId} with {ResultCount} results",
                 response.QueryId, response.Results?.Count ?? 0);
 
+            logger.LogInformation("[EXIT] /ask GET ProcessSimpleQueryAsync for QueryId={QueryId}", response.QueryId);
             return Results.Ok(response);
         }
         catch (ValidationException ex)
         {
             logger.LogWarning(ex, "Validation error processing simple query: {Message}", ex.Message);
-
             return Results.BadRequest(new ProblemDetails
             {
                 Title = "Validation Error",
@@ -315,8 +333,7 @@ public static class AskEndpoints
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error processing simple NLWeb query: {Message}", ex.Message);
-
+            logger.LogError(ex, "[FAIL] Error processing simple NLWeb query: {Message}", ex.Message);
             return Results.StatusCode(StatusCodes.Status500InternalServerError);
         }
     }

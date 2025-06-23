@@ -14,9 +14,7 @@ public class ResultGenerator : IResultGenerator
     private readonly IDataBackend _dataBackend;
     private readonly ILogger<ResultGenerator> _logger;
     private readonly NLWebOptions _options;
-    private readonly IChatClient? _chatClient;
-
-    public ResultGenerator(
+    private readonly IChatClient? _chatClient; public ResultGenerator(
         IDataBackend dataBackend,
         ILogger<ResultGenerator> logger,
         IOptions<NLWebOptions> options,
@@ -26,6 +24,9 @@ public class ResultGenerator : IResultGenerator
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         _chatClient = chatClient;
+
+        _logger.LogDebug("ResultGenerator initialized with ChatClient: {ChatClientType}",
+            _chatClient?.GetType().Name ?? "null");
     }
 
     /// <inheritdoc />
@@ -54,15 +55,15 @@ public class ResultGenerator : IResultGenerator
             return ("No results found for your query.", resultsList);
         }
 
-        string summary;
-
-        if (_chatClient != null)
+        string summary; if (_chatClient != null)
         {
+            _logger.LogDebug("Using AI client {ClientType} to generate summary", _chatClient.GetType().Name);
             // Use AI to generate summary
             summary = await GenerateAISummaryAsync(query, resultsList, cancellationToken);
         }
         else
         {
+            _logger.LogDebug("No AI client available, using template-based summary");
             // Fallback to simple template-based summary
             summary = GenerateTemplateSummary(query, resultsList);
         }
@@ -86,15 +87,15 @@ public class ResultGenerator : IResultGenerator
             return ("I couldn't find any relevant information to answer your question.", resultsList);
         }
 
-        string response;
-
-        if (_chatClient != null)
+        string response; if (_chatClient != null)
         {
+            _logger.LogDebug("Using AI client {ClientType} to generate response", _chatClient.GetType().Name);
             // Use AI to generate comprehensive response
             response = await GenerateAIResponseAsync(query, resultsList, cancellationToken);
         }
         else
         {
+            _logger.LogDebug("No AI client available, using template-based response");
             // Fallback to template-based response
             response = GenerateTemplateResponse(query, resultsList);
         }
