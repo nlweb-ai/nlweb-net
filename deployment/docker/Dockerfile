@@ -33,13 +33,13 @@ COPY ["NuGet.Config", "./"]
 # Attempt package restore with multiple fallback strategies
 # This addresses the SSL certificate validation issues common in Docker environments
 RUN echo "=== Attempting NuGet package restore ===" && \
-    echo "Strategy 1: Standard restore" && \
-    (timeout 60 dotnet restore "samples/Demo/NLWebNet.Demo.csproj" --verbosity minimal) || \
+    echo "Strategy 1: Standard restore with timeout" && \
+    (timeout 45 dotnet restore "samples/Demo/NLWebNet.Demo.csproj" --verbosity minimal) || \
     (echo "Strategy 2: Restore with --disable-parallel" && \
-     timeout 60 dotnet restore "samples/Demo/NLWebNet.Demo.csproj" --verbosity minimal --disable-parallel) || \
-    (echo "Strategy 3: Clear cache and retry" && \
+     timeout 45 dotnet restore "samples/Demo/NLWebNet.Demo.csproj" --verbosity minimal --disable-parallel) || \
+    (echo "Strategy 3: Clear cache and retry with ignore-failed-sources" && \
      dotnet nuget locals all --clear && \
-     timeout 60 dotnet restore "samples/Demo/NLWebNet.Demo.csproj" --verbosity minimal --ignore-failed-sources) || \
+     timeout 45 dotnet restore "samples/Demo/NLWebNet.Demo.csproj" --verbosity minimal --ignore-failed-sources) || \
     echo "All restore strategies failed due to SSL issues - will attempt build anyway"
 
 # Copy all source code
@@ -51,10 +51,10 @@ RUN cd samples/Demo && \
     echo "=== Building NLWebNet Demo Application ===" && \
     (echo "Attempting build with --no-restore..." && \
      dotnet build "NLWebNet.Demo.csproj" -c Release --no-restore --verbosity minimal) || \
-    (echo "Build without restore failed, attempting with restore and shorter timeout..." && \
-     timeout 90 dotnet build "NLWebNet.Demo.csproj" -c Release --verbosity minimal) || \
+    (echo "Build without restore failed, attempting with restore and short timeout..." && \
+     timeout 60 dotnet build "NLWebNet.Demo.csproj" -c Release --verbosity minimal) || \
     (echo "Standard build failed, trying with ignore-failed-sources..." && \
-     timeout 90 dotnet build "NLWebNet.Demo.csproj" -c Release --verbosity minimal -p:RestoreIgnoreFailedSources=true) && \
+     timeout 60 dotnet build "NLWebNet.Demo.csproj" -c Release --verbosity minimal -p:RestoreIgnoreFailedSources=true) && \
     echo "=== Publishing application ===" && \
     dotnet publish "NLWebNet.Demo.csproj" -c Release --no-build -o /app/publish /p:UseAppHost=false
 
