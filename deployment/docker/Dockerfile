@@ -37,7 +37,7 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* \
 WORKDIR /app
 
 # Copy published application
-COPY --from=build /app/publish .
+COPY --from=publish /app/publish .
 
 # Create directory for logs and ensure proper permissions
 RUN mkdir -p /app/logs && chown -R nlwebnet:nlwebnet /app
