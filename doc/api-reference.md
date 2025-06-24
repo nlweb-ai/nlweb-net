@@ -454,22 +454,21 @@ builder.Services.AddNLWebNet();
 // Map endpoints
 app.MapNLWebNet();
 
-// Use in controller/service
-public class MyController : ControllerBase
+// Use in service or endpoint
+public class MyService
 {
     private readonly INLWebService _nlweb;
     
-    public MyController(INLWebService nlweb)
+    public MyService(INLWebService nlweb)
     {
         _nlweb = nlweb;
     }
     
-    [HttpGet]
-    public async Task<IActionResult> Search(string query)
+    public async Task<NLWebResponse> SearchAsync(string query)
     {
         var request = new NLWebRequest { Query = query };
-        var response = await _nlweb.ProcessQueryAsync(request);
-        return Ok(response);
+        var response = await _nlweb.ProcessRequestAsync(request);
+        return response;
     }
 }
 ```

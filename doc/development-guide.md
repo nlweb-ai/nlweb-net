@@ -31,10 +31,9 @@ This document provides comprehensive guidance for developers working with the NL
 ### 1. Minimal API Approach
 
 - **Primary approach**: Uses **Minimal APIs** for modern, lightweight endpoints
-- **Legacy support**: Traditional controllers still present but being phased out
 - Endpoints are organized in static classes: `AskEndpoints`, `McpEndpoints`
 - Extension methods provide clean endpoint mapping: `app.MapNLWebNet()`
-- Both `app.MapNLWebNet()` (minimal APIs) and `app.MapNLWebNetControllers()` (legacy) available
+- Modern .NET 9 features including TypedResults for improved type safety
 
 ### 2. Dependency Injection
 
@@ -46,8 +45,8 @@ This document provides comprehensive guidance for developers working with the NL
 ### 3. Service Layer Architecture
 
 ```text
-Controllers/Endpoints → Services → Data Backends
-                     ↘ MCP Integration
+Endpoints → Services → Data Backends
+        ↘ MCP Integration
 ```
 
 Key interfaces:
@@ -65,14 +64,13 @@ Key interfaces:
 - User secrets for sensitive data (API keys)
 - Environment-specific configurations
 
-### 5. Architectural Migration
+### 5. Modern Architecture
 
-**Important**: The project is transitioning from traditional MVC controllers to Minimal APIs.
+The project uses **Minimal APIs exclusively** for a modern, lightweight approach.
 
-- **Preferred**: Use `Endpoints/` classes with static mapping methods
-- **Legacy**: `Controllers/` still exists but should not be extended
-- **Extension methods**: Both approaches supported via `MapNLWebNet()` (minimal APIs) and `MapNLWebNetControllers()` (legacy)
-- **New development**: Always use Minimal API patterns in the `Endpoints/` directory
+- **Current**: Uses `Endpoints/` classes with static mapping methods and TypedResults
+- **Extension methods**: Clean API surface via `MapNLWebNet()` for minimal APIs
+- **Best practices**: .NET 9 features including TypedResults for type safety
 
 ## Code Conventions
 
@@ -82,8 +80,7 @@ Key interfaces:
 - **Models**: Request/response DTOs with JSON serialization attributes
 - **Services**: Interface + implementation pattern (`IService` → `Service`)
 - **Extensions**: Static extension classes for framework integration
-- **Endpoints**: Static classes with minimal API mapping methods (preferred)
-- **Controllers**: Traditional MVC controllers (legacy, being phased out)
+- **Endpoints**: Static classes with minimal API mapping methods
 
 ### C# Style Guidelines
 
@@ -99,9 +96,8 @@ Key interfaces:
 src/NLWebNet/
 ├── Models/          # Request/response DTOs
 ├── Services/        # Business logic interfaces/implementations
-├── Endpoints/       # Minimal API endpoint definitions (preferred)
+├── Endpoints/       # Minimal API endpoint definitions with TypedResults
 ├── Extensions/      # DI and middleware extensions
-├── Controllers/     # Legacy MVC controllers (being phased out)
 ├── MCP/            # Model Context Protocol integration
 └── Middleware/     # Custom middleware components
 ```
@@ -203,7 +199,7 @@ src/NLWebNet/
 
 ### When Modifying Endpoints
 
-1. **Use Minimal APIs** - Prefer `Endpoints/` classes over `Controllers/`
+1. **Use Minimal APIs** - All endpoints use the modern `Endpoints/` classes with TypedResults
 2. **Maintain protocol compliance** - Follow NLWeb specification
 3. **Add OpenAPI documentation** - Use `.WithSummary()` and `.WithDescription()`
 4. **Include error responses** - Proper status codes and problem details
