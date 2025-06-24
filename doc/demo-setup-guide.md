@@ -6,6 +6,7 @@ This guide provides step-by-step instructions for configuring and testing the NL
 
 ## Table of Contents
 
+- [Enhanced Data Source Features](#enhanced-data-source-features)
 - [Prerequisites](#prerequisites)
 - [Option 1: Azure OpenAI Setup (Recommended)](#option-1-azure-openai-setup-recommended)
 - [Option 2: OpenAI API Setup](#option-2-openai-api-setup)
@@ -19,6 +20,51 @@ This guide provides step-by-step instructions for configuring and testing the NL
 - [Expected Outcomes](#expected-outcomes)
 - [Production Deployment Notes](#production-deployment-notes)
 - [Frequently Asked Questions](#frequently-asked-questions)
+
+## Enhanced Data Source Features
+
+The NLWebNet demo application includes sophisticated data source management with strict isolation and visual indicators:
+
+### 🎯 **Smart Data Source Routing**
+
+The demo uses an **Enhanced Mock Data Backend** that intelligently routes queries to different data sources based on LLM availability and query content:
+
+- **When LLM is configured**:
+  - **.NET queries** (containing ".NET", "release", "update", etc.) → **RSS feed data** from Microsoft .NET Blog
+  - **General queries** (space, movies, AI, etc.) → **Static science fiction content** with Schema.org markup
+- **When LLM is not configured**:
+  - **All queries** → **Mock placeholder data** for demonstration
+
+### 🎨 **Visual Data Source Indicators**
+
+The demo UI features prominent Bootstrap cards at the top of results showing:
+
+- **🔵 RSS Feeds**: Live .NET blog content (blue primary theme)
+- **🟢 Schema.org Static Data**: Science fiction content (info blue theme)  
+- **🟡 Mock Data**: Placeholder content (warning yellow theme)
+
+Each indicator shows the count of results from that source and is highlighted when active.
+
+### 🏷️ **Result Source Labels**
+
+Every search result includes color-coded badges showing its data source:
+- **RSS badge** (blue): Live RSS feed content
+- **Schema.org badge** (info blue): Static structured data
+- **Mock badge** (yellow): Placeholder content
+
+### 🧹 **Clean Content Display**
+
+- **HTML Tag Removal**: RSS feed content automatically strips HTML tags for clean display
+- **Zero Cross-Contamination**: Robust backend logic ensures no mixing of data sources
+- **Science Fiction Theme**: Static content features movies, spacecraft, exoplanets, and futuristic technology
+
+### 💡 **User Guidance**
+
+When AI is configured, the demo shows helpful prompts with examples:
+- **".NET Content"**: Try ".NET 9", "ASP.NET updates", "C# features"
+- **"Science Fiction"**: Try "space movies", "Mars exploration", "AI stories"
+
+This design helps users understand what content is available and demonstrates clean data source separation for NLWeb protocol implementation.
 
 ## Prerequisites
 
@@ -226,6 +272,36 @@ Since NLWebNet uses `Microsoft.Extensions.AI`, you need to install the appropria
    - Mode: **Generate**
    - Click "Submit Query"
    - **Expected**: Full AI-generated response with citations
+
+### Enhanced Data Source Testing
+
+The demo features sophisticated data source management. Test these scenarios to see the intelligent routing:
+
+1. **Test .NET Content Routing**:
+   - Enter queries: ".NET 9 features", "ASP.NET updates", "C# release notes"
+   - **Expected**: Results show RSS badges and come from devblogs.microsoft.com
+   - **Visual**: Top data source card shows "Live RSS Feeds" as active (blue highlight)
+   - **Note**: HTML tags are automatically stripped from RSS content for clean display
+
+2. **Test Science Fiction Content Routing**:
+   - Enter queries: "space movies", "Mars exploration", "AI stories", "exoplanets"
+   - **Expected**: Results show Schema.org badges with sci-fi themed content
+   - **Visual**: Top data source card shows "Schema.org Static Data" as active (info blue highlight)
+   - **Content**: Movies like Blade Runner 2049, spacecraft like Millennium Falcon, etc.
+
+3. **Test Mock Data Mode** (AI not configured):
+   - If no AI is configured, any query returns mock placeholder data
+   - **Expected**: Results show Mock badges with placeholder content
+   - **Visual**: Top data source card shows "Mock Data" as active (warning yellow highlight)
+
+4. **Verify Data Source Isolation**:
+   - Check that .NET queries never show sci-fi content
+   - Check that general queries never show RSS feed content
+   - Each result card shows the correct color-coded badge (RSS/Schema.org/Mock)
+
+5. **Test User Guidance Prompts**:
+   - When AI is configured, see helpful example prompts above the query box
+   - Examples show what content is available for .NET vs Science Fiction queries
 
 ### Streaming Testing
 

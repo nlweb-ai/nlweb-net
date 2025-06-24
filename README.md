@@ -224,11 +224,15 @@ app.MapNLWebNet();     // Map NLWebNet minimal API endpoints
 
 5. **Test the demo features**
    - **Home Page**: Overview and navigation to demo features
-   - **Interactive Demo** (`/nlweb`): UI for testing NLWeb queries
-     - Query input with natural language questions
-     - Mode selection (List, Summarize, Generate)
-     - Streaming responses with real-time display
-     - API testing interface
+   - **Interactive Demo** (`/nlweb`): UI for testing NLWeb queries with enhanced data source visualization
+     - **Smart Data Source Management**: Automatic routing between RSS feeds (.NET content), Schema.org static data (science fiction), and mock placeholders
+     - **Visual Data Source Indicators**: Top-level Bootstrap cards showing which sources are active
+     - **User Guidance Prompts**: Contextual examples of what content is available to search
+     - **Query input with natural language questions**: Try ".NET 9 features" for RSS data or "space movies" for sci-fi content
+     - **Mode selection**: List, Summarize, Generate modes with streaming support
+     - **Color-coded result badges**: Each result shows its source (RSS/Schema.org/Mock) with visual indicators
+     - **HTML tag removal**: Clean display of RSS feed content
+     - **API testing interface**: Direct endpoint testing with request/response inspection
    - **API Documentation**: OpenAPI specification for `/ask` and `/mcp` endpoints
 
 > **🔧 Real AI Integration**: The demo uses mock responses by default. For actual AI-powered responses, see the [Complete Setup Guide](doc/demo-setup-guide.md) for Azure OpenAI and OpenAI API integration.
@@ -337,13 +341,14 @@ The demo application works with mock responses by default, but can be configured
 📖 **[Complete AI Integration Guide](doc/demo-setup-guide.md)** - Step-by-step instructions for:
 
 - Azure OpenAI and OpenAI API configuration
+- Enhanced data source features and testing scenarios
 - Security best practices for API key management
 - Service registration and dependency injection
 - Troubleshooting common setup issues
 - Configuration options
 - Production deployment considerations
 
-The guide includes examples, FAQ, and troubleshooting to get you up and running with AI responses.
+The guide includes examples, FAQ, troubleshooting, and detailed documentation of the enhanced data source visualization features.
 
 ## ⚙️ Configuration
 
