@@ -69,7 +69,7 @@ public class EnhancedMockDataBackend : IDataBackend
             // Strategy 2: LLM AVAILABLE = Use real data with strict isolation
             bool isDotNetQuery = queryLower.Contains("blog") || queryLower.Contains("news") || queryLower.Contains("dotnet") ||
                                 queryLower.Contains(".net") || queryLower.Contains("release") || queryLower.Contains("update") ||
-                                queryLower.Contains("preview") || queryLower.Contains("rc") || queryLower.Contains("announce");            if (isDotNetQuery)
+                                queryLower.Contains("preview") || queryLower.Contains("rc") || queryLower.Contains("announce"); if (isDotNetQuery)
             {
                 // Strategy 2a: .NET queries get ONLY RSS feed data (NO mock data)
                 _logger.LogInformation("LLM available + .NET query detected - using ONLY RSS feed data");
@@ -128,9 +128,10 @@ public class EnhancedMockDataBackend : IDataBackend
             {
                 _logger.LogWarning("DATA CONTAMINATION DETECTED: Found {RssCount} RSS items in non-.NET query - removing them", rssFeedCount);
                 allResults = allResults.Where(r => r.Site != "devblogs.microsoft.com").ToList();
-            }            if (isDotNetQuery && (staticDataCount > 0 || mockDataCount > 0))
+            }
+            if (isDotNetQuery && (staticDataCount > 0 || mockDataCount > 0))
             {
-                _logger.LogWarning("DATA CONTAMINATION DETECTED: Found {StaticCount} static + {MockCount} mock items in .NET query - keeping only RSS", 
+                _logger.LogWarning("DATA CONTAMINATION DETECTED: Found {StaticCount} static + {MockCount} mock items in .NET query - keeping only RSS",
                     staticDataCount, mockDataCount);
                 allResults = allResults.Where(r => r.Site == "devblogs.microsoft.com").ToList();
             }
