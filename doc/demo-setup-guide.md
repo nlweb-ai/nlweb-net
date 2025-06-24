@@ -48,6 +48,7 @@ Each indicator shows the count of results from that source and is highlighted wh
 ### 🏷️ **Result Source Labels**
 
 Every search result includes color-coded badges showing its data source:
+
 - **RSS badge** (blue): Live RSS feed content
 - **Schema.org badge** (info blue): Static structured data
 - **Mock badge** (yellow): Placeholder content
@@ -61,6 +62,7 @@ Every search result includes color-coded badges showing its data source:
 ### 💡 **User Guidance**
 
 When AI is configured, the demo shows helpful prompts with examples:
+
 - **".NET Content"**: Try ".NET 9", "ASP.NET updates", "C# features"
 - **"Science Fiction"**: Try "space movies", "Mars exploration", "AI stories"
 
@@ -145,7 +147,7 @@ This design helps users understand what content is available and demonstrates cl
    - Create a new secret key
    - Copy the key (it won't be shown again)
 
-### Step 2: Configure the Demo App for OpenAI   
+### Step 2: Configure the Demo App for OpenAI
 
   ```json
    {
@@ -173,6 +175,7 @@ If you want to test the demo immediately without setting up AI services:
 4. **Add AI Later**: Follow Options 1 or 2 above when ready for real AI integration
 
 This mode is perfect for:
+
 - Understanding the NLWeb protocol structure
 - Testing the UI and streaming functionality  
 - Development and integration testing

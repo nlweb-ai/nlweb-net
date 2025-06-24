@@ -37,31 +37,29 @@ public class MockDataBackendTests
             Assert.IsTrue(result.Description.Length > 0);
         }
     }
-
     [TestMethod]
     public async Task SearchAsync_WithSiteFilter_ReturnsFilteredResults()
     {
         // Arrange
-        var query = "documentation"; // Use a term that appears in the sample data
-        var site = "docs.microsoft.com"; // Use a site that exists in sample data
+        var query = "young"; // Use a term that appears in the sci-fi cinema data descriptions
+        var site = "scifi-cinema.com"; // Use a site that exists in the sci-fi sample data
 
         // Act
         var results = await _mockDataBackend.SearchAsync(query, site, 10, CancellationToken.None);
         var resultsList = results.ToList();
 
         // Assert
-        Assert.IsTrue(resultsList.Count > 0);
+        Assert.IsTrue(resultsList.Count > 0, "Should find results for 'young' content on scifi-cinema.com");
         foreach (var result in resultsList)
         {
-            Assert.AreEqual(site, result.Site);
+            Assert.AreEqual(site, result.Site, $"All results should be from site: {site}");
         }
     }
-
     [TestMethod]
     public async Task SearchAsync_RespectsMaxResults()
     {
         // Arrange
-        var query = "microsoft"; // Use a term that will match multiple results
+        var query = "space"; // Use a term that will match multiple results in sci-fi data
         var maxResults = 3;
 
         // Act
@@ -69,7 +67,7 @@ public class MockDataBackendTests
         var resultsList = results.ToList();
 
         // Assert
-        Assert.IsTrue(resultsList.Count <= maxResults);
+        Assert.IsTrue(resultsList.Count <= maxResults, $"Should return at most {maxResults} results, got {resultsList.Count}");
     }
 
     [TestMethod]

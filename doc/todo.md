@@ -82,6 +82,7 @@ The NLWebNet library is now fully functional and feature complete with a modern 
 **📚 DOCUMENTATION MILESTONE: Complete Setup Guide** - Comprehensive demo setup guide (`doc/demo-setup-guide.md`) provides end-to-end instructions for integrating real AI services (Azure OpenAI, OpenAI API) with detailed troubleshooting, security considerations, and production deployment guidance.
 
 **🎨 UI/UX ENHANCEMENT: Advanced Data Source Visualization** - Enhanced demo application with sophisticated data source management and visualization:
+
 - ✅ **Enhanced Mock Data Backend**: Implemented strict data source isolation with `EnhancedMockDataBackend` service
 - ✅ **Data Source Indicators**: Top-level Bootstrap cards showing RSS feeds, Schema.org static data, and mock data sources
 - ✅ **Smart Content Routing**: .NET queries return RSS feed data, general queries return science fiction content, no AI returns mock data
