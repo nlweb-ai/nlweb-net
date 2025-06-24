@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
@@ -92,7 +93,7 @@ public static class McpEndpoints
          /// <param name="mcpService">The MCP service</param>
          /// <param name="loggerFactory">The logger factory</param>
          /// <returns>List of available tools with their schemas</returns>
-    private static async Task<IResult> ListToolsAsync(
+    private static async Task<Results<Ok<McpListToolsResponse>, StatusCodeHttpResult>> ListToolsAsync(
         [FromServices] IMcpService mcpService,
         [FromServices] ILoggerFactory loggerFactory)
     {
@@ -105,14 +106,14 @@ public static class McpEndpoints
 
             logger.LogInformation("Listed {ToolCount} MCP tools", response.Tools?.Count ?? 0);
 
-            return Results.Ok(response);
+            return TypedResults.Ok(response);
         }
         catch (Exception ex)
         {
             var logger = loggerFactory.CreateLogger(typeof(McpEndpoints));
             logger.LogError(ex, "Error listing MCP tools: {Message}", ex.Message);
 
-            return Results.StatusCode(StatusCodes.Status500InternalServerError);
+            return TypedResults.StatusCode(StatusCodes.Status500InternalServerError);
         }
     }    /// <summary>
          /// List available MCP prompts.
@@ -120,7 +121,7 @@ public static class McpEndpoints
          /// <param name="mcpService">The MCP service</param>
          /// <param name="loggerFactory">The logger factory</param>
          /// <returns>List of available prompts with their schemas</returns>
-    private static async Task<IResult> ListPromptsAsync(
+    private static async Task<Results<Ok<McpListPromptsResponse>, StatusCodeHttpResult>> ListPromptsAsync(
         [FromServices] IMcpService mcpService,
         [FromServices] ILoggerFactory loggerFactory)
     {
@@ -133,14 +134,14 @@ public static class McpEndpoints
 
             logger.LogInformation("Listed {PromptCount} MCP prompts", response.Prompts?.Count ?? 0);
 
-            return Results.Ok(response);
+            return TypedResults.Ok(response);
         }
         catch (Exception ex)
         {
             var logger = loggerFactory.CreateLogger(typeof(McpEndpoints));
             logger.LogError(ex, "Error listing MCP prompts: {Message}", ex.Message);
 
-            return Results.StatusCode(StatusCodes.Status500InternalServerError);
+            return TypedResults.StatusCode(StatusCodes.Status500InternalServerError);
         }
     }    /// <summary>
          /// Call an MCP tool with the specified arguments.
@@ -150,7 +151,7 @@ public static class McpEndpoints
          /// <param name="loggerFactory">The logger factory</param>
          /// <param name="cancellationToken">Cancellation token</param>
          /// <returns>Tool execution result</returns>
-    private static async Task<IResult> CallToolAsync(
+    private static async Task<Results<Ok<McpCallToolResponse>, BadRequest<ProblemDetails>, NotFound<ProblemDetails>, StatusCodeHttpResult>> CallToolAsync(
         [FromBody] McpCallToolRequest request,
         [FromServices] IMcpService mcpService,
         [FromServices] ILoggerFactory loggerFactory,
@@ -164,7 +165,7 @@ public static class McpEndpoints
             if (request == null)
             {
                 logger.LogWarning("Received null tool call request");
-                return Results.BadRequest(new ProblemDetails
+                return TypedResults.BadRequest(new ProblemDetails
                 {
                     Title = "Bad Request",
                     Detail = "Request body is required",
@@ -175,7 +176,7 @@ public static class McpEndpoints
             if (string.IsNullOrWhiteSpace(request.Name))
             {
                 logger.LogWarning("Received tool call request with empty name");
-                return Results.BadRequest(new ProblemDetails
+                return TypedResults.BadRequest(new ProblemDetails
                 {
                     Title = "Bad Request",
                     Detail = "Tool name is required",
@@ -194,7 +195,7 @@ public static class McpEndpoints
                 if (errorMessage?.Contains("not found", StringComparison.OrdinalIgnoreCase) == true)
                 {
                     logger.LogWarning("Tool not found: {ToolName}", request.Name);
-                    return Results.NotFound(new ProblemDetails
+                    return TypedResults.NotFound(new ProblemDetails
                     {
                         Title = "Tool Not Found",
                         Detail = errorMessage,
@@ -203,7 +204,7 @@ public static class McpEndpoints
                 }
 
                 logger.LogWarning("Tool call error: {ErrorMessage}", errorMessage);
-                return Results.BadRequest(new ProblemDetails
+                return TypedResults.BadRequest(new ProblemDetails
                 {
                     Title = "Tool Call Error",
                     Detail = errorMessage,
@@ -212,14 +213,14 @@ public static class McpEndpoints
             }
 
             logger.LogInformation("Successfully called tool {ToolName}", request.Name);
-            return Results.Ok(response);
+            return TypedResults.Ok(response);
         }
         catch (Exception ex)
         {
             var logger = loggerFactory.CreateLogger(typeof(McpEndpoints));
             logger.LogError(ex, "Error calling MCP tool {ToolName}: {Message}", request?.Name, ex.Message);
 
-            return Results.StatusCode(StatusCodes.Status500InternalServerError);
+            return TypedResults.StatusCode(StatusCodes.Status500InternalServerError);
         }
     }    /// <summary>
          /// Get a specific prompt with template substitution.
@@ -229,7 +230,7 @@ public static class McpEndpoints
          /// <param name="loggerFactory">The logger factory</param>
          /// <param name="cancellationToken">Cancellation token</param>
          /// <returns>Prompt with substituted arguments</returns>
-    private static async Task<IResult> GetPromptAsync(
+    private static async Task<Results<Ok<McpGetPromptResponse>, BadRequest<ProblemDetails>, NotFound<ProblemDetails>, StatusCodeHttpResult>> GetPromptAsync(
         [FromBody] McpGetPromptRequest request,
         [FromServices] IMcpService mcpService,
         [FromServices] ILoggerFactory loggerFactory,
@@ -243,7 +244,7 @@ public static class McpEndpoints
             if (request == null)
             {
                 logger.LogWarning("Received null prompt request");
-                return Results.BadRequest(new ProblemDetails
+                return TypedResults.BadRequest(new ProblemDetails
                 {
                     Title = "Bad Request",
                     Detail = "Request body is required",
@@ -254,7 +255,7 @@ public static class McpEndpoints
             if (string.IsNullOrWhiteSpace(request.Name))
             {
                 logger.LogWarning("Received prompt request with empty name");
-                return Results.BadRequest(new ProblemDetails
+                return TypedResults.BadRequest(new ProblemDetails
                 {
                     Title = "Bad Request",
                     Detail = "Prompt name is required",
@@ -270,7 +271,7 @@ public static class McpEndpoints
             if (response.Messages == null || !response.Messages.Any())
             {
                 logger.LogWarning("Prompt not found: {PromptName}", request.Name);
-                return Results.NotFound(new ProblemDetails
+                return TypedResults.NotFound(new ProblemDetails
                 {
                     Title = "Prompt Not Found",
                     Detail = $"Prompt '{request.Name}' was not found",
@@ -279,14 +280,14 @@ public static class McpEndpoints
             }
 
             logger.LogInformation("Successfully retrieved prompt {PromptName}", request.Name);
-            return Results.Ok(response);
+            return TypedResults.Ok(response);
         }
         catch (Exception ex)
         {
             var logger = loggerFactory.CreateLogger(typeof(McpEndpoints));
             logger.LogError(ex, "Error getting MCP prompt {PromptName}: {Message}", request?.Name, ex.Message);
 
-            return Results.StatusCode(StatusCodes.Status500InternalServerError);
+            return TypedResults.StatusCode(StatusCodes.Status500InternalServerError);
         }
     }    /// <summary>
          /// Process a unified MCP request (for compatibility with existing clients).
@@ -309,7 +310,7 @@ public static class McpEndpoints
             if (request == null)
             {
                 logger.LogWarning("Received null MCP request");
-                return Results.BadRequest(new ProblemDetails
+                return TypedResults.BadRequest(new ProblemDetails
                 {
                     Title = "Bad Request",
                     Detail = "Request body is required",
@@ -336,7 +337,7 @@ public static class McpEndpoints
                     "list_prompts" => await ListPromptsAsync(mcpService, loggerFactory),
                     "call_tool" => await HandleCallToolFromUnified(root, mcpService, loggerFactory, cancellationToken),
                     "get_prompt" => await HandleGetPromptFromUnified(root, mcpService, loggerFactory, cancellationToken),
-                    _ => Results.BadRequest(new ProblemDetails
+                    _ => TypedResults.BadRequest(new ProblemDetails
                     {
                         Title = "Unknown Method",
                         Detail = $"Unknown MCP method: {method}",
@@ -360,7 +361,7 @@ public static class McpEndpoints
             }
 
             logger.LogWarning("Could not determine MCP request type");
-            return Results.BadRequest(new ProblemDetails
+            return TypedResults.BadRequest(new ProblemDetails
             {
                 Title = "Invalid Request",
                 Detail = "Could not determine MCP request type",
@@ -372,7 +373,7 @@ public static class McpEndpoints
             var logger = loggerFactory.CreateLogger(typeof(McpEndpoints));
             logger.LogError(ex, "Error processing unified MCP request: {Message}", ex.Message);
 
-            return Results.StatusCode(StatusCodes.Status500InternalServerError);
+            return TypedResults.StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
     private static async Task<IResult> HandleCallToolFromUnified(
@@ -389,7 +390,7 @@ public static class McpEndpoints
                 return await CallToolAsync(request, mcpService, loggerFactory, cancellationToken);
             }
 
-            return Results.BadRequest(new ProblemDetails
+            return TypedResults.BadRequest(new ProblemDetails
             {
                 Title = "Invalid Tool Call",
                 Detail = "Could not parse tool call request",
@@ -400,7 +401,7 @@ public static class McpEndpoints
         {
             var logger = loggerFactory.CreateLogger(typeof(McpEndpoints));
             logger.LogError(ex, "Error handling unified tool call: {Message}", ex.Message);
-            return Results.StatusCode(StatusCodes.Status500InternalServerError);
+            return TypedResults.StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
     private static async Task<IResult> HandleGetPromptFromUnified(
@@ -417,7 +418,7 @@ public static class McpEndpoints
                 return await GetPromptAsync(request, mcpService, loggerFactory, cancellationToken);
             }
 
-            return Results.BadRequest(new ProblemDetails
+            return TypedResults.BadRequest(new ProblemDetails
             {
                 Title = "Invalid Prompt Request",
                 Detail = "Could not parse prompt request",
@@ -428,7 +429,7 @@ public static class McpEndpoints
         {
             var logger = loggerFactory.CreateLogger(typeof(McpEndpoints));
             logger.LogError(ex, "Error handling unified prompt request: {Message}", ex.Message);
-            return Results.StatusCode(StatusCodes.Status500InternalServerError);
+            return TypedResults.StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
 }
