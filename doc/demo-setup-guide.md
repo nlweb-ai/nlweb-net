@@ -54,7 +54,9 @@ This guide provides step-by-step instructions for configuring and testing the NL
 ### Step 2: Configure the Demo App
 
 1. **Update Configuration**:
-   Open `samples/Demo/appsettings.json` and update the Azure OpenAI section:   ```json
+   Open `samples/Demo/appsettings.json` and update the Azure OpenAI section:
+
+   ```json
    {
      "AzureOpenAI": {
        "Endpoint": "<https://your-resource.openai.azure.com/>",
@@ -71,7 +73,7 @@ This guide provides step-by-step instructions for configuring and testing the NL
    > - User secrets: `dotnet user-secrets set "AzureOpenAI:ApiKey" "your-key"`
    > - Azure Key Vault for production deployments
 
-2. **Optional: Configure Azure Search** (for enhanced data backend):
+3. **Optional: Configure Azure Search** (for enhanced data backend):
 
    ```json
    {
@@ -97,8 +99,9 @@ This guide provides step-by-step instructions for configuring and testing the NL
    - Create a new secret key
    - Copy the key (it won't be shown again)
 
-### Step 2: Configure the Demo App for OpenAI   ```json
+### Step 2: Configure the Demo App for OpenAI   
 
+  ```json
    {
      "OpenAI": {
        "ApiKey": "sk-your-api-key-here",
@@ -106,7 +109,6 @@ This guide provides step-by-step instructions for configuring and testing the NL
        "BaseUrl": "<https://api.openai.com/v1>"
      }
    }
-
    ```
 
    > **Security Note**: Never commit API keys to source control. Consider using:
