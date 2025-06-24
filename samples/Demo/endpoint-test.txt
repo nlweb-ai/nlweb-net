@@ -1,0 +1,153 @@
+
+  Successfully created package 'D:\Users\Jon\Documents\GitHub\NLWebNet\src\NLWebNet\bin\Debug\NLWebNet.0.1.0-alpha.3.nupkg'.
+  Successfully created package 'D:\Users\Jon\Documents\GitHub\NLWebNet\src\NLWebNet\bin\Debug\NLWebNet.0.1.0-alpha.3.snupkg'.
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3] Failed to determine the https port for redirect.
+LogRecord.Body:                    Failed to determine the https port for redirect.
+    OriginalFormat (a.k.a Body): Failed to determine the https port for redirect.
+LogRecord.EventName:               FailedToDeterminePort
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing POST /_blazor/negotiate from ::1 with correlation ID 2a836310-3463-4544-95e1-176c7e3b2147
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 200
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing GET /_blazor from ::1 with correlation ID ee348418-db25-41fe-91c0-072460737d7f
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing GET /nlweb from ::1 with correlation ID d30bb21c-66bf-416b-afca-4e9570d24b08
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 200
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing POST /_blazor/disconnect from ::1 with correlation ID 67262980-9ad2-4f67-9718-18f401efa6d8
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 101
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 200
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing GET /lib/bootstrap/dist/css/bootstrap.min.43atpzeawx.css from ::1 with correlation ID 1fcc2287-c721-453c-a57f-7ac64bcf3ae9
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing GET /app.w82obnp0o1.css from ::1 with correlation ID d4c75dfd-8cab-4156-8f84-50392b05ffa8
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing GET /NLWebNet.Demo.styles.css from ::1 with correlation ID 33b957e5-21b9-484d-b96d-312a00720f3e
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 404
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing GET /_framework/blazor.web.js from ::1 with correlation ID b8367b2e-603a-4c91-8bbc-4e78f4a1cdc4
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 200
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 304
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 200
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing GET /_blazor/initializers from ::1 with correlation ID 55f9188b-3477-4344-b2dc-d6969d64b6a1
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 200
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing POST /_blazor/negotiate from ::1 with correlation ID 61812cc6-2cae-4357-9d49-674f458ae763
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing GET /favicon.png from ::1 with correlation ID 9102494a-02d7-4ec0-a8b2-b1a1fca625a0
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 200
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 304
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing GET /_blazor from ::1 with correlation ID a916b402-dd99-4caf-885c-ec710df5b102
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+info: NLWebNet.Demo.Services.AIConfigurationService[0] GitHub Models configured successfully
+LogRecord.Body:                    GitHub Models configured successfully
+    OriginalFormat (a.k.a Body): GitHub Models configured successfully
+[Blazor] Sending POST to /ask with payload: {"query":"list products please please","site":null,"prev":null,"decontextualized_query":null,"streaming":true,"query_id":"8edfa8ea","mode":"List"}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing POST /ask from 127.0.0.1 with correlation ID 9b9bb435-6e40-46e7-a834-16b4fc972c76
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    Path: /ask
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing GET /nlweb from ::1 with correlation ID d87c2d22-aa95-4fcb-b13b-65dae9486266
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 200
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing POST /_blazor/disconnect from ::1 with correlation ID ecfc8256-cc53-46a4-b738-ec9491673375
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 200
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 101
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing GET /lib/bootstrap/dist/css/bootstrap.min.43atpzeawx.css from ::1 with correlation ID 643d1be2-9f35-4ffb-ae4d-79104bcf949d
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing GET /app.w82obnp0o1.css from ::1 with correlation ID bc7a0aeb-8e6d-43e2-a02f-af6537043438
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing GET /NLWebNet.Demo.styles.css from ::1 with correlation ID 194ee868-061c-4bbe-92ce-be0dc3ae5d84
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 404
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing GET /_framework/blazor.web.js from ::1 with correlation ID eead7913-3a91-48fa-84b2-329eaf9aa51f
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 304
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 200
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 200
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing GET /_blazor/initializers from ::1 with correlation ID 521f42ec-b7d1-4e49-bcf5-2d859e854a33
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 200
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing GET /favicon.png from ::1 with correlation ID 52ad26f0-e001-48e6-b88b-392b69760583
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing POST /_blazor/negotiate from ::1 with correlation ID 1df69fb4-0371-4286-86fb-dbd517b6bb8f
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 304
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 200
+LogRecord.Body:                    Request completed successfully with status {StatusCode}
+    OriginalFormat (a.k.a Body): Request completed successfully with status {StatusCode}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing GET /_blazor from ::1 with correlation ID 0613e2bd-16b5-4bc0-b25a-bd525c99c982
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+info: NLWebNet.Demo.Services.AIConfigurationService[0] GitHub Models configured successfully
+LogRecord.Body:                    GitHub Models configured successfully
+    OriginalFormat (a.k.a Body): GitHub Models configured successfully
+[Blazor] Sending POST to /ask with payload: {"query":"new query codeword banana. list products.","site":null,"prev":null,"decontextualized_query":null,"streaming":true,"query_id":"4200ce78","mode":"List"}
+dbug: NLWebNet.Middleware.NLWebMiddleware[0] Processing POST /ask from 127.0.0.1 with correlation ID 9a16b9b7-2e31-4068-aa0a-c0287ccd422b
+LogRecord.Body:                    Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+    Path: /ask
+    OriginalFormat (a.k.a Body): Processing {Method} {Path} from {RemoteIP} with correlation ID {CorrelationId}
+info: NLWebNet.Middleware.NLWebMiddleware[0] Request completed successfully with status 101

@@ -16,18 +16,33 @@ builder.Services.AddRazorComponents()
 // Add HttpClient for Blazor components
 builder.Services.AddHttpClient();
 
-// Add AI configuration service
-builder.Services.AddScoped<NLWebNet.Demo.Services.IAIConfigurationService, NLWebNet.Demo.Services.AIConfigurationService>();
+// Add AI configuration service as singleton to persist configuration across requests
+builder.Services.AddSingleton<NLWebNet.Demo.Services.IAIConfigurationService, NLWebNet.Demo.Services.AIConfigurationService>();
 
 // Add dynamic chat client factory
 builder.Services.AddScoped<NLWebNet.Demo.Services.IDynamicChatClientFactory, NLWebNet.Demo.Services.DynamicChatClientFactory>();
 
-// Register a factory-based IChatClient for NLWebNet
-builder.Services.AddScoped<Microsoft.Extensions.AI.IChatClient>(serviceProvider =>
+// Register a factory-based IChatClient for NLWebNet that resolves dynamically
+builder.Services.AddTransient<Microsoft.Extensions.AI.IChatClient>(serviceProvider =>
 {
     var factory = serviceProvider.GetRequiredService<NLWebNet.Demo.Services.IDynamicChatClientFactory>();
     return factory.GetChatClient() ?? new NLWebNet.Demo.Services.NullChatClient();
 });
+
+// Explicitly use MockDataBackend to test if WebSearchBackend is causing the hang
+builder.Services.AddScoped<NLWebNet.Services.IDataBackend>(serviceProvider =>
+{
+    var logger = serviceProvider.GetRequiredService<ILogger<NLWebNet.Services.MockDataBackend>>();
+    return new NLWebNet.Services.MockDataBackend(logger);
+});
+
+// Temporarily use MockDataBackend to test if WebSearchBackend is causing the hang
+// builder.Services.AddScoped<NLWebNet.Services.IDataBackend>(serviceProvider =>
+// {
+//     var logger = serviceProvider.GetRequiredService<ILogger<NLWebNet.Demo.Services.WebSearchBackend>>();
+//     var httpClient = serviceProvider.GetRequiredService<HttpClient>();
+//     return new NLWebNet.Demo.Services.WebSearchBackend(logger, httpClient);
+// });
 
 // Add CORS configuration
 builder.Services.AddCors(options =>
@@ -69,12 +84,12 @@ else
         // Configure NLWebNet options here
         options.DefaultMode = NLWebNet.Models.QueryMode.List;
         options.EnableStreaming = true;
-    });
-
-    // Add OpenTelemetry for non-Aspire environments (development/testing)
+    });    // Add OpenTelemetry for non-Aspire environments (development/testing)
+    // Disable console exporters to reduce terminal noise
     builder.Services.AddNLWebNetOpenTelemetry("NLWebNet.Demo", "1.0.0", otlBuilder =>
     {
-        otlBuilder.AddConsoleExporters(); // Simple console output for development
+        // Comment out console exporters for cleaner development experience
+        // otlBuilder.AddConsoleExporters(); // Simple console output for development
     });
 }
 
@@ -110,7 +125,8 @@ app.MapRazorComponents<NLWebNet.Demo.Components.App>()
     .AddInteractiveServerRenderMode();
 
 // Map NLWebNet minimal API endpoints
-
+Console.WriteLine($"[DEBUG] Mapping NLWebNet endpoints at {DateTime.Now}");
 app.MapNLWebNet();
+Console.WriteLine($"[DEBUG] NLWebNet endpoints mapped at {DateTime.Now}");
 
 app.Run();

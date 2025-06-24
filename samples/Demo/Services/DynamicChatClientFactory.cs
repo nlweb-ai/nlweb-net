@@ -41,20 +41,11 @@ public class DynamicChatClientFactory : IDynamicChatClientFactory
             if (githubClient != null)
             {
                 _logger.LogInformation("Using configured GitHub Models client");
-                return githubClient;
-            }
+                return githubClient;            }
             else
             {
                 _logger.LogInformation("GitHub Models client is null");
             }
-        }
-
-        // Fall back to any pre-configured IChatClient from DI
-        var configuredClient = _serviceProvider.GetService<IChatClient>();
-        if (configuredClient != null)
-        {
-            _logger.LogInformation("Using pre-configured IChatClient from DI");
-            return configuredClient;
         }
 
         // Check if we can create one from configuration
