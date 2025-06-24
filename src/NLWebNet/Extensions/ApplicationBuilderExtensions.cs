@@ -51,15 +51,4 @@ public static class ApplicationBuilderExtensions
         return app;
     }
 
-    /// <summary>
-    /// Maps NLWebNet API controllers (/ask and /mcp) - Legacy controller support
-    /// </summary>
-    /// <param name="app">The application builder</param>
-    /// <returns>The application builder for chaining</returns>
-    public static IApplicationBuilder MapNLWebNetControllers(this IApplicationBuilder app)
-    {
-        // Controllers will be automatically mapped via [Route] attributes when using AddControllers()
-        // This method is available for future route configuration if needed
-        return app;
-    }
 }
