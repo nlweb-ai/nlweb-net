@@ -16,6 +16,70 @@
                 <small class="text-muted">Query ID: @Response.QueryId</small>
             </div>
         </div>
+        
+        @* Data Source Indicators - Top Level Design Element *@
+        @if (Response.Results?.Any() == true)
+        {
+            <div class="card-body border-bottom bg-light">
+                <h6 class="mb-3"><i class="fas fa-database me-2"></i>Data Sources</h6>
+                <div class="row g-3">
+                    @{
+                        var rssCount = Response.Results.Count(r => r.Site == "devblogs.microsoft.com");
+                        var mockCount = Response.Results.Count(r => r.Name.StartsWith("[Mock Data]"));
+                        var staticCount = Response.Results.Count - rssCount - mockCount;
+                    }
+                    
+                    @* RSS Feed Data Source *@
+                    <div class="col-md-4">
+                        <div class="card h-100 @(rssCount > 0 ? "border-primary" : "border-secondary opacity-50")">
+                            <div class="card-body text-center">
+                                <div class="mb-2">
+                                    <i class="fas fa-rss fa-2x @(rssCount > 0 ? "text-primary" : "text-secondary")"></i>
+                                </div>
+                                <h6 class="card-title">Live RSS Feeds</h6>
+                                <p class="card-text small text-muted">.NET Blog & News</p>
+                                <span class="badge @(rssCount > 0 ? "bg-primary" : "bg-secondary")">
+                                    @rssCount result(s)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @* Static Schema.org Data Source *@
+                    <div class="col-md-4">
+                        <div class="card h-100 @(staticCount > 0 ? "border-info" : "border-secondary opacity-50")">
+                            <div class="card-body text-center">
+                                <div class="mb-2">
+                                    <i class="fas fa-rocket fa-2x @(staticCount > 0 ? "text-info" : "text-secondary")"></i>
+                                </div>
+                                <h6 class="card-title">Schema.org Static Data</h6>
+                                <p class="card-text small text-muted">Science Fiction Content</p>
+                                <span class="badge @(staticCount > 0 ? "bg-info" : "bg-secondary")">
+                                    @staticCount result(s)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @* Mock Data Source *@
+                    <div class="col-md-4">
+                        <div class="card h-100 @(mockCount > 0 ? "border-warning" : "border-secondary opacity-50")">
+                            <div class="card-body text-center">
+                                <div class="mb-2">
+                                    <i class="fas fa-flask fa-2x @(mockCount > 0 ? "text-warning" : "text-secondary")"></i>
+                                </div>
+                                <h6 class="card-title">Mock Data</h6>
+                                <p class="card-text small text-muted">Placeholder Content</p>
+                                <span class="badge @(mockCount > 0 ? "bg-warning" : "bg-secondary")">
+                                    @mockCount result(s)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        
         <div class="card-body">
             @if (!string.IsNullOrEmpty(Response.Summary))
             {
@@ -77,14 +141,17 @@
                                                     }
                                                 </h6>
                                                 <span class="badge bg-primary">@result.Score.ToString("F2")</span>
-                                            </div>
-                                            @if (!string.IsNullOrEmpty(result.Description))
+                                            </div>                                            @if (!string.IsNullOrEmpty(result.Description))
                                             {
-                                                <p class="card-text small">@result.Description</p>
-                                            }
-                                            @if (!string.IsNullOrEmpty(result.Site))
+                                                <p class="card-text small">@((MarkupString)FormatDescription(result))</p>
+                                            }                                            @if (!string.IsNullOrEmpty(result.Site))
                                             {
                                                 <div class="mt-2">
+                                                    @{
+                                                        var badgeClass = GetDataSourceBadgeClass(result);
+                                                        var sourceLabel = GetDataSourceLabel(result);
+                                                    }
+                                                    <span class="badge @badgeClass me-1">@sourceLabel</span>
                                                     <span class="badge bg-secondary">@result.Site</span>
                                                 </div>
                                             }
@@ -115,18 +182,21 @@
                                             {
                                                 @result.Name
                                             }
-                                        </h6>
-                                        <div>
+                                        </h6>                                        <div>
                                             <span class="badge bg-primary me-2">@result.Score.ToString("F2")</span>
+                                            @{
+                                                var badgeClass = GetDataSourceBadgeClass(result);
+                                                var sourceLabel = GetDataSourceLabel(result);
+                                            }
+                                            <span class="badge @badgeClass me-1">@sourceLabel</span>
                                             @if (!string.IsNullOrEmpty(result.Site))
                                             {
                                                 <span class="badge bg-secondary">@result.Site</span>
                                             }
                                         </div>
-                                    </div>
-                                    @if (!string.IsNullOrEmpty(result.Description))
+                                    </div>                                    @if (!string.IsNullOrEmpty(result.Description))
                                     {
-                                        <p class="mb-1 small">@result.Description</p>
+                                        <p class="mb-1 small">@((MarkupString)FormatDescription(result))</p>
                                     }
                                 </div>
                             }
@@ -236,9 +306,7 @@
         .Replace("**", "</strong>");
 
         return formatted;
-    }
-
-    private string FormatJson(object? obj)
+    }    private string FormatJson(object? obj)
     {
         if (obj == null) return "null";
 
@@ -253,5 +321,55 @@
         {
             return obj.ToString() ?? "null";
         }
+    }    private string FormatDescription(NLWebResult result)
+    {
+        if (string.IsNullOrEmpty(result.Description))
+            return "";
+
+        var description = result.Description;
+
+        // Remove HTML tags ONLY for RSS content from devblogs.microsoft.com
+        if (result.Site == "devblogs.microsoft.com")
+        {
+            description = StripHtmlTags(description);
+        }
+
+        return description;
+    }private bool IsRssContent(NLWebResult result)
+    {
+        // RSS content is ONLY from devblogs.microsoft.com
+        // Static sci-fi content should NOT be considered RSS even if it has BlogPosting type
+        return result.Site == "devblogs.microsoft.com";
+    }
+
+    private string StripHtmlTags(string html)
+    {
+        if (string.IsNullOrEmpty(html))
+            return "";
+
+        // Basic HTML tag removal - removes anything between < and >
+        return System.Text.RegularExpressions.Regex.Replace(html, "<.*?>", string.Empty);
+    }
+
+    private string GetDataSourceBadgeClass(NLWebResult result)
+    {
+        if (result.Name.StartsWith("[Mock Data]"))
+            return "bg-warning";
+        
+        if (result.Site == "devblogs.microsoft.com" || IsRssContent(result))
+            return "bg-primary";
+        
+        return "bg-info"; // Static Schema.org content
+    }
+
+    private string GetDataSourceLabel(NLWebResult result)
+    {
+        if (result.Name.StartsWith("[Mock Data]"))
+            return "Mock";
+        
+        if (result.Site == "devblogs.microsoft.com" || IsRssContent(result))
+            return "RSS";
+        
+        return "Schema.org"; // Static content
     }
 }

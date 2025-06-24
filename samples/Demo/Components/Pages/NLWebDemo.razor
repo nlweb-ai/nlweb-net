@@ -44,12 +44,35 @@
                         </div>
                     }
 
-                    <div class="col-lg-6">
-                        @if (AIConfigService.IsAIConfigured)
+                    <div class="col-lg-6">                        @if (AIConfigService.IsAIConfigured)
                         {
                             <div class="alert alert-success mb-3">
                                 <i class="fas fa-check-circle me-2"></i>
                                 <strong>AI Provider:</strong> @AIConfigService.GetCurrentProvider()
+                            </div>
+                            
+                            <div class="alert alert-info mb-3">
+                                <h6 class="mb-2"><i class="fas fa-lightbulb me-2"></i>What can you search for?</h6>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i class="fas fa-rss text-primary me-2"></i>
+                                            <strong>.NET Content</strong>
+                                        </div>
+                                        <small class="text-muted ms-3">
+                                            Try: ".NET 9", "ASP.NET updates", "C# features"
+                                        </small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i class="fas fa-rocket text-info me-2"></i>
+                                            <strong>Science Fiction</strong>
+                                        </div>
+                                        <small class="text-muted ms-3">
+                                            Try: "space movies", "Mars exploration", "AI stories"
+                                        </small>
+                                    </div>
+                                </div>
                             </div>
                         }
 

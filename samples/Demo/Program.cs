@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using NLWebNet;
 using NLWebNet.Extensions;
 using NLWebNet.Endpoints;
+using NLWebNet.Demo.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,20 +30,8 @@ builder.Services.AddTransient<Microsoft.Extensions.AI.IChatClient>(serviceProvid
     return factory.GetChatClient() ?? new NLWebNet.Demo.Services.NullChatClient();
 });
 
-// Explicitly use MockDataBackend to test if WebSearchBackend is causing the hang
-builder.Services.AddScoped<NLWebNet.Services.IDataBackend>(serviceProvider =>
-{
-    var logger = serviceProvider.GetRequiredService<ILogger<NLWebNet.Services.MockDataBackend>>();
-    return new NLWebNet.Services.MockDataBackend(logger);
-});
-
-// Temporarily use MockDataBackend to test if WebSearchBackend is causing the hang
-// builder.Services.AddScoped<NLWebNet.Services.IDataBackend>(serviceProvider =>
-// {
-//     var logger = serviceProvider.GetRequiredService<ILogger<NLWebNet.Demo.Services.WebSearchBackend>>();
-//     var httpClient = serviceProvider.GetRequiredService<HttpClient>();
-//     return new NLWebNet.Demo.Services.WebSearchBackend(logger, httpClient);
-// });
+// Add RSS feed service for dynamic content
+builder.Services.AddScoped<IRssFeedService, RssFeedService>();
 
 // Add CORS configuration
 builder.Services.AddCors(options =>
@@ -92,6 +81,11 @@ else
         // otlBuilder.AddConsoleExporters(); // Simple console output for development
     });
 }
+
+// IMPORTANT: Override the default MockDataBackend with our enhanced version AFTER AddNLWebNet
+// Use enhanced data backend with RSS feed integration and better sample data
+builder.Services.AddScoped<NLWebNet.Services.IDataBackend, EnhancedMockDataBackend>();
+Console.WriteLine("Registered EnhancedMockDataBackend as IDataBackend service (overriding default)");
 
 // Add OpenAPI for API documentation
 builder.Services.AddOpenApi();

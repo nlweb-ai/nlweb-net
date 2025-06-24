@@ -131,103 +131,238 @@ public class MockDataBackend : IDataBackend
 
         return Math.Round(score, 2);
     }
-
-    /// <summary>
-    /// Generates sample data for demonstration purposes.
-    /// </summary>
     private static List<NLWebResult> GenerateSampleData()
     {
         return new List<NLWebResult>
         {
+            // Science Fiction Spacecraft & Technology
             new()
             {
-                Url = "https://docs.microsoft.com/dotnet/core/",
-                Name = ".NET Core Documentation",
-                Site = "docs.microsoft.com",
+                Url = "https://galactic-shipyards.com/millennium-falcon",
+                Name = "Millennium Falcon Technical Specifications",
+                Site = "galactic-shipyards.com",
                 Score = 0,
-                Description = "Learn about .NET Core, a cross-platform, high-performance, open-source framework for building modern applications.",
-                SchemaObject = JsonSerializer.SerializeToElement(new { type = "documentation", category = "development" })
+                Description = "Complete technical breakdown of the legendary Corellian YT-1300 light freighter, including hyperdrive capabilities and modifications.",
+                SchemaObject = JsonSerializer.SerializeToElement(new {
+                    type = "Product",
+                    name = "Millennium Falcon",
+                    brand = "Corellian Engineering Corporation",
+                    category = "Light Freighter",
+                    specifications = "Modified YT-1300"
+                })
             },
             new()
             {
-                Url = "https://docs.microsoft.com/aspnet/core/",
-                Name = "ASP.NET Core Documentation",
-                Site = "docs.microsoft.com",
+                Url = "https://starfleet-database.com/enterprise-nx01",
+                Name = "Enterprise NX-01 Mission Archives",
+                Site = "starfleet-database.com",
                 Score = 0,
-                Description = "ASP.NET Core is a cross-platform, high-performance framework for building modern, cloud-based, internet-connected applications.",
-                SchemaObject = JsonSerializer.SerializeToElement(new { type = "documentation", category = "web" })
+                Description = "Historical records of humanity's first deep space exploration vessel and its groundbreaking missions to establish interstellar relations.",
+                SchemaObject = JsonSerializer.SerializeToElement(new {
+                    type = "Product",
+                    name = "Enterprise NX-01",
+                    brand = "Earth Starfleet",
+                    category = "Exploration Vessel",
+                    serviceType = "Deep Space Exploration"
+                })
             },
             new()
             {
-                Url = "https://docs.microsoft.com/azure/",
-                Name = "Azure Documentation",
-                Site = "docs.microsoft.com",
+                Url = "https://cyberdyne-systems.com/terminator-series",
+                Name = "Cyberdyne Systems T-800 Series",
+                Site = "cyberdyne-systems.com",
                 Score = 0,
-                Description = "Learn how to build, deploy, and manage applications and services on Microsoft Azure cloud platform.",
-                SchemaObject = JsonSerializer.SerializeToElement(new { type = "documentation", category = "cloud" })
+                Description = "Advanced cybernetic organism specifications for the T-800 endoskeleton, featuring neural net processors and combat protocols.",
+                SchemaObject = JsonSerializer.SerializeToElement(new {
+                    type = "Product",
+                    name = "T-800 Series Terminator",
+                    brand = "Cyberdyne Systems",
+                    category = "Cybernetic Organism",
+                    model = "Model 101"
+                })
             },
             new()
             {
-                Url = "https://github.com/microsoft/nlweb",
-                Name = "NLWeb Protocol Specification",
-                Site = "github.com",
+                Url = "https://weyland-yutani.com/nostromo-specs",
+                Name = "USCSS Nostromo Commercial Towing Vessel",
+                Site = "weyland-yutani.com",
                 Score = 0,
-                Description = "The NLWeb protocol specification for natural language web interfaces and conversational AI.",
-                SchemaObject = JsonSerializer.SerializeToElement(new { type = "specification", category = "ai" })
+                Description = "Heavy-duty commercial towing vehicle designed for long-haul cargo operations across the outer rim territories.",
+                SchemaObject = JsonSerializer.SerializeToElement(new {
+                    type = "Product",
+                    name = "USCSS Nostromo",
+                    brand = "Weyland-Yutani",
+                    category = "Commercial Towing Vessel",
+                    designation = "Commercial Starship Class"
+                })
+            },
+
+            // Science Fiction Blog Content
+            new()
+            {
+                Url = "https://future-chronicles.com/artificial-intelligence-breakthrough",
+                Name = "The Great AI Awakening of 2157",
+                Site = "future-chronicles.com",
+                Score = 0,
+                Description = "A detailed account of humanity's first contact with truly sentient artificial intelligence and the societal changes that followed.",
+                SchemaObject = JsonSerializer.SerializeToElement(new {
+                    type = "BlogPosting",
+                    headline = "The Great AI Awakening of 2157",
+                    author = "Dr. Sarah Chen",
+                    datePublished = "2157-03-15",
+                    category = "artificial-intelligence"
+                })
             },
             new()
             {
-                Url = "https://openai.com/blog/chatgpt",
-                Name = "ChatGPT: Optimizing Language Models for Dialogue",
-                Site = "openai.com",
+                Url = "https://space-exploration-journal.com/mars-colony-update",
+                Name = "New Olympia Mars Colony: Year Five Report",
+                Site = "space-exploration-journal.com",
                 Score = 0,
-                Description = "ChatGPT is a model which interacts in a conversational way, making it possible to answer follow-up questions.",
-                SchemaObject = JsonSerializer.SerializeToElement(new { type = "blog", category = "ai" })
+                Description = "Comprehensive update on the progress of humanity's first permanent settlement on Mars, including terraforming advances and population growth.",
+                SchemaObject = JsonSerializer.SerializeToElement(new {
+                    type = "BlogPosting",
+                    headline = "New Olympia Mars Colony: Year Five Report",
+                    author = "Commander Lisa Rodriguez",
+                    datePublished = "2089-07-20",
+                    category = "space-colonization"
+                })
             },
             new()
             {
-                Url = "https://azure.microsoft.com/services/cognitive-services/",
-                Name = "Azure Cognitive Services",
-                Site = "azure.microsoft.com",
+                Url = "https://quantum-physics-today.com/faster-than-light-discovery",
+                Name = "Breakthrough in Alcubierre Drive Technology",
+                Site = "quantum-physics-today.com",
                 Score = 0,
-                Description = "Add AI capabilities to your applications with Azure Cognitive Services APIs for vision, speech, language, and decision making.",
-                SchemaObject = JsonSerializer.SerializeToElement(new { type = "service", category = "ai" })
+                Description = "Revolutionary advances in space-time manipulation bring practical faster-than-light travel closer to reality than ever before.",
+                SchemaObject = JsonSerializer.SerializeToElement(new {
+                    type = "BlogPosting",
+                    headline = "Breakthrough in Alcubierre Drive Technology",
+                    author = "Prof. Miguel Alcubierre Jr.",
+                    datePublished = "2145-11-08",
+                    category = "space-technology"
+                })
+            },
+
+            // Science Fiction Movies
+            new()
+            {
+                Url = "https://scifi-cinema.com/movies/blade-runner-2049",
+                Name = "Blade Runner 2049",
+                Site = "scifi-cinema.com",
+                Score = 0,
+                Description = "A young blade runner discovers a secret that leads him to track down former blade runner Rick Deckard, missing for thirty years.",
+                SchemaObject = JsonSerializer.SerializeToElement(new {
+                    type = "Movie",
+                    name = "Blade Runner 2049",
+                    director = "Denis Villeneuve",
+                    datePublished = "2017-10-06",
+                    genre = new[] { "Science Fiction", "Drama", "Thriller" },
+                    duration = "PT164M",
+                    aggregateRating = new { type = "AggregateRating", ratingValue = 8.0, reviewCount = 450000 }
+                })
             },
             new()
             {
-                Url = "https://www.microsoft.com/ai",
-                Name = "Microsoft AI Platform",
-                Site = "microsoft.com",
+                Url = "https://scifi-cinema.com/movies/dune-2021",
+                Name = "Dune",
+                Site = "scifi-cinema.com",
                 Score = 0,
-                Description = "Discover Microsoft's comprehensive AI platform and tools for developers, data scientists, and businesses.",
-                SchemaObject = JsonSerializer.SerializeToElement(new { type = "platform", category = "ai" })
+                Description = "Feature adaptation of Frank Herbert's science fiction novel about a young man's journey to an alien planet.",
+                SchemaObject = JsonSerializer.SerializeToElement(new {
+                    type = "Movie",
+                    name = "Dune",
+                    director = "Denis Villeneuve",
+                    datePublished = "2021-10-22",
+                    genre = new[] { "Science Fiction", "Adventure", "Drama" },
+                    duration = "PT155M",
+                    aggregateRating = new { type = "AggregateRating", ratingValue = 8.1, reviewCount = 620000 }
+                })
             },
             new()
             {
-                Url = "https://docs.microsoft.com/azure/search/",
-                Name = "Azure Cognitive Search",
-                Site = "docs.microsoft.com",
+                Url = "https://scifi-cinema.com/movies/interstellar",
+                Name = "Interstellar",
+                Site = "scifi-cinema.com",
                 Score = 0,
-                Description = "Azure Cognitive Search is a cloud search service with AI capabilities for rich search experiences over content.",
-                SchemaObject = JsonSerializer.SerializeToElement(new { type = "service", category = "search" })
+                Description = "When Earth becomes uninhabitable, a team of astronauts travels through a wormhole in search of a new home for humanity.",
+                SchemaObject = JsonSerializer.SerializeToElement(new {
+                    type = "Movie",
+                    name = "Interstellar",
+                    director = "Christopher Nolan",
+                    datePublished = "2014-11-07",
+                    genre = new[] { "Science Fiction", "Drama", "Adventure" },
+                    duration = "PT169M",
+                    aggregateRating = new { type = "AggregateRating", ratingValue = 8.6, reviewCount = 1700000 }
+                })
+            },
+
+            // Science Fiction Events
+            new()
+            {
+                Url = "https://galactic-convention.com/worldcon-2157",
+                Name = "World Science Fiction Convention 2157",
+                Site = "galactic-convention.com",
+                Score = 0,
+                Description = "The premier gathering of science fiction enthusiasts, featuring panels on space exploration, AI ethics, and first contact protocols.",
+                SchemaObject = JsonSerializer.SerializeToElement(new {
+                    type = "Event",
+                    name = "World Science Fiction Convention 2157",
+                    startDate = "2157-08-25",
+                    endDate = "2157-08-28",
+                    location = "Luna City, Moon",
+                    eventAttendanceMode = "MixedEventAttendanceMode",
+                    organizer = "World Science Fiction Society"
+                })
+            },
+
+            // Science Fiction Recipes (futuristic food)
+            new()
+            {
+                Url = "https://space-cuisine.com/recipes/martian-protein-bars",
+                Name = "High-Energy Martian Protein Bars",
+                Site = "space-cuisine.com",
+                Score = 0,
+                Description = "Nutrient-dense protein bars designed for long-duration space missions, featuring lab-grown protein and hydroponic ingredients.",
+                SchemaObject = JsonSerializer.SerializeToElement(new {
+                    type = "Recipe",
+                    name = "High-Energy Martian Protein Bars",
+                    cookTime = "PT30M",
+                    prepTime = "PT15M",
+                    totalTime = "PT45M",
+                    recipeYield = "12 bars",
+                    nutrition = new { calories = "350", protein = "25g", carbohydrateContent = "30g" }
+                })
+            },
+
+            // Exoplanet Research
+            new()
+            {
+                Url = "https://galactic-library.com/exoplanet-discovery",
+                Name = "The Kepler 442b Discovery",
+                Site = "galactic-library.com",
+                Score = 0,
+                Description = "A fascinating account of the discovery of Kepler 442b, an Earth-like exoplanet in the habitable zone of its star.",
+                SchemaObject = JsonSerializer.SerializeToElement(new {
+                    type = "Article",
+                    name = "The Kepler 442b Discovery",
+                    about = "Exoplanet Research",
+                    keywords = "astronomy, exoplanets, space exploration"
+                })
             },
             new()
             {
-                Url = "https://devblogs.microsoft.com/dotnet/",
-                Name = ".NET Developer Blog",
-                Site = "devblogs.microsoft.com",
+                Url = "https://future-archives.org/mars-terraforming",
+                Name = "Mars Terraforming Timeline",
+                Site = "future-archives.org",
                 Score = 0,
-                Description = "The latest news, updates, and insights from the .NET development team at Microsoft.",
-                SchemaObject = JsonSerializer.SerializeToElement(new { type = "blog", category = "development" })
-            },
-            new()
-            {
-                Url = "https://docs.microsoft.com/graph/",
-                Name = "Microsoft Graph Documentation",
-                Site = "docs.microsoft.com",
-                Score = 0,
-                Description = "Microsoft Graph is the gateway to data and intelligence in Microsoft 365, providing a unified API.",
-                SchemaObject = JsonSerializer.SerializeToElement(new { type = "documentation", category = "api" })
+                Description = "A comprehensive timeline of theoretical Mars terraforming projects and the technologies required to make the red planet habitable.",
+                SchemaObject = JsonSerializer.SerializeToElement(new {
+                    type = "TechArticle",
+                    name = "Mars Terraforming Timeline",
+                    about = "Planetary Engineering",
+                    keywords = "mars, terraforming, space colonization"
+                })
             }
         };
     }
