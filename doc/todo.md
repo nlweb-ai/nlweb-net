@@ -57,7 +57,7 @@ The NLWebNet library is now fully functional and feature complete with a modern 
   - ✅ **API Testing**: Comprehensive interface for testing all NLWeb endpoints
   - ✅ **Modern UI**: Bootstrap-based responsive design with FontAwesome icons
   - ✅ **Real-time Features**: Streaming demonstrations and live response displays
-- ✅ **Minimal API Endpoints**: Converted Controllers to modern Minimal API endpoints with route groups and OpenAPI support
+- ✅ **Minimal API Endpoints**: Modern Minimal API endpoints with TypedResults, route groups and OpenAPI support (legacy controllers completely removed)
 - ✅ **Extension Methods**: Added `MapNLWebNet()` extension method for easy endpoint mapping in consuming applications
 - ✅ **Dependency Injection**: Created `AddNLWebNet()` extension method with options configuration
 - ✅ **GET/POST Support**: Both endpoints support GET and POST with appropriate parameter binding
@@ -73,7 +73,7 @@ The NLWebNet library is now fully functional and feature complete with a modern 
 - ✅ **Testing Framework**: Using MSTest 3.9.3 with NSubstitute 5.3.0 for comprehensive unit testing
 - ✅ **Production Ready**: All builds (Debug/Release) work correctly, with properly configured NuGet packaging
 
-**Phases 1-11 are now complete.** The library provides a complete implementation of the NLWeb protocol with both traditional controller-based endpoints (legacy) and modern minimal API endpoints for improved performance and maintainability. The project includes comprehensive configuration management, CORS support, extensive testing infrastructure, and complete documentation for real AI integration.
+**Phases 1-11 are now complete.** The library provides a complete implementation of the NLWeb protocol using modern minimal API endpoints exclusively, fully migrated from legacy controllers. Features include improved performance and maintainability with .NET 9 TypedResults, comprehensive configuration management, CORS support, extensive testing infrastructure, and complete documentation for real AI integration.
 
 **✅ MAJOR BREAKTHROUGH: NuGet Package PUBLISHED SUCCESSFULLY** - The NLWebNet package is now live on NuGet.org at <https://www.nuget.org/packages/NLWebNet/>! The package is fully functional with working extension methods accessible via `using NLWebNet;`. End-to-end testing confirms that consumer applications can successfully install the package, use the `AddNLWebNet()` and `MapNLWebNet()` extension methods, and run working HTTP servers.
 
@@ -278,21 +278,24 @@ All Phase 5 objectives have been completed successfully, initially using the tra
 ### Phase 6.5: Minimal API Migration (Completed)
 
 - [x] **Convert Controllers to Minimal API Endpoints**:
-  - [x] Created `/src/NLWebNet/Endpoints/AskEndpoints.cs` with static endpoint methods
-  - [x] Created `/src/NLWebNet/Endpoints/McpEndpoints.cs` with static endpoint methods
-  - [x] Updated `ApplicationBuilderExtensions.MapNLWebNet()` to use endpoint mapping
+  - [x] Created `/src/NLWebNet/Endpoints/AskEndpoints.cs` with static endpoint methods and TypedResults
+  - [x] Created `/src/NLWebNet/Endpoints/McpEndpoints.cs` with static endpoint methods and TypedResults
+  - [x] Updated `ApplicationBuilderExtensions.MapNLWebNet()` to use endpoint mapping exclusively
   - [x] Maintained feature parity with existing controller functionality for `/ask` endpoints
   - [x] Implemented and enabled `/mcp` endpoints with full functionality
+  - [x] **REMOVED**: All legacy controller code (`AskController.cs`, `McpController.cs`)
+  - [x] **CLEANED**: Removed controller dependencies from DI registration
 - [x] **Testing and Validation**:
   - [x] Tested GET and POST endpoints for `/ask` with successful results
   - [x] Fixed logger DI for minimal APIs by using ILoggerFactory
   - [x] Fixed parameter binding and routing for minimal APIs
   - [x] Added [FromServices] attributes to McpEndpoints parameters for proper DI
   - [x] Complete test migration from controller tests to endpoint tests
+  - [x] **REMOVED**: Legacy controller test files
 
-**Current Status**: Minimal API migration is complete, with all endpoints successfully implemented and tested. Both the `/ask` and `/mcp` endpoints (GET and POST) are fully functional and have been verified with test requests. The library builds successfully and can be consumed by applications with a clean, modern API. The migration to ILoggerFactory provides proper logging support in all endpoint methods.
+**Current Status**: Complete migration to Minimal APIs with full removal of legacy controller code. All endpoints use modern .NET 9 patterns including TypedResults for better type safety. The library is now exclusively using Minimal APIs with improved performance and maintainability.
 
-**Benefits**: More modern approach, better performance, cleaner API surface, improved compatibility with .NET 9 and future versions, and enhanced developer experience through fluent endpoint definitions.
+**Benefits**: Modern .NET 9 approach with TypedResults, better performance, cleaner API surface, improved compatibility, enhanced developer experience, and complete removal of legacy code.
 
 ### Phase 7: Demo Application Development
 

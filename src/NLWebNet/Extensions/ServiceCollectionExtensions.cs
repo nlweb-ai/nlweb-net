@@ -3,7 +3,6 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NLWebNet.Models;
 using NLWebNet.Services;
 using NLWebNet.MCP;
-using NLWebNet.Controllers;
 using NLWebNet.Health;
 using NLWebNet.RateLimiting;
 using NLWebNet.Metrics;
@@ -38,10 +37,6 @@ public static class ServiceCollectionExtensions
         // Register MCP services
         services.AddScoped<IMcpService, McpService>();        // Register default data backend (can be overridden)
         services.AddScoped<IDataBackend, MockDataBackend>();
-
-        // Register controllers
-        services.AddTransient<AskController>();
-        services.AddTransient<McpController>();
 
         // Add health checks
         services.AddHealthChecks()
