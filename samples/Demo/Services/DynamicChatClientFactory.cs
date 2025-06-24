@@ -41,7 +41,8 @@ public class DynamicChatClientFactory : IDynamicChatClientFactory
             if (githubClient != null)
             {
                 _logger.LogInformation("Using configured GitHub Models client");
-                return githubClient;            }
+                return githubClient;
+            }
             else
             {
                 _logger.LogInformation("GitHub Models client is null");
