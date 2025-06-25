@@ -1,5 +1,6 @@
 using NLWebNet.Demo.Components;
 using NLWebNet.Frontend.Components;
+using NLWebNet.Frontend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,8 +31,15 @@ builder.Services.AddHttpClient("DirectApiClient", client =>
 builder.Services.AddScoped(provider =>
 {
     var factory = provider.GetRequiredService<IHttpClientFactory>();
-    return factory.CreateClient("ApiClient");
+    // Temporarily use DirectApiClient for debugging
+    return factory.CreateClient("DirectApiClient");
 });
+
+// Register configuration service
+builder.Services.AddSingleton<IEmbeddingConfigurationService, EmbeddingConfigurationService>();
+
+// Register API service
+builder.Services.AddScoped<IApiService, ApiService>();
 
 var app = builder.Build();
 

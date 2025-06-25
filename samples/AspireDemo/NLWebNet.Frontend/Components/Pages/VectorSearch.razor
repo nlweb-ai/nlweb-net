@@ -1,6 +1,11 @@
 @page "/vector-search"
 @using NLWebNet.Frontend.Models
-@inject HttpClient Http
+@using NLWebNet.Frontend.Services
+@using Microsoft.AspNetCore.Components.Forms
+@inject IApiService ApiService
+@inject IEmbeddingConfigurationService ConfigService
+@inject IHttpClientFactory HttpClientFactory
+@inject ILogger<VectorSearch> Logger
 @inject IJSRuntime JSRuntime
 
 <PageTitle>Vector Search - NLWebNet Vector Demo</PageTitle>
@@ -188,10 +193,25 @@
 </style>
 
 @code {
-    private SearchRequest searchRequest = new() { Limit = 10, Threshold = 0.7f };
+    private SearchRequest searchRequest = new() { Limit = 10, Threshold = 0.1f };
     private List<SearchResult> searchResults = new();
     private bool isSearching = false;
     private bool hasSearched = false;
+
+    protected override void OnInitialized()
+    {
+        ConfigService.ConfigurationChanged += OnConfigurationChanged;
+    }
+
+    private void OnConfigurationChanged(object? sender, bool isConfigured)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ConfigService.ConfigurationChanged -= OnConfigurationChanged;
+    }
 
     private async Task PerformSearch()
     {
@@ -205,19 +225,39 @@
 
         try
         {
-            // Note: This would need to be implemented in the API
-            // For now, we'll simulate a search
-            await Task.Delay(1000); // Simulate API call
+            Logger.LogInformation("Starting search with query: '{Query}', threshold: {Threshold}, limit: {Limit}", 
+                searchRequest.Query, searchRequest.Threshold, searchRequest.Limit);
+                
+            var githubToken = ConfigService.GetGitHubToken();
+            Logger.LogInformation("Using GitHub token: {HasToken}", !string.IsNullOrEmpty(githubToken));
             
-            // In a real implementation, you would:
-            // var response = await Http.PostAsJsonAsync("/vector/search", searchRequest);
-            // searchResults = await response.Content.ReadFromJsonAsync<List<SearchResult>>() ?? new();
+            var results = await ApiService.SearchAsync(searchRequest.Query, githubToken, searchRequest.Threshold, searchRequest.Limit);
             
-            // For demo purposes, create some mock results
-            searchResults = CreateMockResults();
+            Logger.LogInformation("Received {ResultCount} results from API", results.Length);
+            
+            // Convert API results to UI models
+            searchResults = results
+                .Select(r => new SearchResult
+                {
+                    Document = new DocumentRecord
+                    {
+                        Id = r.Title.GetHashCode().ToString(),
+                        Title = r.Title,
+                        Description = r.Description,
+                        Url = r.Link,
+                        Site = "RSS Feed",
+                        SourceType = "RSS",
+                        IngestedAt = r.PublishedDate
+                    },
+                    SimilarityScore = (float)r.Similarity
+                })
+                .ToList();
+                
+            Logger.LogInformation("Converted to {UIResultCount} UI results", searchResults.Count);
         }
         catch (Exception ex)
         {
+            Logger.LogError(ex, "Search failed for query: '{Query}'", searchRequest.Query);
             await JSRuntime.InvokeVoidAsync("alert", $"Search failed: {ex.Message}");
         }
         finally

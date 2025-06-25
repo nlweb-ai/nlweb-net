@@ -1,0 +1,237 @@
+@using NLWebNet.Frontend.Services
+@inject IEmbeddingConfigurationService ConfigService
+@inject IJSRuntime JS
+@inject ILogger<GitHubTokenInput> Logger
+
+<div class="card">
+    <div class="card-header">
+        <h4 class="mb-0">
+            <i class="fab fa-github me-2"></i>GitHub Models Configuration
+        </h4>
+    </div>
+    <div class="card-body">
+        @if (IsConfigured)
+        {
+            <div class="alert alert-success d-flex align-items-center" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span>GitHub Models is configured and ready to use.</span>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary" @onclick="TestConnection">
+                    <i class="fas fa-plug me-1"></i>Test Connection
+                </button>
+                <button class="btn btn-outline-secondary" @onclick="ClearConfiguration">
+                    <i class="fas fa-times me-1"></i>Clear Configuration
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                Configure GitHub Models API to enable semantic vector search.
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">GitHub Personal Access Token</label>
+                <div class="input-group">
+                    <input type="password" 
+                           class="form-control @(ValidationClass)" 
+                           @bind="TokenInput" 
+                           @bind:event="oninput"
+                           placeholder="ghp_..." 
+                           disabled="@IsConfiguring" />
+                    <button class="btn btn-primary" 
+                            type="button" 
+                            @onclick="ConfigureToken" 
+                            disabled="@(IsConfiguring || string.IsNullOrWhiteSpace(TokenInput))">
+                        @if (IsConfiguring)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                        }
+                        else
+                        {
+                            <i class="fas fa-check me-1"></i>
+                        }
+                        Configure
+                    </button>
+                </div>
+                @if (!string.IsNullOrEmpty(ValidationMessage))
+                {
+                    <div class="form-text text-danger">
+                        <i class="fas fa-exclamation-triangle me-1"></i>@ValidationMessage
+                    </div>
+                }
+            </div>
+
+            <div class="small text-muted">
+                <h6>How to get a GitHub token:</h6>
+                <ol class="mb-0">
+                    <li>Go to <a href="https://github.com/settings/tokens" target="_blank">GitHub Settings → Personal access tokens</a></li>
+                    <li>Click "Generate new token (classic)"</li>
+                    <li>Select scopes: <code>repo</code> (if using private repos) or no scopes for public access</li>
+                    <li>Copy the generated token and paste it above</li>
+                </ol>
+            </div>
+        }
+
+        @if (IsTestingConnection)
+        {
+            <div class="mt-3">
+                <div class="d-flex align-items-center">
+                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                    <span>Testing connection to GitHub Models...</span>
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(TestResult))
+        {
+            <div class="mt-3">
+                <div class="alert @(TestSuccess ? "alert-success" : "alert-danger")" role="alert">
+                    <i class="fas @(TestSuccess ? "fa-check-circle" : "fa-exclamation-triangle") me-2"></i>
+                    @TestResult
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private string TokenInput { get; set; } = string.Empty;
+    private bool IsConfiguring { get; set; }
+    private bool IsTestingConnection { get; set; }
+    private string ValidationMessage { get; set; } = string.Empty;
+    private string TestResult { get; set; } = string.Empty;
+    private bool TestSuccess { get; set; }
+
+    private bool IsConfigured => ConfigService.IsConfigured;
+
+    private string ValidationClass =>
+        string.IsNullOrEmpty(ValidationMessage) ? "" : "is-invalid";
+
+    protected override void OnInitialized()
+    {
+        ConfigService.ConfigurationChanged += OnConfigurationChanged;
+    }
+
+    private void OnConfigurationChanged(object? sender, bool isConfigured)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ConfigureToken()
+    {
+        if (string.IsNullOrWhiteSpace(TokenInput))
+        {
+            ValidationMessage = "Please enter a GitHub token";
+            return;
+        }
+
+        if (!TokenInput.StartsWith("ghp_") && !TokenInput.StartsWith("github_pat_"))
+        {
+            ValidationMessage = "GitHub tokens should start with 'ghp_' or 'github_pat_'";
+            return;
+        }
+
+        IsConfiguring = true;
+        ValidationMessage = string.Empty;
+        TestResult = string.Empty;
+        StateHasChanged();
+
+        try
+        {
+            var success = await ConfigService.ConfigureGitHubTokenAsync(TokenInput);
+            
+            if (success)
+            {
+                TokenInput = string.Empty;
+                Logger.LogInformation("GitHub Models token configured successfully");
+            }
+            else
+            {
+                ValidationMessage = "Failed to configure token. Please check the token and try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ValidationMessage = $"Error configuring token: {ex.Message}";
+            Logger.LogError(ex, "Error configuring GitHub Models token");
+        }
+        finally
+        {
+            IsConfiguring = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task TestConnection()
+    {
+        IsTestingConnection = true;
+        TestResult = string.Empty;
+        StateHasChanged();
+
+        try
+        {
+            var token = ConfigService.GetGitHubToken();
+            if (string.IsNullOrEmpty(token))
+            {
+                TestResult = "No token configured";
+                TestSuccess = false;
+                return;
+            }
+
+            // Test the connection by making a simple API call
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = 
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "NLWebNet-AspireDemo");
+
+            var response = await httpClient.GetAsync("https://api.github.com/user");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                TestResult = "✓ Connection successful! GitHub Models API is ready to use.";
+                TestSuccess = true;
+            }
+            else
+            {
+                TestResult = $"✗ Connection failed: {response.StatusCode} - {response.ReasonPhrase}";
+                TestSuccess = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            TestResult = $"✗ Connection error: {ex.Message}";
+            TestSuccess = false;
+            Logger.LogError(ex, "Error testing GitHub Models connection");
+        }
+        finally
+        {
+            IsTestingConnection = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ClearConfiguration()
+    {
+        try
+        {
+            await ConfigService.ClearConfigurationAsync();
+            TokenInput = string.Empty;
+            ValidationMessage = string.Empty;
+            TestResult = string.Empty;
+            Logger.LogInformation("GitHub Models configuration cleared");
+        }
+        catch (Exception ex)
+        {
+            ValidationMessage = $"Error clearing configuration: {ex.Message}";
+            Logger.LogError(ex, "Error clearing GitHub Models configuration");
+        }
+    }
+
+    public void Dispose()
+    {
+        ConfigService.ConfigurationChanged -= OnConfigurationChanged;
+    }
+}

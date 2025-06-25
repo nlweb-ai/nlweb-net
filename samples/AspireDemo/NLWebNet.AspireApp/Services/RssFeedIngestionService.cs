@@ -20,6 +20,7 @@ public interface IRssFeedIngestionService
 public class RssFeedIngestionService : IRssFeedIngestionService
 {
     private readonly IVectorStorageService _vectorStorage;
+    private readonly IEmbeddingService _embeddingService;
     private readonly HttpClient _httpClient;
     private readonly ILogger<RssFeedIngestionService> _logger;
 
@@ -35,10 +36,12 @@ public class RssFeedIngestionService : IRssFeedIngestionService
 
     public RssFeedIngestionService(
         IVectorStorageService vectorStorage,
+        IEmbeddingService embeddingService,
         HttpClient httpClient,
         ILogger<RssFeedIngestionService> logger)
     {
         _vectorStorage = vectorStorage ?? throw new ArgumentNullException(nameof(vectorStorage));
+        _embeddingService = embeddingService ?? throw new ArgumentNullException(nameof(embeddingService));
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
@@ -97,8 +100,9 @@ public class RssFeedIngestionService : IRssFeedIngestionService
                     var document = CreateDocumentFromFeedItem(item, siteName, feedUrl);
                     if (document != null)
                     {
-                        // For demo purposes, generate a simple embedding (in production, use OpenAI or other service)
-                        document.Embedding = GenerateSimpleEmbedding(document.Title + " " + document.Description);
+                        // Generate semantic embedding for the document
+                        var textToEmbed = $"{document.Title} {document.Description}";
+                        document.Embedding = await _embeddingService.GenerateEmbeddingAsync(textToEmbed, null, cancellationToken);
                         
                         await _vectorStorage.StoreDocumentAsync(document, cancellationToken);
                         processedCount++;
@@ -169,37 +173,5 @@ public class RssFeedIngestionService : IRssFeedIngestionService
             IngestedAt = DateTimeOffset.UtcNow,
             SourceType = "RSS"
         };
-    }
-
-    /// <summary>
-    /// Generates a simple embedding for demo purposes.
-    /// In production, use OpenAI, Azure OpenAI, or another embedding service.
-    /// </summary>
-    private static ReadOnlyMemory<float> GenerateSimpleEmbedding(string text)
-    {
-        // Create a simple hash-based embedding for demo purposes
-        // This is NOT suitable for production use
-        const int embeddingSize = 1536; // OpenAI text-embedding-ada-002 size
-        var embedding = new float[embeddingSize];
-        
-        var hash = text.GetHashCode();
-        var random = new Random(hash);
-        
-        for (int i = 0; i < embeddingSize; i++)
-        {
-            embedding[i] = (float)(random.NextDouble() * 2.0 - 1.0); // Range: -1 to 1
-        }
-        
-        // Normalize the embedding vector
-        var magnitude = Math.Sqrt(embedding.Sum(x => x * x));
-        if (magnitude > 0)
-        {
-            for (int i = 0; i < embeddingSize; i++)
-            {
-                embedding[i] = (float)(embedding[i] / magnitude);
-            }
-        }
-        
-        return new ReadOnlyMemory<float>(embedding);
     }
 }
