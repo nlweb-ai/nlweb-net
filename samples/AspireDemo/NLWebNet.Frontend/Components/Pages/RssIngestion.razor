@@ -1,0 +1,346 @@
+@page "/rss-ingestion"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+@using NLWebNet.Frontend.Models
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@inject ILogger<RssIngestion> Logger
+
+<PageTitle>RSS Ingestion - NLWebNet Vector Demo</PageTitle>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <h1><i class="bi bi-rss-fill text-warning me-2"></i>RSS Feed Ingestion - UPDATED VERSION</h1>
+            <p class="lead">
+                Ingest RSS feeds and convert them into searchable vector embeddings.
+            </p>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Quick Start - Demo Feeds</h5>
+                </div>
+                <div class="card-body">
+                    <p>Get started quickly by ingesting content from popular Microsoft developer blogs:</p>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check-circle text-success me-2"></i>.NET Blog</li>
+                        <li><i class="bi bi-check-circle text-success me-2"></i>Azure AI Blog</li>
+                        <li><i class="bi bi-check-circle text-success me-2"></i>Scott Hanselman's Blog</li>
+                    </ul>
+                    <button class="btn btn-primary" @onclick="IngestDemoFeeds" @onclick:preventDefault="true" disabled="@isProcessing">
+                        @if (isProcessing && currentOperation == "demo")
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        }
+                        <i class="bi bi-download me-2"></i>Ingest Demo Feeds (@clickCount)
+                    </button>
+                    
+                    <!-- Debug button to test click events -->
+                    <button class="btn btn-outline-secondary ms-2" @onclick="TestButtonClick">
+                        <i class="bi bi-bug me-2"></i>Test Click (@testClickCount)
+                    </button>
+                    
+                    <!-- Plain HTML/JS button for comparison -->
+                    <button class="btn btn-warning ms-2" onclick="alert('Plain JavaScript works! This means the page is loading correctly.'); console.log('Plain JS button clicked');">
+                        <i class="bi bi-lightning me-2"></i>JS Test
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5>Custom RSS Feed</h5>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="@rssRequest" OnValidSubmit="@IngestCustomFeed">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="text-danger" />
+
+                        <div class="mb-3">
+                            <label for="feedUrl" class="form-label">RSS Feed URL</label>
+                            <InputText id="feedUrl" class="form-control" @bind-Value="@rssRequest.FeedUrl" 
+                                      placeholder="https://example.com/feed.xml" />
+                            <ValidationMessage For="@(() => rssRequest.FeedUrl)" class="text-danger" />
+                        </div>
+
+                        <button type="submit" class="btn btn-success" disabled="@isProcessing">
+                            @if (isProcessing && currentOperation == "custom")
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            }
+                            <i class="bi bi-plus-circle me-2"></i>Ingest Feed
+                        </button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-info-circle me-2"></i>Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    @if (activityLog.Any())
+                    {
+                        <div class="activity-log">
+                            @foreach (var activity in activityLog.Take(5))
+                            {
+                                <div class="activity-item mb-2 p-2 @(activity.IsSuccess ? "border-start border-success" : "border-start border-danger")">
+                                    <small class="text-muted d-block">@activity.Timestamp.ToString("HH:mm:ss")</small>
+                                    <div class="@(activity.IsSuccess ? "text-success" : "text-danger")">
+                                        @activity.Message
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No recent activity</p>
+                    }
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5><i class="bi bi-gear me-2"></i>Actions</h5>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-outline-danger w-100 mb-2" @onclick="ClearAllDocuments" disabled="@isProcessing">
+                        @if (isProcessing && currentOperation == "clear")
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        }
+                        <i class="bi bi-trash me-2"></i>Clear All Documents
+                    </button>
+                    <a href="/statistics" class="btn btn-outline-info w-100">
+                        <i class="bi bi-bar-chart me-2"></i>View Statistics
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .activity-log {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .activity-item {
+        background-color: #f8f9fa;
+        border-radius: 0.25rem;
+        border-left-width: 3px !important;
+    }
+</style>
+
+@code {
+    private RssIngestionRequest rssRequest = new();
+    private bool isProcessing = false;
+    private string currentOperation = "";
+    private List<ActivityLogItem> activityLog = new();
+    private int clickCount = 0;
+    private int testClickCount = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation("RssIngestion component initialized");
+        AddActivity("🔧 Page loaded successfully", true);
+        
+        // Test if HttpClient is available
+        try
+        {
+            Logger.LogInformation($"HttpClient BaseAddress: {Http.BaseAddress}");
+            AddActivity($"🌐 HttpClient configured with base: {Http.BaseAddress}", true);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error checking HttpClient");
+            AddActivity($"❌ HttpClient error: {ex.Message}", false);
+        }
+    }
+
+    private async Task TestButtonClick()
+    {
+        testClickCount++;
+        Logger.LogInformation("TestButtonClick called - button clicks are working!");
+        AddActivity($"🔘 Test button clicked {testClickCount} times - Blazor is working!", true);
+        await JSRuntime.InvokeVoidAsync("alert", $"Button clicks are working! Click #{testClickCount}. If you see this, Blazor is functioning correctly.");
+        StateHasChanged();
+    }
+
+    private async Task IngestDemoFeeds()
+    {
+        clickCount++;
+        Logger.LogInformation("IngestDemoFeeds method called!");
+        Console.WriteLine("IngestDemoFeeds method called!");
+        AddActivity($"🔄 IngestDemoFeeds button clicked {clickCount} times", true);
+        StateHasChanged(); // Force UI update
+        
+        await ProcessWithLoading("demo", async () =>
+        {
+            Logger.LogInformation("Starting demo feed ingestion...");
+            Console.WriteLine("Starting demo feed ingestion...");
+            AddActivity("🔄 Starting demo feed ingestion...", true);
+            
+            try
+            {
+                Logger.LogInformation($"HttpClient BaseAddress: {Http.BaseAddress}");
+                Console.WriteLine($"HttpClient BaseAddress: {Http.BaseAddress}");
+                AddActivity($"📡 API Base URL: {Http.BaseAddress}", true);
+                
+                // Try to make the request and capture more details
+                var requestUri = new Uri(Http.BaseAddress!, "/rss/ingest-demo");
+                Logger.LogInformation($"Full request URI: {requestUri}");
+                Console.WriteLine($"Full request URI: {requestUri}");
+                AddActivity($"🎯 Request URL: {requestUri}", true);
+                
+                var response = await Http.PostAsync("/rss/ingest-demo", null);
+                Logger.LogInformation($"Response status: {response.StatusCode}");
+                Console.WriteLine($"Response status: {response.StatusCode}");
+                AddActivity($"📡 API Response: {response.StatusCode}", response.IsSuccessStatusCode);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    Logger.LogInformation($"Response content: {responseContent}");
+                    Console.WriteLine($"Response content: {responseContent}");
+                    AddActivity($"📄 Response: {responseContent}", true);
+                    
+                    var result = await response.Content.ReadFromJsonAsync<RssIngestionResponse>();
+                    
+                    if (result != null)
+                    {
+                        AddActivity($"✅ Ingested {result.Count} documents from demo feeds", true);
+                        await JSRuntime.InvokeVoidAsync("alert", $"Successfully ingested {result.Count} documents!");
+                    }
+                    else
+                    {
+                        AddActivity("❌ Failed to parse response from demo feeds", false);
+                        await JSRuntime.InvokeVoidAsync("alert", "Failed to parse response from demo feeds.");
+                    }
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Logger.LogError($"Error response: {errorContent}");
+                    Console.WriteLine($"Error response: {errorContent}");
+                    AddActivity($"❌ Failed to ingest demo feeds: {response.StatusCode}", false);
+                    AddActivity($"❌ Error details: {errorContent}", false);
+                    await JSRuntime.InvokeVoidAsync("alert", $"Failed to ingest demo feeds. Status: {response.StatusCode}. Error: {errorContent}");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                Logger.LogError(ex, "HTTP Request Exception");
+                Console.WriteLine($"HTTP Request Exception: {ex.Message}");
+                AddActivity($"❌ HTTP Request Error: {ex.Message}", false);
+                await JSRuntime.InvokeVoidAsync("alert", $"HTTP Request Error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "General Exception");
+                Console.WriteLine($"General Exception: {ex.Message}");
+                AddActivity($"❌ Error: {ex.Message}", false);
+                await JSRuntime.InvokeVoidAsync("alert", $"Error: {ex.Message}");
+            }
+        });
+    }
+
+    private async Task IngestCustomFeed()
+    {
+        if (string.IsNullOrWhiteSpace(rssRequest.FeedUrl))
+            return;
+
+        await ProcessWithLoading("custom", async () =>
+        {
+            var response = await Http.PostAsJsonAsync("/rss/ingest", new { feedUrl = rssRequest.FeedUrl });
+            var result = await response.Content.ReadFromJsonAsync<RssIngestionResponse>();
+            
+            if (response.IsSuccessStatusCode && result != null)
+            {
+                AddActivity($"✅ Ingested {result.Count} documents from {rssRequest.FeedUrl}", true);
+                await JSRuntime.InvokeVoidAsync("alert", $"Successfully ingested {result.Count} documents!");
+                rssRequest = new(); // Reset form
+            }
+            else
+            {
+                AddActivity($"❌ Failed to ingest {rssRequest.FeedUrl}", false);
+                await JSRuntime.InvokeVoidAsync("alert", "Failed to ingest the RSS feed. Please check the URL and try again.");
+            }
+        });
+    }
+
+    private async Task ClearAllDocuments()
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to clear all documents? This action cannot be undone.");
+        if (!confirmed) return;
+
+        await ProcessWithLoading("clear", async () =>
+        {
+            var response = await Http.DeleteAsync("/vector/clear");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                AddActivity("✅ All documents cleared", true);
+                await JSRuntime.InvokeVoidAsync("alert", "All documents have been cleared.");
+            }
+            else
+            {
+                AddActivity("❌ Failed to clear documents", false);
+                await JSRuntime.InvokeVoidAsync("alert", "Failed to clear documents. Please try again.");
+            }
+        });
+    }
+
+    private async Task ProcessWithLoading(string operation, Func<Task> action)
+    {
+        isProcessing = true;
+        currentOperation = operation;
+        StateHasChanged();
+
+        try
+        {
+            await action();
+        }
+        catch (Exception ex)
+        {
+            AddActivity($"❌ Error: {ex.Message}", false);
+            await JSRuntime.InvokeVoidAsync("alert", $"An error occurred: {ex.Message}");
+        }
+        finally
+        {
+            isProcessing = false;
+            currentOperation = "";
+            StateHasChanged();
+        }
+    }
+
+    private void AddActivity(string message, bool isSuccess)
+    {
+        activityLog.Insert(0, new ActivityLogItem
+        {
+            Message = message,
+            Timestamp = DateTime.Now,
+            IsSuccess = isSuccess
+        });
+
+        // Keep only the last 10 items
+        if (activityLog.Count > 10)
+        {
+            activityLog.RemoveAt(activityLog.Count - 1);
+        }
+    }
+
+    private class ActivityLogItem
+    {
+        public string Message { get; set; } = string.Empty;
+        public DateTime Timestamp { get; set; }
+        public bool IsSuccess { get; set; }
+    }
+}

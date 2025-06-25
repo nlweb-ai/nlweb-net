@@ -1,0 +1,36 @@
+@page "/test"
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+
+<h1>Test Page</h1>
+
+<p>Current time: @currentTime</p>
+
+<button class="btn btn-primary" @onclick="UpdateTime">Update Time</button>
+<button class="btn btn-secondary" @onclick="ShowAlert">Show Alert</button>
+
+<p>Button clicked: @clickCount times</p>
+
+@code {
+    private DateTime currentTime = DateTime.Now;
+    private int clickCount = 0;
+
+    private void UpdateTime()
+    {
+        currentTime = DateTime.Now;
+        clickCount++;
+        StateHasChanged();
+    }
+
+    private async Task ShowAlert()
+    {
+        await JSRuntime.InvokeVoidAsync("alert", $"Alert test - current time: {DateTime.Now}");
+        clickCount++;
+        StateHasChanged();
+    }
+
+    protected override void OnInitialized()
+    {
+        Console.WriteLine("Test page initialized at " + DateTime.Now);
+    }
+}

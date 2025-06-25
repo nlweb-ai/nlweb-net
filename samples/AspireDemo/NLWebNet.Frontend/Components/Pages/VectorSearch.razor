@@ -1,0 +1,289 @@
+@page "/vector-search"
+@using NLWebNet.Frontend.Models
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Vector Search - NLWebNet Vector Demo</PageTitle>
+
+<div class="container">
+    <h1><i class="bi bi-search text-info me-2"></i>Vector Search</h1>
+    <p class="lead">
+        Search through ingested documents using semantic similarity. 
+        Find content based on meaning, not just keywords.
+    </p>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Semantic Search</h5>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="@searchRequest" OnValidSubmit="@PerformSearch">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="query" class="form-label">Search Query</label>
+                                    <InputText id="query" class="form-control" @bind-Value="@searchRequest.Query" 
+                                              placeholder="e.g., 'machine learning in .NET'" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="limit" class="form-label">Results Limit</label>
+                                    <InputNumber id="limit" class="form-control" @bind-Value="@searchRequest.Limit" min="1" max="50" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="threshold" class="form-label">
+                                Similarity Threshold: <span class="text-muted">@searchRequest.Threshold.ToString("F2")</span>
+                            </label>
+                            <input type="range" id="threshold" class="form-range" 
+                                   @bind="searchRequest.Threshold" min="0.1" max="1.0" step="0.05" />
+                            <div class="d-flex justify-content-between">
+                                <small class="text-muted">0.1 (Less similar)</small>
+                                <small class="text-muted">1.0 (Very similar)</small>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" disabled="@isSearching">
+                            @if (isSearching)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            }
+                            <i class="bi bi-search me-2"></i>Search
+                        </button>
+                    </EditForm>
+                </div>
+            </div>
+
+            @if (searchResults.Any())
+            {
+                <div class="mt-4">
+                    <h5>Search Results (@searchResults.Count)</h5>
+                    @foreach (var result in searchResults)
+                    {
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="card-title">
+                                            <a href="@result.Document.Url" target="_blank" class="text-decoration-none">
+                                                @result.Document.Title
+                                            </a>
+                                        </h6>
+                                        <p class="card-text">@result.Document.Description</p>
+                                        <div class="d-flex gap-2 flex-wrap">
+                                            <span class="badge bg-secondary">@result.Document.Site</span>
+                                            <span class="badge bg-info">@result.Document.SourceType</span>
+                                            <span class="badge bg-success">
+                                                @(result.SimilarityScore.ToString("P1")) match
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="ms-3">
+                                        <div class="text-end">
+                                            <div class="similarity-score" style="width: 60px; height: 60px;">
+                                                <svg width="60" height="60" class="circular-progress">
+                                                    <circle cx="30" cy="30" r="25" fill="none" stroke="#e9ecef" stroke-width="3"></circle>
+                                                    <circle cx="30" cy="30" r="25" fill="none" stroke="@GetScoreColor(result.SimilarityScore)" 
+                                                            stroke-width="3" stroke-linecap="round"
+                                                            stroke-dasharray="@GetStrokeDashArray(result.SimilarityScore)"
+                                                            transform="rotate(-90 30 30)"></circle>
+                                                </svg>
+                                                <div class="score-text">@(result.SimilarityScore.ToString("P0"))</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <small class="text-muted">
+                                    Ingested @result.Document.IngestedAt.ToString("MMM dd, yyyy 'at' HH:mm")
+                                </small>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else if (hasSearched && !isSearching)
+            {
+                <div class="alert alert-info mt-4">
+                    <i class="bi bi-info-circle me-2"></i>
+                    No documents found matching your search criteria. Try adjusting your query or lowering the similarity threshold.
+                </div>
+            }
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="bi bi-lightbulb me-2"></i>Search Tips</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Use natural language queries
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Focus on concepts, not exact words
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Lower threshold for broader results
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Higher threshold for precise matches
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6><i class="bi bi-bookmark me-2"></i>Example Queries</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="@(() => SetQuery("artificial intelligence in .NET"))">
+                            AI in .NET
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="@(() => SetQuery("Azure cloud services"))">
+                            Azure Services
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="@(() => SetQuery("web development with Blazor"))">
+                            Blazor Development
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="@(() => SetQuery("performance optimization"))">
+                            Performance Tips
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .similarity-score {
+        position: relative;
+        display: inline-block;
+    }
+
+    .score-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+
+    .circular-progress {
+        transform: rotate(-90deg);
+    }
+</style>
+
+@code {
+    private SearchRequest searchRequest = new() { Limit = 10, Threshold = 0.7f };
+    private List<SearchResult> searchResults = new();
+    private bool isSearching = false;
+    private bool hasSearched = false;
+
+    private async Task PerformSearch()
+    {
+        if (string.IsNullOrWhiteSpace(searchRequest.Query))
+            return;
+
+        isSearching = true;
+        hasSearched = true;
+        searchResults.Clear();
+        StateHasChanged();
+
+        try
+        {
+            // Note: This would need to be implemented in the API
+            // For now, we'll simulate a search
+            await Task.Delay(1000); // Simulate API call
+            
+            // In a real implementation, you would:
+            // var response = await Http.PostAsJsonAsync("/vector/search", searchRequest);
+            // searchResults = await response.Content.ReadFromJsonAsync<List<SearchResult>>() ?? new();
+            
+            // For demo purposes, create some mock results
+            searchResults = CreateMockResults();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Search failed: {ex.Message}");
+        }
+        finally
+        {
+            isSearching = false;
+            StateHasChanged();
+        }
+    }
+
+    private void SetQuery(string query)
+    {
+        searchRequest.Query = query;
+        StateHasChanged();
+    }
+
+    private string GetScoreColor(float score)
+    {
+        return score switch
+        {
+            >= 0.8f => "#28a745", // Green
+            >= 0.6f => "#ffc107", // Yellow
+            >= 0.4f => "#fd7e14", // Orange
+            _ => "#dc3545"         // Red
+        };
+    }
+
+    private string GetStrokeDashArray(float score)
+    {
+        var circumference = 2 * Math.PI * 25; // radius = 25
+        var dashLength = circumference * score;
+        return $"{dashLength} {circumference}";
+    }
+
+    private List<SearchResult> CreateMockResults()
+    {
+        // This is mock data - in a real app, this would come from the API
+        return new List<SearchResult>
+        {
+            new()
+            {
+                Document = new DocumentRecord
+                {
+                    Id = "1",
+                    Title = "Getting Started with Machine Learning in .NET",
+                    Description = "Learn how to build machine learning models using ML.NET framework with practical examples and best practices.",
+                    Url = "https://devblogs.microsoft.com/dotnet/ml-net-getting-started",
+                    Site = ".NET Blog",
+                    SourceType = "RSS",
+                    IngestedAt = DateTimeOffset.Now.AddHours(-2)
+                },
+                SimilarityScore = 0.92f
+            },
+            new()
+            {
+                Document = new DocumentRecord
+                {
+                    Id = "2",
+                    Title = "Azure AI Services Overview",
+                    Description = "Comprehensive guide to Azure's artificial intelligence services and how to integrate them into your applications.",
+                    Url = "https://devblogs.microsoft.com/azure-ai/services-overview",
+                    Site = "Azure AI Blog",
+                    SourceType = "RSS",
+                    IngestedAt = DateTimeOffset.Now.AddHours(-5)
+                },
+                SimilarityScore = 0.85f
+            }
+        };
+    }
+}

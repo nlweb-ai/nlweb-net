@@ -1,4 +1,5 @@
 using Aspire.Hosting;
+using Aspire.Hosting.Qdrant;
 
 namespace NLWebNet.Extensions;
 
@@ -18,7 +19,7 @@ public static class AspireHostingExtensions
         this IDistributedApplicationBuilder builder,
         string name)
     {
-        return builder.AddProject<Projects.NLWebNet_Demo>(name)
+        return builder.AddProject<Projects.NLWebNet_AspireApp>(name)
             .WithEnvironment("ASPNETCORE_ENVIRONMENT", builder.Environment.EnvironmentName)
             .WithEnvironment("OTEL_SERVICE_NAME", name)
             .WithEnvironment("OTEL_SERVICE_VERSION", "1.0.0");
@@ -55,5 +56,21 @@ public static class AspireHostingExtensions
     {
         return builder.AddNLWebNetApp(name)
             .WithReference(dataBackend);
+    }
+
+    /// <summary>
+    /// Adds an NLWebNet application with Qdrant vector database reference
+    /// </summary>
+    /// <param name="builder">The distributed application builder</param>
+    /// <param name="name">The name of the application</param>
+    /// <param name="qdrant">The Qdrant vector database resource to reference</param>
+    /// <returns>A resource builder for the NLWebNet application</returns>
+    public static IResourceBuilder<ProjectResource> AddNLWebNetAppWithQdrant(
+        this IDistributedApplicationBuilder builder,
+        string name,
+        IResourceBuilder<QdrantServerResource> qdrant)
+    {
+        return builder.AddNLWebNetApp(name)
+            .WithReference(qdrant);
     }
 }
