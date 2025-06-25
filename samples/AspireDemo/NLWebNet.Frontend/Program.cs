@@ -4,8 +4,16 @@ using NLWebNet.Frontend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add Aspire service defaults
+// Add Aspire service defaults (includes OpenTelemetry)
 builder.AddServiceDefaults();
+
+// Configure additional OpenTelemetry sources for our custom activities
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing =>
+    {
+        tracing.AddSource("NLWebNet.Frontend.ApiService");
+        tracing.AddSource("NLWebNet.Frontend.VectorSearch");
+    });
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -25,6 +33,14 @@ builder.Services.AddHttpClient("DirectApiClient", client =>
     // Use the actual API URL from Aspire dashboard
     client.BaseAddress = new Uri("https://localhost:7220");
     client.Timeout = TimeSpan.FromSeconds(30);
+});
+
+// Add dedicated HttpClient for RSS operations with longer timeout
+builder.Services.AddHttpClient("RssApiClient", client =>
+{
+    // Use the actual API URL from Aspire dashboard
+    client.BaseAddress = new Uri("https://localhost:7220");
+    client.Timeout = TimeSpan.FromMinutes(5); // 5 minutes for RSS ingestion
 });
 
 // Register the default HttpClient for component injection

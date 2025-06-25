@@ -4,13 +4,26 @@ using Microsoft.Extensions.DependencyInjection;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-// Configure logging to reduce noise
+// Configure logging to reduce telemetry noise while keeping important startup messages
 builder.Services.Configure<LoggerFilterOptions>(options =>
 {
+    // Keep important Aspire startup messages but filter telemetry
+    options.AddFilter("Aspire.Hosting.ApplicationModel", LogLevel.Information);
+    options.AddFilter("Aspire.Hosting", LogLevel.Information);
     options.AddFilter("Aspire", LogLevel.Warning);
+    
+    // Reduce OpenTelemetry noise
     options.AddFilter("OpenTelemetry", LogLevel.Warning);
+    
+    // Keep basic hosting messages
+    options.AddFilter("Microsoft.Extensions.Hosting.Internal.Host", LogLevel.Information);
     options.AddFilter("Microsoft.Extensions.Hosting", LogLevel.Warning);
+    
+    // Reduce ASP.NET Core noise but keep startup messages
+    options.AddFilter("Microsoft.AspNetCore.Hosting.Diagnostics", LogLevel.Information);
     options.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
+    
+    // Reduce DI and HTTP noise
     options.AddFilter("Microsoft.Extensions.DependencyInjection", LogLevel.Warning);
     options.AddFilter("System.Net.Http", LogLevel.Warning);
 });

@@ -11,7 +11,9 @@ namespace NLWebNet.AspireApp.Services;
 public interface IRssFeedIngestionService
 {
     Task<int> IngestFeedAsync(string feedUrl, CancellationToken cancellationToken = default);
+    Task<int> IngestFeedAsync(string feedUrl, string? githubToken, CancellationToken cancellationToken = default);
     Task<int> IngestDemoFeedsAsync(CancellationToken cancellationToken = default);
+    Task<int> IngestDemoFeedsAsync(string? githubToken, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -24,14 +26,10 @@ public class RssFeedIngestionService : IRssFeedIngestionService
     private readonly HttpClient _httpClient;
     private readonly ILogger<RssFeedIngestionService> _logger;
 
-    // Demo RSS feeds for testing - using reliable tech blogs
+    // Demo RSS feeds for testing - focused on .NET content only
     private readonly string[] _demoFeeds = new[]
     {
-        "https://devblogs.microsoft.com/dotnet/feed/",     // Microsoft .NET Blog
-        "https://devblogs.microsoft.com/feed/",           // Main Microsoft Developer Blogs
-        "https://blog.jetbrains.com/feed/",               // JetBrains Blog
-        "https://stackoverflow.blog/feed/",                // Stack Overflow Blog
-        "https://github.blog/feed/"                       // GitHub Blog
+        "https://devblogs.microsoft.com/dotnet/feed/"      // Microsoft .NET Blog only
     };
 
     public RssFeedIngestionService(
@@ -48,11 +46,16 @@ public class RssFeedIngestionService : IRssFeedIngestionService
 
     public async Task<int> IngestFeedAsync(string feedUrl, CancellationToken cancellationToken = default)
     {
+        return await IngestFeedAsync(feedUrl, null, cancellationToken);
+    }
+
+    public async Task<int> IngestFeedAsync(string feedUrl, string? githubToken, CancellationToken cancellationToken = default)
+    {
         ArgumentException.ThrowIfNullOrWhiteSpace(feedUrl);
 
         try
         {
-            _logger.LogInformation("Starting ingestion of RSS feed: {FeedUrl}", feedUrl);
+            _logger.LogInformation("Starting ingestion of RSS feed: {FeedUrl} with GitHub token: {HasToken}", feedUrl, !string.IsNullOrEmpty(githubToken));
 
             // Download the RSS feed with proper headers
             var request = new HttpRequestMessage(HttpMethod.Get, feedUrl);
@@ -92,17 +95,22 @@ public class RssFeedIngestionService : IRssFeedIngestionService
             int processedCount = 0;
             var siteName = feed.Title?.Text ?? new Uri(feedUrl).Host;
 
+            // Process only the latest 25 items to keep ingestion fast and focused
+            var itemsToProcess = feed.Items.Take(25);
+            _logger.LogInformation("Processing latest {ItemCount} items from feed: {SiteName}", 
+                itemsToProcess.Count(), siteName);
+
             // Process each item in the feed
-            foreach (var item in feed.Items)
+            foreach (var item in itemsToProcess)
             {
                 try
                 {
                     var document = CreateDocumentFromFeedItem(item, siteName, feedUrl);
                     if (document != null)
                     {
-                        // Generate semantic embedding for the document
+                        // Generate semantic embedding for the document using the provided GitHub token
                         var textToEmbed = $"{document.Title} {document.Description}";
-                        document.Embedding = await _embeddingService.GenerateEmbeddingAsync(textToEmbed, null, cancellationToken);
+                        document.Embedding = await _embeddingService.GenerateEmbeddingAsync(textToEmbed, githubToken, cancellationToken);
                         
                         await _vectorStorage.StoreDocumentAsync(document, cancellationToken);
                         processedCount++;
@@ -152,6 +160,35 @@ public class RssFeedIngestionService : IRssFeedIngestionService
             throw;
         }
 
+        return totalProcessed;
+    }
+
+    public async Task<int> IngestDemoFeedsAsync(string? githubToken, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Starting focused ingestion of .NET blog RSS feed with GitHub token: {HasToken}", !string.IsNullOrEmpty(githubToken));
+        
+        int totalProcessed = 0;
+
+        // Process feeds sequentially to reduce server load and improve reliability
+        foreach (var feedUrl in _demoFeeds)
+        {
+            try
+            {
+                _logger.LogInformation("Processing feed: {FeedUrl}", feedUrl);
+                var processed = await IngestFeedAsync(feedUrl, githubToken, cancellationToken);
+                totalProcessed += processed;
+                _logger.LogInformation("Successfully processed {ProcessedCount} items from {FeedUrl}", processed, feedUrl);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to process feed: {FeedUrl}", feedUrl);
+                // Continue with other feeds instead of failing completely
+            }
+        }
+
+        _logger.LogInformation("Demo ingestion completed: {TotalProcessed} items from {FeedCount} feeds", 
+            totalProcessed, _demoFeeds.Length);
+        
         return totalProcessed;
     }
 
