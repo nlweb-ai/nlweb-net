@@ -198,6 +198,24 @@
     private bool isSearching = false;
     private bool hasSearched = false;
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Logger.LogInformation("=== VECTOR SEARCH INITIALIZATION ===");
+            Logger.LogInformation("First render - initializing configuration service...");
+            
+            await ConfigService.InitializeAsync();
+            
+            Logger.LogInformation("Configuration initialized - IsConfigured: {IsConfigured}", ConfigService.IsConfigured);
+            Logger.LogInformation("Search request defaults - Threshold: {Threshold}, Limit: {Limit}", 
+                searchRequest.Threshold, searchRequest.Limit);
+            
+            StateHasChanged();
+            Logger.LogInformation("=== INITIALIZATION COMPLETE ===");
+        }
+    }
+
     protected override void OnInitialized()
     {
         ConfigService.ConfigurationChanged += OnConfigurationChanged;
@@ -205,6 +223,8 @@
 
     private void OnConfigurationChanged(object? sender, bool isConfigured)
     {
+        Logger.LogInformation("Configuration changed - IsConfigured: {IsConfigured}, HasToken: {HasToken}", 
+            isConfigured, !string.IsNullOrEmpty(ConfigService.GetGitHubToken()));
         InvokeAsync(StateHasChanged);
     }
 
@@ -216,7 +236,14 @@
     private async Task PerformSearch()
     {
         if (string.IsNullOrWhiteSpace(searchRequest.Query))
+        {
+            Logger.LogWarning("Search attempted with empty query");
             return;
+        }
+
+        Logger.LogInformation("=== SEARCH START ===");
+        Logger.LogInformation("Search initiated - Query: '{Query}', Threshold: {Threshold}, Limit: {Limit}", 
+            searchRequest.Query, searchRequest.Threshold, searchRequest.Limit);
 
         isSearching = true;
         hasSearched = true;
@@ -225,44 +252,77 @@
 
         try
         {
-            Logger.LogInformation("Starting search with query: '{Query}', threshold: {Threshold}, limit: {Limit}", 
-                searchRequest.Query, searchRequest.Threshold, searchRequest.Limit);
-                
+            // Log configuration state
             var githubToken = ConfigService.GetGitHubToken();
-            Logger.LogInformation("Using GitHub token: {HasToken}", !string.IsNullOrEmpty(githubToken));
+            var hasToken = !string.IsNullOrEmpty(githubToken);
+            Logger.LogInformation("Configuration - HasToken: {HasToken}, TokenLength: {TokenLength}, IsConfigured: {IsConfigured}", 
+                hasToken, githubToken?.Length ?? 0, ConfigService.IsConfigured);
             
-            var results = await ApiService.SearchAsync(searchRequest.Query, githubToken, searchRequest.Threshold, searchRequest.Limit);
+            // Call API with detailed logging
+            Logger.LogInformation("Calling ApiService.SearchAsync...");
+            var apiResults = await ApiService.SearchAsync(searchRequest.Query, githubToken, searchRequest.Threshold, searchRequest.Limit);
             
-            Logger.LogInformation("Received {ResultCount} results from API", results.Length);
+            Logger.LogInformation("API Response - ResultCount: {ResultCount}", apiResults.Length);
             
-            // Convert API results to UI models
-            searchResults = results
-                .Select(r => new SearchResult
+            // Log each API result for debugging
+            for (int i = 0; i < apiResults.Length; i++)
+            {
+                var result = apiResults[i];
+                Logger.LogInformation("API Result {Index}: Title='{Title}', Similarity={Similarity}, Link='{Link}'", 
+                    i, result.Title, result.Similarity, result.Link);
+            }
+            
+            // Convert API results to UI models with detailed logging
+            Logger.LogInformation("Converting API results to UI models...");
+            var convertedResults = new List<SearchResult>();
+            
+            foreach (var apiResult in apiResults)
+            {
+                try
                 {
-                    Document = new DocumentRecord
+                    var uiResult = new SearchResult
                     {
-                        Id = r.Title.GetHashCode().ToString(),
-                        Title = r.Title,
-                        Description = r.Description,
-                        Url = r.Link,
-                        Site = "RSS Feed",
-                        SourceType = "RSS",
-                        IngestedAt = r.PublishedDate
-                    },
-                    SimilarityScore = (float)r.Similarity
-                })
-                .ToList();
+                        Document = new DocumentRecord
+                        {
+                            Id = apiResult.Title.GetHashCode().ToString(),
+                            Title = apiResult.Title,
+                            Description = apiResult.Description,
+                            Url = apiResult.Link,
+                            Site = "RSS Feed",
+                            SourceType = "RSS",
+                            IngestedAt = apiResult.PublishedDate
+                        },
+                        SimilarityScore = (float)apiResult.Similarity
+                    };
+                    
+                    convertedResults.Add(uiResult);
+                    Logger.LogInformation("Converted result: Title='{Title}', Score={Score}", 
+                        uiResult.Document.Title, uiResult.SimilarityScore);
+                }
+                catch (Exception convertEx)
+                {
+                    Logger.LogError(convertEx, "Error converting API result: {ApiResult}", apiResult);
+                }
+            }
+            
+            searchResults = convertedResults;
+            Logger.LogInformation("Final UI results count: {Count}", searchResults.Count);
+            
+            // Log final state
+            Logger.LogInformation("Search completed - HasSearched: {HasSearched}, IsSearching: {IsSearching}, ResultsCount: {ResultsCount}", 
+                hasSearched, isSearching, searchResults.Count);
                 
-            Logger.LogInformation("Converted to {UIResultCount} UI results", searchResults.Count);
+            Logger.LogInformation("=== SEARCH END ===");
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Search failed for query: '{Query}'", searchRequest.Query);
+            Logger.LogError(ex, "=== SEARCH ERROR === Query: '{Query}', Error: {Message}", searchRequest.Query, ex.Message);
             await JSRuntime.InvokeVoidAsync("alert", $"Search failed: {ex.Message}");
         }
         finally
         {
             isSearching = false;
+            Logger.LogInformation("Search state reset - IsSearching: {IsSearching}", isSearching);
             StateHasChanged();
         }
     }

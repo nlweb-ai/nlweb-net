@@ -1,6 +1,19 @@
 using NLWebNet.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = DistributedApplication.CreateBuilder(args);
+
+// Configure logging to reduce noise
+builder.Services.Configure<LoggerFilterOptions>(options =>
+{
+    options.AddFilter("Aspire", LogLevel.Warning);
+    options.AddFilter("OpenTelemetry", LogLevel.Warning);
+    options.AddFilter("Microsoft.Extensions.Hosting", LogLevel.Warning);
+    options.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
+    options.AddFilter("Microsoft.Extensions.DependencyInjection", LogLevel.Warning);
+    options.AddFilter("System.Net.Http", LogLevel.Warning);
+});
 
 // Add Qdrant vector database for storing ingested data
 var qdrant = builder.AddQdrant("qdrant")

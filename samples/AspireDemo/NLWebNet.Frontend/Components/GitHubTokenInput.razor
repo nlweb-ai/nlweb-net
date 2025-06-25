@@ -110,6 +110,15 @@
     private string ValidationClass =>
         string.IsNullOrEmpty(ValidationMessage) ? "" : "is-invalid";
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await ConfigService.InitializeAsync();
+            StateHasChanged();
+        }
+    }
+
     protected override void OnInitialized()
     {
         ConfigService.ConfigurationChanged += OnConfigurationChanged;

@@ -25,6 +25,10 @@ public class ApiService : IApiService
     {
         try
         {
+            _logger.LogInformation("=== API SERVICE SEARCH START ===");
+            _logger.LogInformation("SearchAsync called - Query: '{Query}', HasToken: {HasToken}, Threshold: {Threshold}, Limit: {Limit}", 
+                query, !string.IsNullOrEmpty(githubToken), threshold, limit);
+            
             var queryParams = new List<string> { $"query={Uri.EscapeDataString(query)}" };
             
             if (threshold.HasValue)
@@ -36,38 +40,64 @@ public class ApiService : IApiService
             var queryString = string.Join("&", queryParams);
             var requestUrl = $"/api/search?{queryString}";
             
-            _logger.LogInformation("Making search request to: {RequestUrl}", requestUrl);
+            _logger.LogInformation("Making HTTP request to: {RequestUrl}", requestUrl);
+            _logger.LogInformation("HttpClient BaseAddress: {BaseAddress}", _httpClient.BaseAddress?.ToString() ?? "null");
             
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             
             if (!string.IsNullOrEmpty(githubToken))
             {
                 request.Headers.Add("X-GitHub-Token", githubToken);
-                _logger.LogInformation("Added GitHub token to request headers");
+                _logger.LogInformation("Added GitHub token header (length: {TokenLength})", githubToken.Length);
+            }
+            else
+            {
+                _logger.LogInformation("No GitHub token provided - using fallback embeddings");
             }
 
+            _logger.LogInformation("Sending HTTP request...");
             var response = await _httpClient.SendAsync(request);
             
-            _logger.LogInformation("Search API response: {StatusCode}", response.StatusCode);
+            _logger.LogInformation("HTTP Response - StatusCode: {StatusCode}, ReasonPhrase: '{ReasonPhrase}'", 
+                response.StatusCode, response.ReasonPhrase);
             
             if (response.IsSuccessStatusCode)
             {
+                _logger.LogInformation("Reading JSON response...");
+                var responseContent = await response.Content.ReadAsStringAsync();
+                _logger.LogInformation("Raw response content (first 500 chars): {Content}", 
+                    responseContent.Length > 500 ? responseContent.Substring(0, 500) + "..." : responseContent);
+                
                 var results = await response.Content.ReadFromJsonAsync<ApiSearchResult[]>();
                 var resultCount = results?.Length ?? 0;
-                _logger.LogInformation("Search API returned {ResultCount} results", resultCount);
+                
+                _logger.LogInformation("Deserialized {ResultCount} API results", resultCount);
+                
+                if (results != null)
+                {
+                    for (int i = 0; i < Math.Min(results.Length, 5); i++) // Log first 5 results
+                    {
+                        var result = results[i];
+                        _logger.LogInformation("API Result {Index}: Title='{Title}', Similarity={Similarity}", 
+                            i, result.Title, result.Similarity);
+                    }
+                }
+                
+                _logger.LogInformation("=== API SERVICE SEARCH SUCCESS ===");
                 return results ?? Array.Empty<ApiSearchResult>();
             }
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                _logger.LogWarning("Search API returned {StatusCode}: {ReasonPhrase}. Content: {Content}", 
+                _logger.LogError("API Error - StatusCode: {StatusCode}, ReasonPhrase: '{ReasonPhrase}', Content: {Content}", 
                     response.StatusCode, response.ReasonPhrase, errorContent);
+                _logger.LogInformation("=== API SERVICE SEARCH FAILED ===");
                 return Array.Empty<ApiSearchResult>();
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error calling search API with query: {Query}", query);
+            _logger.LogError(ex, "=== API SERVICE SEARCH EXCEPTION === Query: '{Query}', Error: {Message}", query, ex.Message);
             return Array.Empty<ApiSearchResult>();
         }
     }

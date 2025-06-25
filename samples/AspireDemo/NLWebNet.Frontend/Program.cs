@@ -36,7 +36,7 @@ builder.Services.AddScoped(provider =>
 });
 
 // Register configuration service
-builder.Services.AddSingleton<IEmbeddingConfigurationService, EmbeddingConfigurationService>();
+builder.Services.AddScoped<IEmbeddingConfigurationService, EmbeddingConfigurationService>();
 
 // Register API service
 builder.Services.AddScoped<IApiService, ApiService>();
