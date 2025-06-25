@@ -265,6 +265,152 @@ app.MapGet("/api/search", async (HttpContext context, string query, int? limit, 
 .WithName("SearchDocuments")
 .WithOpenApi();
 
+// Diagnostic endpoint for analyzing embeddings and search quality
+app.MapGet("/api/diagnostics/embedding", async (HttpContext context, string text, IEmbeddingService embeddingService, ILogger<Program> logger) =>
+{
+    try
+    {
+        var githubToken = context.Request.Headers["X-GitHub-Token"].FirstOrDefault();
+        var hasToken = !string.IsNullOrEmpty(githubToken) && IsValidGitHubToken(githubToken);
+        
+        logger.LogInformation("Generating embedding for diagnostic - Text: '{Text}', HasToken: {HasToken}", text, hasToken);
+        
+        var embedding = await embeddingService.GenerateEmbeddingAsync(text, githubToken);
+        
+        var stats = new
+        {
+            Text = text,
+            EmbeddingType = hasToken ? "GitHub Models" : "Simple Hash",
+            HasGitHubToken = hasToken,
+            TokenLength = githubToken?.Length ?? 0,
+            EmbeddingDimensions = embedding.Length,
+            EmbeddingSample = embedding.Span[0..Math.Min(10, embedding.Length)].ToArray(), // First 10 values
+            EmbeddingMagnitude = Math.Sqrt(embedding.Span.ToArray().Sum(x => x * x)),
+            EmbeddingStats = new
+            {
+                Min = embedding.Span.ToArray().Min(),
+                Max = embedding.Span.ToArray().Max(),
+                Average = embedding.Span.ToArray().Average(),
+                NonZeroCount = embedding.Span.ToArray().Count(x => Math.Abs(x) > 0.001f)
+            }
+        };
+        
+        return Results.Ok(stats);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Error generating diagnostic embedding for text: {Text}", text);
+        return Results.BadRequest(new { Error = ex.Message });
+    }
+})
+.WithName("DiagnosticEmbedding")
+.WithOpenApi();
+
+// Diagnostic endpoint for searching with detailed analysis
+app.MapGet("/api/diagnostics/search", async (HttpContext context, string query, int? limit, IVectorStorageService vectorStorage, IEmbeddingService embeddingService, ILogger<Program> logger) =>
+{
+    try
+    {
+        var searchLimit = limit ?? 10;
+        var githubToken = context.Request.Headers["X-GitHub-Token"].FirstOrDefault();
+        var hasToken = !string.IsNullOrEmpty(githubToken) && IsValidGitHubToken(githubToken);
+        
+        logger.LogInformation("=== DIAGNOSTIC SEARCH ===");
+        logger.LogInformation("Query: '{Query}', HasToken: {HasToken}", query, hasToken);
+        
+        // Generate query embedding
+        var queryEmbedding = await embeddingService.GenerateEmbeddingAsync(query, githubToken);
+        
+        // Get raw search results with very low threshold
+        var results = await vectorStorage.SearchSimilarAsync(queryEmbedding, searchLimit, 0.0f);
+        
+        var diagnosticResults = results.Select((r, index) => new
+        {
+            Rank = index + 1,
+            Id = r.Document.Id,
+            Title = r.Document.Title,
+            Description = r.Document.Description?.Substring(0, Math.Min(200, r.Document.Description?.Length ?? 0)) + "...",
+            Similarity = r.Score,
+            SimilarityPercent = Math.Round(r.Score * 100, 2),
+            ContainsQueryTerm = r.Document.Title?.Contains(query, StringComparison.OrdinalIgnoreCase) == true ||
+                               r.Document.Description?.Contains(query, StringComparison.OrdinalIgnoreCase) == true,
+            TitleMatch = r.Document.Title?.Contains(query, StringComparison.OrdinalIgnoreCase) == true,
+            DescriptionMatch = r.Document.Description?.Contains(query, StringComparison.OrdinalIgnoreCase) == true
+        }).ToList();
+        
+        var analysis = new
+        {
+            Query = query,
+            EmbeddingType = hasToken ? "GitHub Models" : "Simple Hash",
+            HasGitHubToken = hasToken,
+            QueryEmbeddingStats = new
+            {
+                Dimensions = queryEmbedding.Length,
+                Magnitude = Math.Sqrt(queryEmbedding.Span.ToArray().Sum(x => x * x)),
+                Sample = queryEmbedding.Span[0..Math.Min(5, queryEmbedding.Length)].ToArray()
+            },
+            TotalResults = diagnosticResults.Count,
+            ResultsWithTextMatch = diagnosticResults.Count(r => r.ContainsQueryTerm),
+            HighestSimilarity = diagnosticResults.FirstOrDefault()?.Similarity ?? 0,
+            LowestSimilarity = diagnosticResults.LastOrDefault()?.Similarity ?? 0,
+            Results = diagnosticResults
+        };
+        
+        logger.LogInformation("Diagnostic complete - {ResultCount} results, {TextMatches} contain query term", 
+            diagnosticResults.Count, diagnosticResults.Count(r => r.ContainsQueryTerm));
+        
+        return Results.Ok(analysis);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Error in diagnostic search for query: {Query}", query);
+        return Results.BadRequest(new { Error = ex.Message });
+    }
+})
+.WithName("DiagnosticSearch")
+.WithOpenApi();
+
+// Diagnostic endpoint to browse ingested documents
+app.MapGet("/api/documents", async (IVectorStorageService vectorStorage, string? search = null, int? limit = null) =>
+{
+    try
+    {
+        var searchLimit = limit ?? 50;
+        var documents = await vectorStorage.GetAllDocumentsAsync(searchLimit);
+        
+        var results = documents.Select(doc => new
+        {
+            Id = doc.Id,
+            Title = doc.Title,
+            Description = doc.Description?.Length > 200 ? doc.Description.Substring(0, 200) + "..." : doc.Description,
+            Url = doc.Url,
+            IngestedAt = doc.IngestedAt,
+            TitleMatch = !string.IsNullOrEmpty(search) && doc.Title.Contains(search, StringComparison.OrdinalIgnoreCase),
+            DescriptionMatch = !string.IsNullOrEmpty(search) && !string.IsNullOrEmpty(doc.Description) && doc.Description.Contains(search, StringComparison.OrdinalIgnoreCase)
+        }).ToList();
+        
+        if (!string.IsNullOrEmpty(search))
+        {
+            // Filter to only documents that contain the search term
+            results = results.Where(r => r.TitleMatch || r.DescriptionMatch).ToList();
+        }
+        
+        return Results.Ok(new
+        {
+            TotalDocuments = documents.Count(),
+            SearchTerm = search,
+            MatchingDocuments = results.Count,
+            Documents = results
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { Error = ex.Message });
+    }
+})
+.WithName("BrowseDocuments")
+.WithOpenApi();
+
 app.MapDelete("/vector/clear", async (IVectorStorageService vectorStorage) =>
 {
     try
@@ -278,6 +424,64 @@ app.MapDelete("/vector/clear", async (IVectorStorageService vectorStorage) =>
     }
 })
 .WithName("ClearVectors")
+.WithOpenApi();
+
+// Diagnostic endpoint to test embedding consistency
+app.MapGet("/api/embedding-test", async (HttpContext context, string text, IEmbeddingService embeddingService, ILogger<Program> logger) =>
+{
+    try
+    {
+        // Test both with and without GitHub token
+        var simpleEmbedding = await embeddingService.GenerateEmbeddingAsync(text, null);
+        var githubEmbedding = await embeddingService.GenerateEmbeddingAsync(text, "dummy_token"); // Will use simple if token is invalid
+
+        // Try with the actual token from headers
+        var githubToken = context.Request.Headers["X-GitHub-Token"].FirstOrDefault();
+        ReadOnlyMemory<float>? realGithubEmbedding = null;
+        
+        if (!string.IsNullOrEmpty(githubToken))
+        {
+            try
+            {
+                realGithubEmbedding = await embeddingService.GenerateEmbeddingAsync(text, githubToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to generate embedding with real GitHub token");
+            }
+        }
+
+        return Results.Ok(new
+        {
+            Text = text,
+            SimpleEmbedding = new
+            {
+                Dimensions = simpleEmbedding.Length,
+                Sample = simpleEmbedding.Span.Slice(0, Math.Min(10, simpleEmbedding.Length)).ToArray(),
+                Magnitude = Math.Sqrt(simpleEmbedding.Span.ToArray().Sum(x => x * x))
+            },
+            GithubEmbedding = new
+            {
+                Dimensions = githubEmbedding.Length,
+                Sample = githubEmbedding.Span.Slice(0, Math.Min(10, githubEmbedding.Length)).ToArray(),
+                Magnitude = Math.Sqrt(githubEmbedding.Span.ToArray().Sum(x => x * x))
+            },
+            RealGithubEmbedding = realGithubEmbedding.HasValue ? new
+            {
+                Dimensions = realGithubEmbedding.Value.Length,
+                Sample = realGithubEmbedding.Value.Span.Slice(0, Math.Min(10, realGithubEmbedding.Value.Length)).ToArray(),
+                Magnitude = Math.Sqrt(realGithubEmbedding.Value.Span.ToArray().Sum(x => x * x))
+            } : null,
+            AreSimpleAndGithubSame = simpleEmbedding.Span.SequenceEqual(githubEmbedding.Span),
+            AreGithubEmbeddingsDifferent = realGithubEmbedding.HasValue && !githubEmbedding.Span.SequenceEqual(realGithubEmbedding.Value.Span)
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { Error = ex.Message });
+    }
+})
+.WithName("TestEmbeddingConsistency")
 .WithOpenApi();
 
 app.MapDefaultEndpoints();

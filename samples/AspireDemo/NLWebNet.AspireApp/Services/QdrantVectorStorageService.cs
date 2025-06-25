@@ -184,6 +184,48 @@ public class QdrantVectorStorageService : IVectorStorageService
         }
     }
 
+    public async Task<IEnumerable<DocumentRecord>> GetAllDocumentsAsync(int limit = 100, CancellationToken cancellationToken = default)
+    {
+        if (!_isInitialized)
+            await InitializeAsync(cancellationToken);
+
+        try
+        {
+            // Use ScrollAsync with collection name and scroll parameters
+            var response = await _qdrantClient.ScrollAsync(
+                collectionName: CollectionName,
+                limit: (uint)limit,
+                payloadSelector: true,
+                vectorsSelector: false,
+                cancellationToken: cancellationToken);
+
+            var documents = new List<DocumentRecord>();
+            foreach (var point in response.Result)
+            {
+                var document = new DocumentRecord
+                {
+                    Id = point.Id.Uuid,
+                    Url = point.Payload["url"].StringValue,
+                    Title = point.Payload["title"].StringValue,
+                    Site = point.Payload["site"].StringValue,
+                    Description = point.Payload["description"].StringValue,
+                    Score = (float)point.Payload["score"].DoubleValue,
+                    IngestedAt = DateTimeOffset.Parse(point.Payload["ingested_at"].StringValue),
+                    SourceType = point.Payload["source_type"].StringValue
+                };
+                documents.Add(document);
+            }
+
+            _logger.LogDebug("Retrieved {Count} documents from Qdrant", documents.Count);
+            return documents;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get all documents from Qdrant");
+            return new List<DocumentRecord>();
+        }
+    }
+
     public async Task<bool> ClearAllDocumentsAsync(CancellationToken cancellationToken = default)
     {
         if (!_isInitialized)

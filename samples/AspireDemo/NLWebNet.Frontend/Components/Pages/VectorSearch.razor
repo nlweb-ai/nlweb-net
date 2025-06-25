@@ -116,6 +116,31 @@
                     </button>
                 </div>
                 
+                <!-- Diagnostic Actions -->
+                <div class="mt-2">
+                    <button class="btn btn-sm btn-outline-info me-2" @onclick="DiagnoseEmbedding" disabled="@isDiagnosing">
+                        @if (isDiagnosing)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        🔍 Diagnose Embedding
+                    </button>
+                    <button class="btn btn-sm btn-outline-info" @onclick="DiagnoseSearch" disabled="@isDiagnosing">
+                        @if (isDiagnosing)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        🔬 Diagnose Search
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="BrowseDocuments" disabled="@isBrowsingDocs">
+                        @if (isBrowsingDocs)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        📋 Browse Documents
+                    </button>
+                </div>
+                
                 @if (isFixingEmbeddings)
                 {
                     <div class="mt-2">
@@ -180,6 +205,30 @@
                             </div>
                         </div>
                     }
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(diagnosticResult))
+            {
+                <div class="mt-4">
+                    <h5>🔍 Diagnostic Analysis</h5>
+                    <div class="card">
+                        <div class="card-body">
+                            <pre class="small" style="max-height: 400px; overflow-y: auto;">@diagnosticResult</pre>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(documentBrowseResult))
+            {
+                <div class="mt-4">
+                    <h5>📋 Document Browser</h5>
+                    <div class="card">
+                        <div class="card-body">
+                            <pre class="small" style="max-height: 500px; overflow-y: auto;">@documentBrowseResult</pre>
+                        </div>
+                    </div>
                 </div>
             }
             else if (hasSearched && !isSearching)
@@ -288,6 +337,12 @@
     private bool isSearching = false;
     private bool hasSearched = false;
     private string lastError = "";
+    
+    // Diagnostic variables
+    private bool isDiagnosing = false;
+    private bool isBrowsingDocs = false;
+    private string diagnosticResult = "";
+    private string documentBrowseResult = "";
     private string httpClientBaseUrl = "";
     private string vectorStats = "Not checked";
     private bool isCheckingStats = false;
@@ -879,5 +934,151 @@
                 SimilarityScore = 0.85f
             }
         };
+    }
+
+    private async Task DiagnoseEmbedding()
+    {
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            diagnosticResult = "Please enter a search query first.";
+            return;
+        }
+
+        isDiagnosing = true;
+        diagnosticResult = "";
+        StateHasChanged();
+
+        try
+        {
+            using var httpClient = HttpClientFactory.CreateClient("DirectApiClient");
+            var requestUrl = $"/api/embedding-test?text={Uri.EscapeDataString(searchQuery)}";
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+
+            var githubToken = ConfigService.GetGitHubToken();
+            if (!string.IsNullOrEmpty(githubToken))
+            {
+                request.Headers.Add("X-GitHub-Token", githubToken);
+            }
+
+            var response = await httpClient.SendAsync(request);
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Pretty format the JSON
+                var jsonDoc = System.Text.Json.JsonDocument.Parse(content);
+                diagnosticResult = System.Text.Json.JsonSerializer.Serialize(jsonDoc, new System.Text.Json.JsonSerializerOptions 
+                { 
+                    WriteIndented = true 
+                });
+            }
+            else
+            {
+                diagnosticResult = $"Error: {response.StatusCode}\n{content}";
+            }
+        }
+        catch (Exception ex)
+        {
+            diagnosticResult = $"Exception: {ex.Message}";
+            Logger.LogError(ex, "Error in embedding diagnostic");
+        }
+        finally
+        {
+            isDiagnosing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task DiagnoseSearch()
+    {
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            diagnosticResult = "Please enter a search query first.";
+            return;
+        }
+
+        isDiagnosing = true;
+        diagnosticResult = "";
+        StateHasChanged();
+
+        try
+        {
+            using var httpClient = HttpClientFactory.CreateClient("DirectApiClient");
+            var requestUrl = $"/api/diagnostics/search?query={Uri.EscapeDataString(searchQuery)}&limit=10";
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+
+            var githubToken = ConfigService.GetGitHubToken();
+            if (!string.IsNullOrEmpty(githubToken))
+            {
+                request.Headers.Add("X-GitHub-Token", githubToken);
+            }
+
+            var response = await httpClient.SendAsync(request);
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Pretty format the JSON
+                var jsonDoc = System.Text.Json.JsonDocument.Parse(content);
+                diagnosticResult = System.Text.Json.JsonSerializer.Serialize(jsonDoc, new System.Text.Json.JsonSerializerOptions 
+                { 
+                    WriteIndented = true 
+                });
+            }
+            else
+            {
+                diagnosticResult = $"Error: {response.StatusCode}\n{content}";
+            }
+        }
+        catch (Exception ex)
+        {
+            diagnosticResult = $"Exception: {ex.Message}";
+            Logger.LogError(ex, "Error in search diagnostic");
+        }
+        finally
+        {
+            isDiagnosing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task BrowseDocuments()
+    {
+        isBrowsingDocs = true;
+        documentBrowseResult = "";
+        StateHasChanged();
+
+        try
+        {
+            using var httpClient = HttpClientFactory.CreateClient("ApiClient");
+            
+            // First browse all documents
+            var allDocsResponse = await httpClient.GetAsync("/api/documents?limit=50");
+            if (allDocsResponse.IsSuccessStatusCode)
+            {
+                var allDocsContent = await allDocsResponse.Content.ReadAsStringAsync();
+                documentBrowseResult += "=== ALL DOCUMENTS ===\n" + allDocsContent + "\n\n";
+            }
+
+            // Then search for documents containing "multimodal"
+            var multimodalResponse = await httpClient.GetAsync("/api/documents?search=multimodal&limit=10");
+            if (multimodalResponse.IsSuccessStatusCode)
+            {
+                var multimodalContent = await multimodalResponse.Content.ReadAsStringAsync();
+                documentBrowseResult += "=== DOCUMENTS CONTAINING 'MULTIMODAL' ===\n" + multimodalContent + "\n\n";
+            }
+
+            Logger.LogInformation("Document browsing completed successfully");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to browse documents");
+            documentBrowseResult = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isBrowsingDocs = false;
+            StateHasChanged();
+        }
     }
 }

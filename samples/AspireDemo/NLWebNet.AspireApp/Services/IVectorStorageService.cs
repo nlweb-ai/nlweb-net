@@ -43,6 +43,14 @@ public interface IVectorStorageService
     Task<int> GetDocumentCountAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Get all documents from the vector storage (for debugging/browsing)
+    /// </summary>
+    /// <param name="limit">Maximum number of documents to return</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>List of all documents</returns>
+    Task<IEnumerable<DocumentRecord>> GetAllDocumentsAsync(int limit = 100, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Delete all documents from the vector storage
     /// </summary>
     /// <param name="cancellationToken">Cancellation token</param>
