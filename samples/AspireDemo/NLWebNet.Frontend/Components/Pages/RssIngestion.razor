@@ -1,0 +1,336 @@
+@page "/rss-ingestion"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+@using NLWebNet.Frontend.Models
+@using NLWebNet.Frontend.Services
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+
+@inject IHttpClientFactory HttpClientFactory
+@inject ILogger<RssIngestion> Logger
+@inject IEmbeddingConfigurationService EmbeddingConfig
+
+<PageTitle>RSS Ingestion - NLWebNet Vector Demo</PageTitle>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <h1><i class="bi bi-rss-fill text-warning me-2"></i>RSS Feed Ingestion</h1>
+            <p class="lead">
+                Ingest RSS feeds and convert them into searchable vector embeddings.
+            </p>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Quick Start - Demo Feeds</h5>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <div class="alert alert-success" role="alert">
+                            <i class="bi bi-check-circle me-2"></i>@successMessage
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>@errorMessage
+                        </div>
+                    }
+
+                    <p>Get started quickly by ingesting the latest content from the Microsoft .NET blog:</p>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check-circle text-success me-2"></i>Microsoft .NET Blog (latest 25 articles)</li>
+                        <li><i class="bi bi-info-circle text-info me-2"></i>Fast ingestion using title + description only</li>
+                        <li><i class="bi bi-lightning text-warning me-2"></i>Optimized for quick demos and testing</li>
+                    </ul>
+                    <button class="btn btn-primary" @onclick="IngestDemoFeeds" disabled="@isProcessing">
+                        @if (isProcessing && currentOperation == "demo")
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        }
+                        <i class="bi bi-download me-2"></i>Ingest Demo Feeds
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5>Custom RSS Feed</h5>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="@rssRequest" OnValidSubmit="@IngestCustomFeed">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="feedUrl" class="form-label">RSS Feed URL</label>
+                                    <InputText id="feedUrl" class="form-control" @bind-Value="rssRequest.FeedUrl"
+                                        placeholder="https://example.com/feed.xml" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div>
+                                        <button type="submit" class="btn btn-success w-100" disabled="@isProcessing">
+                                            @if (isProcessing && currentOperation == "custom")
+                                            {
+                                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                            }
+                                            <i class="bi bi-plus me-2"></i>Ingest Feed
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="bi bi-info-circle me-2"></i>How It Works</h6>
+                </div>
+                <div class="card-body">
+                    <ol class="list-unstyled">
+                        <li class="mb-2">
+                            <span class="badge bg-primary me-2">1</span>
+                            RSS feeds are downloaded and parsed
+                        </li>
+                        <li class="mb-2">
+                            <span class="badge bg-primary me-2">2</span>
+                            Content is converted to vector embeddings
+                        </li>
+                        <li class="mb-2">
+                            <span class="badge bg-primary me-2">3</span>
+                            Embeddings are stored in Qdrant vector database
+                        </li>
+                        <li class="mb-2">
+                            <span class="badge bg-primary me-2">4</span>
+                            Content becomes searchable via semantic similarity
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6><i class="bi bi-exclamation-triangle me-2"></i>Management</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-3">
+                        Clear all ingested documents to start fresh.
+                    </p>
+                    <button class="btn btn-outline-danger btn-sm" @onclick="ClearAllDocuments" disabled="@isProcessing">
+                        <i class="bi bi-trash me-1"></i>Clear All Documents
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private RssIngestionRequest rssRequest = new();
+    private bool isProcessing = false;
+    private string currentOperation = "";
+    private string successMessage = string.Empty;
+    private string errorMessage = string.Empty;
+
+    private void ClearMessages()
+    {
+        successMessage = string.Empty;
+        errorMessage = string.Empty;
+    }
+
+    private void SetSuccessMessage(string message)
+    {
+        ClearMessages();
+        successMessage = message;
+        StateHasChanged();
+    }
+
+    private void SetErrorMessage(string message)
+    {
+        ClearMessages();
+        errorMessage = message;
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation("RssIngestion component initialized");
+    }
+
+    private async Task IngestDemoFeeds()
+    {
+        ClearMessages();
+        Logger.LogInformation("Starting demo feed ingestion...");
+
+        await ProcessWithLoading("demo", async () =>
+        {
+            try
+            {
+                using var httpClient = HttpClientFactory.CreateClient("RssApiClient");
+                var request = new HttpRequestMessage(HttpMethod.Post, "/rss/ingest-demo");
+
+                // Add GitHub token if configured
+                var githubToken = EmbeddingConfig.GetGitHubToken();
+                if (!string.IsNullOrEmpty(githubToken))
+                {
+                    request.Headers.Add("X-GitHub-Token", githubToken);
+                    Logger.LogInformation("Adding GitHub token to demo feed ingestion request");
+                }
+                else
+                {
+                    Logger.LogInformation("No GitHub token configured - using simple embeddings for demo feed ingestion");
+                }
+
+                var response = await httpClient.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var result = System.Text.Json.JsonSerializer.Deserialize<RssIngestionResponse>(content, new
+            System.Text.Json.JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    if (result != null)
+                    {
+                        var embeddingType = !string.IsNullOrEmpty(githubToken) ? "GitHub Models embeddings" : "simple hash embeddings";
+                        SetSuccessMessage($"Successfully ingested {result.Count} documents using {embeddingType}!");
+                    }
+                    else
+                    {
+                        SetErrorMessage("Failed to parse response from demo feeds.");
+                    }
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    SetErrorMessage($"Failed to ingest demo feeds. Status: {response.StatusCode}. Please try again.");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                Logger.LogError(ex, "HTTP request error during demo feed ingestion");
+                SetErrorMessage($"Network error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error during demo feed ingestion");
+                SetErrorMessage($"Error: {ex.Message}");
+            }
+        });
+    }
+
+    private async Task IngestCustomFeed()
+    {
+        if (string.IsNullOrWhiteSpace(rssRequest.FeedUrl))
+            return;
+
+        ClearMessages();
+        Logger.LogInformation("Starting custom feed ingestion for URL: {FeedUrl}", rssRequest.FeedUrl);
+
+        await ProcessWithLoading("custom", async () =>
+        {
+            try
+            {
+                using var httpClient = HttpClientFactory.CreateClient("RssApiClient");
+                var requestUrl = $"/rss/ingest?feedUrl={Uri.EscapeDataString(rssRequest.FeedUrl)}";
+                var request = new HttpRequestMessage(HttpMethod.Post, requestUrl);
+
+                // Add GitHub token if configured
+                var githubToken = EmbeddingConfig.GetGitHubToken();
+                if (!string.IsNullOrEmpty(githubToken))
+                {
+                    request.Headers.Add("X-GitHub-Token", githubToken);
+                    Logger.LogInformation("Adding GitHub token to custom feed ingestion request");
+                }
+                else
+                {
+                    Logger.LogInformation("No GitHub token configured - using simple embeddings for custom feed ingestion");
+                }
+
+                var response = await httpClient.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadFromJsonAsync<RssIngestionResponse>();
+                    if (result != null)
+                    {
+                        var embeddingType = !string.IsNullOrEmpty(githubToken) ? "GitHub Models embeddings" : "simple hash embeddings";
+                        SetSuccessMessage($"Successfully ingested {result.Count} documents using {embeddingType}!");
+                        rssRequest.FeedUrl = string.Empty; // Clear the input
+                    }
+                    else
+                    {
+                        SetErrorMessage("Failed to ingest the RSS feed. Please check the URL and try again.");
+                    }
+                }
+                else
+                {
+                    SetErrorMessage("Failed to ingest the RSS feed. Please check the URL and try again.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error during custom feed ingestion");
+                SetErrorMessage($"Error: {ex.Message}");
+            }
+        });
+    }
+
+    private async Task ClearAllDocuments()
+    {
+        ClearMessages();
+        Logger.LogInformation("Clearing all documents...");
+
+        await ProcessWithLoading("clear", async () =>
+        {
+            try
+            {
+                using var httpClient = HttpClientFactory.CreateClient("ApiClient");
+                var response = await httpClient.DeleteAsync("/vector/clear");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    SetSuccessMessage("All documents have been cleared.");
+                }
+                else
+                {
+                    SetErrorMessage("Failed to clear documents. Please try again.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error clearing documents");
+                SetErrorMessage($"An error occurred: {ex.Message}");
+            }
+        });
+    }
+
+    private async Task ProcessWithLoading(string operation, Func<Task> action)
+    {
+        isProcessing = true;
+        currentOperation = operation;
+        StateHasChanged();
+
+        try
+        {
+            await action();
+        }
+        finally
+        {
+            isProcessing = false;
+            currentOperation = "";
+            StateHasChanged();
+        }
+    }
+}
+}

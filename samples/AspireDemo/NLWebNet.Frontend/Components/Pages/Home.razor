@@ -1,0 +1,159 @@
+@page "/"
+@using NLWebNet.Frontend.Models
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+<PageTitle>NLWebNet Vector Demo</PageTitle>
+
+<div class="hero-section mb-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <h1 class="display-4">NLWebNet Vector Demo</h1>
+                <p class="lead">
+                    Explore RSS feed ingestion and vector-powered semantic search using 
+                    <strong>Qdrant</strong>, <strong>Microsoft.Extensions.AI</strong>, and <strong>.NET Aspire</strong>.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="/rss-ingestion" class="btn btn-primary btn-lg">
+                        <i class="bi bi-rss-fill me-2"></i>Ingest RSS Feeds
+                    </a>
+                    <a href="/vector-search" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-search me-2"></i>Search Documents
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-bar-chart-fill me-2"></i>System Status</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (stats != null)
+                        {
+                            <div class="row text-center">
+                                <div class="col">
+                                    <h3 class="text-primary">@stats.DocumentCount</h3>
+                                    <small class="text-muted">Documents</small>
+                                </div>
+                                <div class="col">
+                                    <h3 class="text-success">@(stats.DocumentCount > 0 ? "Online" : "Empty")</h3>
+                                    <small class="text-muted">Status</small>
+                                </div>
+                            </div>
+                        }
+                        else if (isLoading)
+                        {
+                            <div class="text-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2 mb-0">Loading stats...</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center text-danger">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                <p class="mb-0">Unable to connect to API</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-rss-fill text-warning me-2"></i>RSS Ingestion
+                    </h5>
+                    <p class="card-text">
+                        Ingest RSS feeds from Microsoft blogs and other sources. 
+                        Content is automatically processed and stored as vectors.
+                    </p>
+                    <a href="/rss-ingestion" class="btn btn-outline-primary">Get Started</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-search text-info me-2"></i>Vector Search
+                    </h5>
+                    <p class="card-text">
+                        Search through ingested documents using semantic similarity. 
+                        Find content based on meaning, not just keywords.
+                    </p>
+                    <a href="/vector-search" class="btn btn-outline-info">Search Now</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-bar-chart-fill text-success me-2"></i>Analytics
+                    </h5>
+                    <p class="card-text">
+                        View statistics about ingested documents, search performance, 
+                        and system health metrics.
+                    </p>
+                    <a href="/statistics" class="btn btn-outline-success">View Stats</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 4rem 0;
+        margin: -1rem -1rem 2rem -1rem;
+    }
+
+    .hero-section .btn {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card {
+        transition: transform 0.2s ease-in-out;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+</style>
+
+@code {
+    private VectorStats? stats;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Try to get stats from the API
+            stats = await Http.GetFromJsonAsync<VectorStats>("/vector/stats");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading stats: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

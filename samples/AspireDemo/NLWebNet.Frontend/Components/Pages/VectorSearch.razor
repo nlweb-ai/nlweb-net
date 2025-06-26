@@ -1,0 +1,1084 @@
+@page "/vector-search"
+@using NLWebNet.Frontend.Models
+@using NLWebNet.Frontend.Services
+@using System.Diagnostics
+@inject IApiService ApiService
+@inject IEmbeddingConfigurationService ConfigService
+@inject IHttpClientFactory HttpClientFactory
+@inject ILogger<VectorSearch> Logger
+@inject IJSRuntime JSRuntime
+
+<div class="container">
+    <h1><i class="bi bi-search text-info me-2"></i>Vector Search</h1>
+    <p class="lead">
+        Search through ingested documents using semantic similarity. 
+        Find content based on meaning, not just keywords.
+    </p>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Semantic Search</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="query" class="form-label">Search Query</label>
+                                <input id="query" class="form-control" @bind="searchQuery" @onkeypress="OnKeyPress"
+                                       placeholder="e.g., 'machine learning in .NET'" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="limit" class="form-label">Results Limit</label>
+                                <input type="number" id="limit" class="form-control" @bind="searchLimit" min="1" max="50" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="threshold" class="form-label">
+                            Similarity Threshold: <span class="text-muted">@searchThreshold.ToString("F2")</span>
+                        </label>
+                        <input type="range" id="threshold" class="form-range" 
+                               @bind="searchThreshold" min="0.01" max="1.0" step="0.01" />
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">0.1 (Less similar)</small>
+                            <small class="text-muted">1.0 (Very similar)</small>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" @onclick="PerformSearch" disabled="@(isSearching || string.IsNullOrWhiteSpace(searchQuery))">
+                        @if (isSearching)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        }
+                        <i class="bi bi-search me-2"></i>Search
+                    </button>
+                </div>
+            </div>
+
+            <!-- Debug Info -->
+            <div class="mt-3">
+                <div class="alert alert-info">
+                    <strong>Debug Info:</strong><br/>
+                    Has Searched: @hasSearched<br/>
+                    Is Searching: @isSearching<br/>
+                    Results Count: @searchResults.Count<br/>
+                    Query: "@searchQuery"<br/>
+                    Threshold: @searchThreshold<br/>
+                    Limit: @searchLimit<br/>
+                    Configuration IsConfigured: @ConfigService.IsConfigured<br/>
+                    Has GitHub Token: @(!string.IsNullOrEmpty(ConfigService.GetGitHubToken()))<br/>
+                    Last Error: @lastError<br/>
+                    API Base URL: @httpClientBaseUrl<br/>
+                    Vector DB Stats: @vectorStats
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="mt-2">
+                    <button class="btn btn-sm btn-outline-secondary me-2" @onclick="GetVectorStats" disabled="@isCheckingStats">
+                        @if (isCheckingStats)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        Check DB Stats
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger me-2" @onclick="ClearDatabase" disabled="@isClearingDb">
+                        @if (isClearingDb)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        Clear Database
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary me-2" @onclick="IngestDemoDataWithToken" disabled="@isIngestingDemo">
+                        @if (isIngestingDemo)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        Re-ingest with Token
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning me-2" @onclick="TestRawApiCall" disabled="@isTestingApi">
+                        @if (isTestingApi)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        Test Raw API
+                    </button>
+                    <button class="btn btn-sm btn-success" @onclick="FixEmbeddingMismatch" disabled="@isFixingEmbeddings">
+                        @if (isFixingEmbeddings)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        🔧 Fix Embedding Mismatch
+                    </button>
+                </div>
+                
+                <!-- Diagnostic Actions -->
+                <div class="mt-2">
+                    <button class="btn btn-sm btn-outline-info me-2" @onclick="DiagnoseEmbedding" disabled="@isDiagnosing">
+                        @if (isDiagnosing)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        🔍 Diagnose Embedding
+                    </button>
+                    <button class="btn btn-sm btn-outline-info" @onclick="DiagnoseSearch" disabled="@isDiagnosing">
+                        @if (isDiagnosing)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        🔬 Diagnose Search
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="BrowseDocuments" disabled="@isBrowsingDocs">
+                        @if (isBrowsingDocs)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        📋 Browse Documents
+                    </button>
+                </div>
+                
+                @if (isFixingEmbeddings)
+                {
+                    <div class="mt-2">
+                        <div class="alert alert-info">
+                            <i class="bi bi-gear-fill me-2"></i>
+                            <strong>Fixing Embedding Mismatch:</strong> @fixingStatus
+                        </div>
+                    </div>
+                }
+                
+                @if (!string.IsNullOrEmpty(rawApiResponse))
+                {
+                    <div class="mt-2">
+                        <small><strong>Raw API Response:</strong></small>
+                        <pre class="small text-muted">@rawApiResponse</pre>
+                    </div>
+                }
+            </div>
+
+            @if (searchResults.Any())
+            {
+                <div class="mt-4">
+                    <h5>Search Results (@searchResults.Count)</h5>
+                    @foreach (var result in searchResults)
+                    {
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="card-title">
+                                            <a href="@result.Document.Url" target="_blank" class="text-decoration-none">
+                                                @result.Document.Title
+                                            </a>
+                                        </h6>
+                                        <p class="card-text">@result.Document.Description</p>
+                                        <div class="d-flex gap-2 flex-wrap">
+                                            <span class="badge bg-secondary">@result.Document.Site</span>
+                                            <span class="badge bg-info">@result.Document.SourceType</span>
+                                            <span class="badge bg-success">
+                                                @(result.SimilarityScore.ToString("P1")) match
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="ms-3">
+                                        <div class="text-end">
+                                            <div class="similarity-score" style="width: 60px; height: 60px;">
+                                                <svg width="60" height="60" class="circular-progress">
+                                                    <circle cx="30" cy="30" r="25" fill="none" stroke="#e9ecef" stroke-width="3"></circle>
+                                                    <circle cx="30" cy="30" r="25" fill="none" stroke="@GetScoreColor(result.SimilarityScore)" 
+                                                            stroke-width="3" stroke-linecap="round"
+                                                            stroke-dasharray="@GetStrokeDashArray(result.SimilarityScore)"
+                                                            transform="rotate(-90 30 30)"></circle>
+                                                </svg>
+                                                <div class="score-text">@(result.SimilarityScore.ToString("P0"))</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <small class="text-muted">
+                                    Ingested @result.Document.IngestedAt.ToString("MMM dd, yyyy 'at' HH:mm")
+                                </small>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(diagnosticResult))
+            {
+                <div class="mt-4">
+                    <h5>🔍 Diagnostic Analysis</h5>
+                    <div class="card">
+                        <div class="card-body">
+                            <pre class="small" style="max-height: 400px; overflow-y: auto;">@diagnosticResult</pre>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(documentBrowseResult))
+            {
+                <div class="mt-4">
+                    <h5>📋 Document Browser</h5>
+                    <div class="card">
+                        <div class="card-body">
+                            <pre class="small" style="max-height: 500px; overflow-y: auto;">@documentBrowseResult</pre>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (hasSearched && !isSearching)
+            {
+                <div class="alert alert-info mt-4">
+                    <i class="bi bi-info-circle me-2"></i>
+                    No documents found matching your search criteria. Try adjusting your query or lowering the similarity threshold.
+                </div>
+            }
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="bi bi-lightbulb me-2"></i>Search Tips</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Use natural language queries
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Focus on concepts, not exact words
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Lower threshold for broader results
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Higher threshold for precise matches
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6><i class="bi bi-bookmark me-2"></i>Example Queries</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="@(() => SetQuery("artificial intelligence in .NET"))">
+                            AI in .NET
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="@(() => SetQuery("Azure cloud services"))">
+                            Azure Services
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="@(() => SetQuery("web development with Blazor"))">
+                            Blazor Development
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="@(() => SetQuery("performance optimization"))">
+                            Performance Tips
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .similarity-score {
+        position: relative;
+        display: inline-block;
+    }
+
+    .score-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+
+    .circular-progress {
+        transform: rotate(-90deg);
+    }
+</style>
+
+@code {
+    private static readonly ActivitySource ActivitySource = new("NLWebNet.Frontend.VectorSearch");
+    
+    private string searchQuery = "";
+    // Dynamic threshold based on embedding type
+    private float GetDefaultThreshold()
+    {
+        var githubToken = ConfigService.GetGitHubToken();
+        var hasValidToken = !string.IsNullOrEmpty(githubToken) && IsValidGitHubToken(githubToken);
+        return hasValidToken ? 0.1f : 0.03f; // Higher for GitHub Models, lower for simple embeddings
+    }
+    
+    private static bool IsValidGitHubToken(string? token)
+    {
+        return !string.IsNullOrWhiteSpace(token) && 
+               (token.StartsWith("gho_") || token.StartsWith("ghp_") || token.StartsWith("github_pat_")) &&
+               token.Length > 20;
+    }
+    
+    private float searchThreshold = 0.03f; // Will be updated in OnInitialized
+    private int searchLimit = 10;
+    private List<SearchResult> searchResults = new();
+    private bool isSearching = false;
+    private bool hasSearched = false;
+    private string lastError = "";
+    
+    // Diagnostic variables
+    private bool isDiagnosing = false;
+    private bool isBrowsingDocs = false;
+    private string diagnosticResult = "";
+    private string documentBrowseResult = "";
+    private string httpClientBaseUrl = "";
+    private string vectorStats = "Not checked";
+    private bool isCheckingStats = false;
+    private bool isIngestingDemo = false;
+    private bool isTestingApi = false;
+    private bool isClearingDb = false;
+    private bool isFixingEmbeddings = false;
+    private string fixingStatus = "";
+    private string rawApiResponse = "";
+    private bool showNotification = false;
+    private string notificationMessage = "";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Logger.LogInformation("=== VECTOR SEARCH INITIALIZATION ===");
+            Logger.LogInformation("First render - initializing configuration service...");
+            
+            // Capture HTTP client info for debugging
+            var httpClient = HttpClientFactory.CreateClient("DirectApiClient");
+            httpClientBaseUrl = httpClient.BaseAddress?.ToString() ?? "No BaseAddress";
+            Logger.LogInformation("HTTP Client Base URL: {BaseUrl}", httpClientBaseUrl);
+            
+            await ConfigService.InitializeAsync();
+            
+            // Set dynamic threshold based on embedding type
+            searchThreshold = GetDefaultThreshold();
+            
+            // Subscribe to configuration changes to update threshold
+            ConfigService.ConfigurationChanged += OnConfigurationChanged;
+            
+            Logger.LogInformation("Configuration initialized - IsConfigured: {IsConfigured}", ConfigService.IsConfigured);
+            Logger.LogInformation("Search defaults - Threshold: {Threshold}, Limit: {Limit}", 
+                searchThreshold, searchLimit);
+            
+            StateHasChanged();
+            Logger.LogInformation("=== INITIALIZATION COMPLETE ===");
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        ConfigService.ConfigurationChanged += OnConfigurationChanged;
+    }
+
+    private void OnConfigurationChanged(object? sender, bool isConfigured)
+    {
+        Logger.LogInformation("Configuration changed - IsConfigured: {IsConfigured}, HasToken: {HasToken}", 
+            isConfigured, !string.IsNullOrEmpty(ConfigService.GetGitHubToken()));
+        
+        // Update threshold based on new configuration
+        var newThreshold = GetDefaultThreshold();
+        if (Math.Abs(searchThreshold - newThreshold) > 0.001f) // Only update if significantly different
+        {
+            searchThreshold = newThreshold;
+            Logger.LogInformation("Updated search threshold to {Threshold} based on configuration change", searchThreshold);
+        }
+        
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ConfigService.ConfigurationChanged -= OnConfigurationChanged;
+    }
+
+    private async Task PerformSearch()
+    {
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            Logger.LogWarning("Search attempted with empty query");
+            return;
+        }
+
+        var searchId = Guid.NewGuid().ToString("N")[..8]; // Short ID for correlation
+        using var activity = ActivitySource.StartActivity("VectorSearch.PerformSearch");
+        activity?.SetTag("search.id", searchId);
+        activity?.SetTag("search.query", searchQuery);
+        activity?.SetTag("search.threshold", searchThreshold);
+        activity?.SetTag("search.limit", searchLimit);
+
+        Logger.LogInformation("=== SEARCH START [{SearchId}] ===", searchId);
+        Logger.LogInformation("[{SearchId}] Search initiated - Query: '{Query}', Threshold: {Threshold}, Limit: {Limit}", 
+            searchId, searchQuery, searchThreshold, searchLimit);
+
+        isSearching = true;
+        hasSearched = true;
+        lastError = ""; // Clear previous errors
+        searchResults.Clear();
+        StateHasChanged();
+
+        Logger.LogInformation("[{SearchId}] UI state updated - IsSearching: true, Results cleared", searchId);
+
+        try
+        {
+            // Log configuration state
+            var githubToken = ConfigService.GetGitHubToken();
+            var hasToken = !string.IsNullOrEmpty(githubToken);
+            Logger.LogInformation("[{SearchId}] Configuration - HasToken: {HasToken}, TokenLength: {TokenLength}, IsConfigured: {IsConfigured}", 
+                searchId, hasToken, githubToken?.Length ?? 0, ConfigService.IsConfigured);
+            
+            activity?.SetTag("config.has_token", hasToken);
+            activity?.SetTag("config.is_configured", ConfigService.IsConfigured);
+            
+            // Call API with detailed logging
+            Logger.LogInformation("[{SearchId}] Calling ApiService.SearchAsync...", searchId);
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            
+            var apiResults = await ApiService.SearchAsync(searchQuery, githubToken, searchThreshold, searchLimit);
+            
+            stopwatch.Stop();
+            Logger.LogInformation("[{SearchId}] API Response received - Duration: {Duration}ms, ResultCount: {ResultCount}", 
+                searchId, stopwatch.ElapsedMilliseconds, apiResults?.Length ?? 0);
+            
+            activity?.SetTag("api.duration_ms", stopwatch.ElapsedMilliseconds);
+            activity?.SetTag("api.result_count", apiResults?.Length ?? 0);
+            
+            if (apiResults == null)
+            {
+                Logger.LogWarning("[{SearchId}] API returned null results", searchId);
+                lastError = "API returned null results";
+                activity?.SetTag("error", "api_null_results");
+                return;
+            }
+            
+            // Log detailed API results for debugging
+            Logger.LogInformation("[{SearchId}] Processing {Count} API results...", searchId, apiResults.Length);
+            for (int i = 0; i < Math.Min(apiResults.Length, 3); i++) // Log first 3
+            {
+                var result = apiResults[i];
+                Logger.LogInformation("[{SearchId}] API Result {Index}: Title='{Title}', Similarity={Similarity:F3}, Link='{Link}'", 
+                    searchId, i, result.Title, result.Similarity, result.Link);
+            }
+            
+            if (apiResults.Length > 3)
+            {
+                Logger.LogInformation("[{SearchId}] ... and {More} more results", searchId, apiResults.Length - 3);
+            }
+            
+            // Convert API results to UI models with detailed logging
+            Logger.LogInformation("[{SearchId}] Converting API results to UI models...", searchId);
+            var convertedResults = new List<SearchResult>();
+            var conversionStopwatch = System.Diagnostics.Stopwatch.StartNew();
+            
+            foreach (var apiResult in apiResults)
+            {
+                try
+                {
+                    var uiResult = new SearchResult
+                    {
+                        Document = new DocumentRecord
+                        {
+                            Id = apiResult.Title.GetHashCode().ToString(),
+                            Title = apiResult.Title,
+                            Description = apiResult.Description,
+                            Url = apiResult.Link,
+                            Site = "RSS Feed",
+                            SourceType = "RSS",
+                            IngestedAt = apiResult.PublishedDate
+                        },
+                        SimilarityScore = (float)apiResult.Similarity
+                    };
+                    
+                    convertedResults.Add(uiResult);
+                }
+                catch (Exception convertEx)
+                {
+                    Logger.LogError(convertEx, "[{SearchId}] Error converting API result: {ApiResult}", searchId, apiResult);
+                    activity?.SetTag("conversion.error", convertEx.Message);
+                }
+            }
+            
+            conversionStopwatch.Stop();
+            Logger.LogInformation("[{SearchId}] Conversion completed - Duration: {Duration}ms, Final count: {Count}", 
+                searchId, conversionStopwatch.ElapsedMilliseconds, convertedResults.Count);
+            
+            searchResults = convertedResults;
+            
+            // Log final state with performance metrics
+            Logger.LogInformation("[{SearchId}] Search completed successfully - Total duration: {TotalDuration}ms, UI results: {Count}", 
+                searchId, stopwatch.ElapsedMilliseconds + conversionStopwatch.ElapsedMilliseconds, searchResults.Count);
+                
+            activity?.SetTag("search.success", true);
+            activity?.SetTag("search.total_duration_ms", stopwatch.ElapsedMilliseconds + conversionStopwatch.ElapsedMilliseconds);
+            
+            Logger.LogInformation("=== SEARCH END [{SearchId}] ===", searchId);
+        }
+        catch (Exception ex)
+        {
+            lastError = $"{ex.GetType().Name}: {ex.Message}";
+            Logger.LogError(ex, "=== SEARCH ERROR [{SearchId}] === Query: '{Query}', Error: {Message}", searchId, searchQuery, ex.Message);
+            
+            activity?.SetTag("search.success", false);
+            activity?.SetTag("error.type", ex.GetType().Name);
+            activity?.SetTag("error.message", ex.Message);
+            activity?.SetTag("error.stack_trace", ex.StackTrace);
+            
+            // Don't use alert anymore - error is shown in debug info
+        }
+        finally
+        {
+            isSearching = false;
+            Logger.LogInformation("[{SearchId}] Search state reset - IsSearching: {IsSearching}, Final results: {Count}", 
+                searchId, isSearching, searchResults.Count);
+            StateHasChanged();
+        }
+    }
+
+    private void SetQuery(string query)
+    {
+        searchQuery = query;
+        StateHasChanged();
+    }
+
+    private async Task OnKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(searchQuery))
+        {
+            await PerformSearch();
+        }
+    }
+
+    private async Task GetVectorStats()
+    {
+        isCheckingStats = true;
+        StateHasChanged();
+        
+        try
+        {
+            var httpClient = HttpClientFactory.CreateClient("DirectApiClient");
+            var response = await httpClient.GetAsync("/vector/stats");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                vectorStats = content;
+                Logger.LogInformation("Vector stats retrieved: {Stats}", content);
+            }
+            else
+            {
+                vectorStats = $"Error: {response.StatusCode}";
+                Logger.LogWarning("Failed to get vector stats: {StatusCode}", response.StatusCode);
+            }
+        }
+        catch (Exception ex)
+        {
+            vectorStats = $"Exception: {ex.Message}";
+            Logger.LogError(ex, "Error getting vector stats");
+        }
+        finally
+        {
+            isCheckingStats = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task IngestDemoData()
+    {
+        isIngestingDemo = true;
+        StateHasChanged();
+        
+        try
+        {
+            var httpClient = HttpClientFactory.CreateClient("DirectApiClient");
+            var response = await httpClient.PostAsync("/rss/ingest-demo", null);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                Logger.LogInformation("Demo data ingested: {Response}", content);
+                
+                // Refresh stats after ingestion
+                await GetVectorStats();
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Logger.LogWarning("Failed to ingest demo data: {StatusCode} - {Error}", response.StatusCode, error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error ingesting demo data");
+        }
+        finally
+        {
+            isIngestingDemo = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task TestRawApiCall()
+    {
+        isTestingApi = true;
+        rawApiResponse = "";
+        StateHasChanged();
+        
+        try
+        {
+            var httpClient = HttpClientFactory.CreateClient("DirectApiClient");
+            var githubToken = ConfigService.GetGitHubToken();
+            
+            // Use "dotnet" as a known good search term that should match tech content
+            var testQuery = "dotnet";
+            var url = $"/api/search?query={Uri.EscapeDataString(testQuery)}&threshold={GetDefaultThreshold():F2}&limit=5";
+            
+            Logger.LogInformation("Testing raw API call with known good query: '{TestQuery}' to: {Url}", testQuery, url);
+            
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            if (!string.IsNullOrEmpty(githubToken))
+            {
+                request.Headers.Add("X-GitHub-Token", githubToken);
+                Logger.LogInformation("Added GitHub token header for test API call");
+            }
+            else
+            {
+                Logger.LogWarning("No GitHub token available for test API call");
+            }
+            
+            var response = await httpClient.SendAsync(request);
+            var content = await response.Content.ReadAsStringAsync();
+            
+            rawApiResponse = $"Test Query: '{testQuery}'\nStatus: {response.StatusCode}\nContent: {content}";
+            if (!string.IsNullOrEmpty(content) && content != "[]")
+            {
+                rawApiResponse += "\n✅ SUCCESS: Found results with test query!";
+            }
+            else
+            {
+                rawApiResponse += "\n❌ PROBLEM: No results for 'dotnet' - embedding mismatch likely";
+            }
+            
+            Logger.LogInformation("Raw API Test - Query: {Query}, Status: {Status}, Content Length: {Length}", 
+                testQuery, response.StatusCode, content.Length);
+        }
+        catch (Exception ex)
+        {
+            rawApiResponse = $"Exception: {ex.Message}";
+            Logger.LogError(ex, "Error in raw API test");
+        }
+        finally
+        {
+            isTestingApi = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ClearDatabase()
+    {
+        isClearingDb = true;
+        StateHasChanged();
+        
+        try
+        {
+            var httpClient = HttpClientFactory.CreateClient("DirectApiClient");
+            var response = await httpClient.DeleteAsync("/vector/clear");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                Logger.LogInformation("Database cleared: {Response}", content);
+                
+                // Refresh stats after clearing
+                await GetVectorStats();
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Logger.LogWarning("Failed to clear database: {StatusCode} - {Error}", response.StatusCode, error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error clearing database");
+        }
+        finally
+        {
+            isClearingDb = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task IngestDemoDataWithToken()
+    {
+        isIngestingDemo = true;
+        StateHasChanged();
+        
+        try
+        {
+            var httpClient = HttpClientFactory.CreateClient("DirectApiClient");
+            var githubToken = ConfigService.GetGitHubToken();
+            
+            if (string.IsNullOrEmpty(githubToken))
+            {
+                Logger.LogWarning("No GitHub token available for ingestion. Results may not be searchable.");
+                // Still proceed but warn user
+            }
+            
+            Logger.LogInformation("Starting demo data ingestion with GitHub token: {HasToken}", !string.IsNullOrEmpty(githubToken));
+            
+            // Use the RSS ingestion with token passed via header
+            var request = new HttpRequestMessage(HttpMethod.Post, "/rss/ingest-demo");
+            if (!string.IsNullOrEmpty(githubToken))
+            {
+                request.Headers.Add("X-GitHub-Token", githubToken);
+                Logger.LogInformation("Adding GitHub token to ingestion request");
+            }
+            
+            var response = await httpClient.SendAsync(request);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                Logger.LogInformation("Demo data ingested with token - Response: {Response}", content);
+                
+                // Refresh stats after ingestion
+                await GetVectorStats();
+                
+                // Show success notification
+                if (content.Contains("ingested"))
+                {
+                    notificationMessage = $"✅ Successfully re-ingested demo data with GitHub token! {content}";
+                    showNotification = true;
+                }
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Logger.LogWarning("Failed to ingest demo data with token: {StatusCode} - {Error}", response.StatusCode, error);
+                notificationMessage = $"❌ Failed to ingest: {response.StatusCode} - {error}";
+                showNotification = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error ingesting demo data with token");
+            notificationMessage = $"❌ Error during ingestion: {ex.Message}";
+            showNotification = true;
+        }
+        finally
+        {
+            isIngestingDemo = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task FixEmbeddingMismatch()
+    {
+        isFixingEmbeddings = true;
+        fixingStatus = "Starting embedding mismatch fix...";
+        StateHasChanged();
+        
+        try
+        {
+            var githubToken = ConfigService.GetGitHubToken();
+            if (string.IsNullOrEmpty(githubToken))
+            {
+                fixingStatus = "❌ No GitHub token found. Please configure your token first.";
+                notificationMessage = "❌ GitHub token required for embedding consistency fix.";
+                showNotification = true;
+                return;
+            }
+            
+            // Step 1: Clear database
+            fixingStatus = "🗑️ Step 1/3: Clearing database...";
+            StateHasChanged();
+            await Task.Delay(500); // Brief pause for UI feedback
+            
+            var httpClient = HttpClientFactory.CreateClient("DirectApiClient");
+            var clearResponse = await httpClient.DeleteAsync("/vector/clear");
+            if (!clearResponse.IsSuccessStatusCode)
+            {
+                throw new Exception($"Failed to clear database: {clearResponse.StatusCode}");
+            }
+            
+            // Step 2: Re-ingest with GitHub token
+            fixingStatus = "📥 Step 2/3: Re-ingesting data with GitHub token...";
+            StateHasChanged();
+            await Task.Delay(500);
+            
+            var ingestRequest = new HttpRequestMessage(HttpMethod.Post, "/rss/ingest-demo");
+            ingestRequest.Headers.Add("X-GitHub-Token", githubToken);
+            
+            var ingestResponse = await httpClient.SendAsync(ingestRequest);
+            if (!ingestResponse.IsSuccessStatusCode)
+            {
+                var error = await ingestResponse.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to re-ingest: {ingestResponse.StatusCode} - {error}");
+            }
+            
+            var ingestContent = await ingestResponse.Content.ReadAsStringAsync();
+            Logger.LogInformation("Re-ingestion completed: {Response}", ingestContent);
+            
+            // Step 3: Test search
+            fixingStatus = "🔍 Step 3/3: Testing search with 'dotnet'...";
+            StateHasChanged();
+            await Task.Delay(500);
+            
+            var testRequest = new HttpRequestMessage(HttpMethod.Get, "/api/search?query=dotnet&threshold=0.1&limit=5");
+            testRequest.Headers.Add("X-GitHub-Token", githubToken);
+            
+            var testResponse = await httpClient.SendAsync(testRequest);
+            var testContent = await testResponse.Content.ReadAsStringAsync();
+            
+            if (testResponse.IsSuccessStatusCode && !string.IsNullOrEmpty(testContent) && testContent != "[]")
+            {
+                fixingStatus = "✅ SUCCESS! Embedding mismatch fixed - search now returns results!";
+                notificationMessage = "✅ Embedding mismatch fixed! Search functionality restored.";
+                
+                // Refresh stats
+                await GetVectorStats();
+                
+                // Update raw API response for debugging
+                rawApiResponse = $"✅ Fix Test - Query: 'dotnet'\nStatus: {testResponse.StatusCode}\nContent: {testContent}";
+            }
+            else
+            {
+                fixingStatus = "❌ Search still returns no results. There may be another issue.";
+                notificationMessage = "⚠️ Fix attempted but search still not working. Check logs for details.";
+                rawApiResponse = $"❌ Fix Test Failed - Query: 'dotnet'\nStatus: {testResponse.StatusCode}\nContent: {testContent}";
+            }
+            
+            showNotification = true;
+        }
+        catch (Exception ex)
+        {
+            fixingStatus = $"❌ Error during fix: {ex.Message}";
+            notificationMessage = $"❌ Error fixing embedding mismatch: {ex.Message}";
+            showNotification = true;
+            Logger.LogError(ex, "Error during embedding mismatch fix");
+        }
+        finally
+        {
+            isFixingEmbeddings = false;
+            StateHasChanged();
+        }
+    }
+
+    private string GetScoreColor(float score)
+    {
+        return score switch
+        {
+            >= 0.8f => "#28a745", // Green
+            >= 0.6f => "#ffc107", // Yellow
+            >= 0.4f => "#fd7e14", // Orange
+            _ => "#dc3545"         // Red
+        };
+    }
+
+    private string GetStrokeDashArray(float score)
+    {
+        var circumference = 2 * Math.PI * 25; // radius = 25
+        var dashLength = circumference * score;
+        return $"{dashLength} {circumference}";
+    }
+
+    private List<SearchResult> CreateMockResults()
+    {
+        // This is mock data - in a real app, this would come from the API
+        return new List<SearchResult>
+        {
+            new()
+            {
+                Document = new DocumentRecord
+                {
+                    Id = "1",
+                    Title = "Getting Started with Machine Learning in .NET",
+                    Description = "Learn how to build machine learning models using ML.NET framework with practical examples and best practices.",
+                    Url = "https://devblogs.microsoft.com/dotnet/ml-net-getting-started",
+                    Site = ".NET Blog",
+                    SourceType = "RSS",
+                    IngestedAt = DateTimeOffset.Now.AddHours(-2)
+                },
+                SimilarityScore = 0.92f
+            },
+            new()
+            {
+                Document = new DocumentRecord
+                {
+                    Id = "2",
+                    Title = "Azure AI Services Overview",
+                    Description = "Comprehensive guide to Azure's artificial intelligence services and how to integrate them into your applications.",
+                    Url = "https://devblogs.microsoft.com/azure-ai/services-overview",
+                    Site = "Azure AI Blog",
+                    SourceType = "RSS",
+                    IngestedAt = DateTimeOffset.Now.AddHours(-5)
+                },
+                SimilarityScore = 0.85f
+            }
+        };
+    }
+
+    private async Task DiagnoseEmbedding()
+    {
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            diagnosticResult = "Please enter a search query first.";
+            return;
+        }
+
+        isDiagnosing = true;
+        diagnosticResult = "";
+        StateHasChanged();
+
+        try
+        {
+            using var httpClient = HttpClientFactory.CreateClient("DirectApiClient");
+            var requestUrl = $"/api/embedding-test?text={Uri.EscapeDataString(searchQuery)}";
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+
+            var githubToken = ConfigService.GetGitHubToken();
+            if (!string.IsNullOrEmpty(githubToken))
+            {
+                request.Headers.Add("X-GitHub-Token", githubToken);
+            }
+
+            var response = await httpClient.SendAsync(request);
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Pretty format the JSON
+                var jsonDoc = System.Text.Json.JsonDocument.Parse(content);
+                diagnosticResult = System.Text.Json.JsonSerializer.Serialize(jsonDoc, new System.Text.Json.JsonSerializerOptions 
+                { 
+                    WriteIndented = true 
+                });
+            }
+            else
+            {
+                diagnosticResult = $"Error: {response.StatusCode}\n{content}";
+            }
+        }
+        catch (Exception ex)
+        {
+            diagnosticResult = $"Exception: {ex.Message}";
+            Logger.LogError(ex, "Error in embedding diagnostic");
+        }
+        finally
+        {
+            isDiagnosing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task DiagnoseSearch()
+    {
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            diagnosticResult = "Please enter a search query first.";
+            return;
+        }
+
+        isDiagnosing = true;
+        diagnosticResult = "";
+        StateHasChanged();
+
+        try
+        {
+            using var httpClient = HttpClientFactory.CreateClient("DirectApiClient");
+            var requestUrl = $"/api/diagnostics/search?query={Uri.EscapeDataString(searchQuery)}&limit=10";
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+
+            var githubToken = ConfigService.GetGitHubToken();
+            if (!string.IsNullOrEmpty(githubToken))
+            {
+                request.Headers.Add("X-GitHub-Token", githubToken);
+            }
+
+            var response = await httpClient.SendAsync(request);
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Pretty format the JSON
+                var jsonDoc = System.Text.Json.JsonDocument.Parse(content);
+                diagnosticResult = System.Text.Json.JsonSerializer.Serialize(jsonDoc, new System.Text.Json.JsonSerializerOptions 
+                { 
+                    WriteIndented = true 
+                });
+            }
+            else
+            {
+                diagnosticResult = $"Error: {response.StatusCode}\n{content}";
+            }
+        }
+        catch (Exception ex)
+        {
+            diagnosticResult = $"Exception: {ex.Message}";
+            Logger.LogError(ex, "Error in search diagnostic");
+        }
+        finally
+        {
+            isDiagnosing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task BrowseDocuments()
+    {
+        isBrowsingDocs = true;
+        documentBrowseResult = "";
+        StateHasChanged();
+
+        try
+        {
+            using var httpClient = HttpClientFactory.CreateClient("ApiClient");
+            
+            // First browse all documents
+            var allDocsResponse = await httpClient.GetAsync("/api/documents?limit=50");
+            if (allDocsResponse.IsSuccessStatusCode)
+            {
+                var allDocsContent = await allDocsResponse.Content.ReadAsStringAsync();
+                documentBrowseResult += "=== ALL DOCUMENTS ===\n" + allDocsContent + "\n\n";
+            }
+
+            // Then search for documents containing "multimodal"
+            var multimodalResponse = await httpClient.GetAsync("/api/documents?search=multimodal&limit=10");
+            if (multimodalResponse.IsSuccessStatusCode)
+            {
+                var multimodalContent = await multimodalResponse.Content.ReadAsStringAsync();
+                documentBrowseResult += "=== DOCUMENTS CONTAINING 'MULTIMODAL' ===\n" + multimodalContent + "\n\n";
+            }
+
+            Logger.LogInformation("Document browsing completed successfully");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to browse documents");
+            documentBrowseResult = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isBrowsingDocs = false;
+            StateHasChanged();
+        }
+    }
+}

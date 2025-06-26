@@ -1,0 +1,80 @@
+@page "/configuration"
+@using NLWebNet.Frontend.Components
+@using NLWebNet.Frontend.Services
+
+<PageTitle>Configuration - NLWebNet</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">
+                <i class="fas fa-cog me-2"></i>Configuration
+            </h1>
+            
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="mb-4">
+                        <GitHubTokenInput />
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>About Semantic Search
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-3">
+                                This application uses semantic vector search to find relevant content based on meaning, 
+                                not just keyword matching. When configured with GitHub Models, the search results will be 
+                                much more accurate and contextually relevant.
+                            </p>
+                            
+                            <h6>Search Modes:</h6>
+                            <ul class="mb-3">
+                                <li><strong>GitHub Models (Recommended):</strong> Uses AI embeddings from GitHub's models for high-quality semantic search</li>
+                                <li><strong>Simple Fallback:</strong> Uses basic hash-based embeddings for demo purposes when no token is configured</li>
+                            </ul>
+                            
+                            <div class="alert alert-info" role="alert">
+                                <i class="fas fa-lightbulb me-2"></i>
+                                <strong>Tip:</strong> Try searching for concepts like "machine learning" or "web development" 
+                                to see the difference between semantic and keyword-based search results.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-question-circle me-2"></i>Need Help?
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="small text-muted mb-3">
+                                If you're having trouble with configuration or search results, 
+                                check out these resources:
+                            </p>
+                            
+                            <div class="d-grid gap-2">
+                                <a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token" 
+                                   target="_blank" 
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="fab fa-github me-1"></i>GitHub Token Guide
+                                </a>
+                                
+                                <a href="https://github.com/marketplace/models" 
+                                   target="_blank" 
+                                   class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-robot me-1"></i>GitHub Models
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

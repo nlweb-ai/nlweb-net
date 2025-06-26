@@ -1,0 +1,255 @@
+@page "/statistics"
+@using NLWebNet.Frontend.Models
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Statistics - NLWebNet Vector Demo</PageTitle>
+
+<div class="container">
+    <h1><i class="bi bi-bar-chart-fill text-success me-2"></i>System Statistics</h1>
+    <p class="lead">Monitor the performance and status of your vector database and RSS ingestion system.</p>
+
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <i class="bi bi-file-text display-4 text-primary"></i>
+                    <h3 class="mt-2">@(stats?.DocumentCount ?? 0)</h3>
+                    <p class="text-muted mb-0">Total Documents</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="bi bi-clock display-4 text-success"></i>
+                    <h3 class="mt-2">@(stats != null ? stats.Timestamp.ToString("HH:mm") : "--:--")</h3>
+                    <p class="text-muted mb-0">Last Updated</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <i class="bi bi-database display-4 text-info"></i>
+                    <h3 class="mt-2">Qdrant</h3>
+                    <p class="text-muted mb-0">Vector Database</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="bi bi-activity display-4 text-warning"></i>
+                    <h3 class="mt-2">@(connectionStatus ? "Online" : "Offline")</h3>
+                    <p class="text-muted mb-0">API Status</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-graph-up me-2"></i>System Health</h5>
+                </div>
+                <div class="card-body">
+                    @if (connectionStatus)
+                    {
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="health-metric">
+                                    <h6>Vector Database</h6>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar bg-success" style="width: 100%"></div>
+                                    </div>
+                                    <small class="text-success">✓ Connected and operational</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="health-metric">
+                                    <h6>RSS Ingestion Service</h6>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar bg-success" style="width: 100%"></div>
+                                    </div>
+                                    <small class="text-success">✓ Ready for ingestion</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="health-metric">
+                                    <h6>API Endpoints</h6>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar bg-success" style="width: 100%"></div>
+                                    </div>
+                                    <small class="text-success">✓ All endpoints responsive</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="health-metric">
+                                    <h6>Frontend Connection</h6>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar bg-success" style="width: 100%"></div>
+                                    </div>
+                                    <small class="text-success">✓ Connected to backend</small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Unable to connect to the backend API. Please check that the AspireHost is running.
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5><i class="bi bi-list-ul me-2"></i>Available Endpoints</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>Endpoint</th>
+                                    <th>Description</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge bg-primary">POST</span></td>
+                                    <td><code>/rss/ingest</code></td>
+                                    <td>Ingest a custom RSS feed</td>
+                                    <td><i class="bi bi-check-circle text-success"></i></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-primary">POST</span></td>
+                                    <td><code>/rss/ingest-demo</code></td>
+                                    <td>Ingest demo RSS feeds</td>
+                                    <td><i class="bi bi-check-circle text-success"></i></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-info">GET</span></td>
+                                    <td><code>/vector/stats</code></td>
+                                    <td>Get vector database statistics</td>
+                                    <td><i class="bi bi-check-circle text-success"></i></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-danger">DELETE</span></td>
+                                    <td><code>/vector/clear</code></td>
+                                    <td>Clear all documents</td>
+                                    <td><i class="bi bi-check-circle text-success"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-gear me-2"></i>System Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" @onclick="RefreshStats" disabled="@isLoading">
+                            @if (isLoading)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            }
+                            <i class="bi bi-arrow-clockwise me-2"></i>Refresh Stats
+                        </button>
+                        <a href="/rss-ingestion" class="btn btn-outline-success">
+                            <i class="bi bi-rss me-2"></i>Ingest More Data
+                        </a>
+                        <a href="/vector-search" class="btn btn-outline-info">
+                            <i class="bi bi-search me-2"></i>Test Search
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5><i class="bi bi-info-circle me-2"></i>System Info</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-6">Framework:</dt>
+                        <dd class="col-sm-6">.NET 9</dd>
+                        
+                        <dt class="col-sm-6">Vector DB:</dt>
+                        <dd class="col-sm-6">Qdrant</dd>
+                        
+                        <dt class="col-sm-6">Frontend:</dt>
+                        <dd class="col-sm-6">Blazor Server</dd>
+                        
+                        <dt class="col-sm-6">Orchestration:</dt>
+                        <dd class="col-sm-6">.NET Aspire</dd>
+                        
+                        <dt class="col-sm-6">AI Framework:</dt>
+                        <dd class="col-sm-6">Microsoft.Extensions.AI</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .health-metric {
+        margin-bottom: 1rem;
+    }
+    
+    .card {
+        transition: box-shadow 0.2s ease-in-out;
+    }
+    
+    .card:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+@code {
+    private VectorStats? stats;
+    private bool connectionStatus = false;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshStats();
+    }
+
+    private async Task RefreshStats()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            stats = await Http.GetFromJsonAsync<VectorStats>("/vector/stats");
+            connectionStatus = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading stats: {ex.Message}");
+            connectionStatus = false;
+            stats = null;
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}

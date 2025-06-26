@@ -1,0 +1,39 @@
+@namespace NLWebNet.Frontend.Components.Layout
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">NLWebNet Vector Demo</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="rss-ingestion">
+                <span class="bi bi-rss-fill" aria-hidden="true"></span> RSS Ingestion
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="vector-search">
+                <span class="bi bi-search" aria-hidden="true"></span> Vector Search
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="statistics">
+                <span class="bi bi-bar-chart-fill" aria-hidden="true"></span> Statistics
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="configuration">
+                <span class="bi bi-gear-fill" aria-hidden="true"></span> Configuration
+            </NavLink>
+        </div>
+    </nav>
+</div>
