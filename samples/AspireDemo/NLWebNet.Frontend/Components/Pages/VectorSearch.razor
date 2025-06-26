@@ -813,7 +813,7 @@
             await Task.Delay(500); // Brief pause for UI feedback
             
             var httpClient = HttpClientFactory.CreateClient("DirectApiClient");
-            var clearResponse = await httpClient.DeleteAsync("/api/clear");
+            var clearResponse = await httpClient.DeleteAsync("/vector/clear");
             if (!clearResponse.IsSuccessStatusCode)
             {
                 throw new Exception($"Failed to clear database: {clearResponse.StatusCode}");
