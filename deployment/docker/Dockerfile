@@ -14,7 +14,6 @@ ENV NUGET_XMLDOC_MODE=skip
 COPY ["NLWebNet.sln", "./"]
 COPY ["src/NLWebNet/NLWebNet.csproj", "src/NLWebNet/"]
 COPY ["samples/Demo/NLWebNet.Demo.csproj", "samples/Demo/"]
-COPY ["samples/AspireHost/NLWebNet.AspireHost.csproj", "samples/AspireHost/"]
 COPY ["tests/NLWebNet.Tests/NLWebNet.Tests.csproj", "tests/NLWebNet.Tests/"]
 
 # Restore dependencies
