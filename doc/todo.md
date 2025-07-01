@@ -614,6 +614,25 @@ Enhanced the demo application to provide seamless GitHub Models integration for 
 2. **Data Schema**: `schema_object` field format depends on specific backend implementation needs
 3. **Production Data Sources**: Integration with real search engines, databases, or knowledge bases
 
+## NLWeb June 2025 Release Impact
+
+📋 **Comprehensive Analysis Available**: [NLWeb June 2025 Analysis](nlweb-june-2025-analysis.md)
+
+Based on the NLWeb June 2025 release, there are both required updates for compatibility and new opportunities for enhancement. See the full analysis document for detailed technical specifications and implementation recommendations.
+
+### Required Updates for Compatibility
+- **Multi-Backend Retrieval Architecture** - Critical architectural changes needed
+- **Tool Selection Framework Integration** - New protocol requirement
+- **Configuration Format Updates** - Breaking configuration changes
+
+### New Enhancement Opportunities  
+- **Advanced Tool System Implementation** - Search, Details, Compare, Ensemble tools
+- **Enhanced Debug and Development Experience** - Real-time visualization and metrics
+- **Configurable Response Headers** - License, retention, and metadata headers
+- **Advanced Backend Support** - Qdrant, Milvus, OpenSearch, Snowflake
+- **Comprehensive Testing Framework** - End-to-end and performance testing
+- **Streaming and Performance Enhancements** - Multi-stage streaming and optimization
+
 ## Future Enhancements
 
 While the current implementation is complete and production-ready, potential future enhancements could include:
