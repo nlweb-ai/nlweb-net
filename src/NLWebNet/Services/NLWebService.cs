@@ -12,10 +12,14 @@ public class NLWebService : INLWebService
 {
     private readonly IQueryProcessor _queryProcessor;
     private readonly IResultGenerator _resultGenerator;
-    private readonly IDataBackend _dataBackend;
+    private readonly IDataBackend? _dataBackend;
+    private readonly IBackendManager? _backendManager;
     private readonly ILogger<NLWebService> _logger;
     private readonly NLWebOptions _options;
 
+    /// <summary>
+    /// Constructor for single-backend mode (backward compatibility).
+    /// </summary>
     public NLWebService(
         IQueryProcessor queryProcessor,
         IResultGenerator resultGenerator,
@@ -26,6 +30,23 @@ public class NLWebService : INLWebService
         _queryProcessor = queryProcessor ?? throw new ArgumentNullException(nameof(queryProcessor));
         _resultGenerator = resultGenerator ?? throw new ArgumentNullException(nameof(resultGenerator));
         _dataBackend = dataBackend ?? throw new ArgumentNullException(nameof(dataBackend));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+    }
+
+    /// <summary>
+    /// Constructor for multi-backend mode.
+    /// </summary>
+    public NLWebService(
+        IQueryProcessor queryProcessor,
+        IResultGenerator resultGenerator,
+        IBackendManager backendManager,
+        ILogger<NLWebService> logger,
+        IOptions<NLWebOptions> options)
+    {
+        _queryProcessor = queryProcessor ?? throw new ArgumentNullException(nameof(queryProcessor));
+        _resultGenerator = resultGenerator ?? throw new ArgumentNullException(nameof(resultGenerator));
+        _backendManager = backendManager ?? throw new ArgumentNullException(nameof(backendManager));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
