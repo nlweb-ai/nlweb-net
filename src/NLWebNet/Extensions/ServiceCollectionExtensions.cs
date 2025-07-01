@@ -128,7 +128,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<INLWebService>(provider =>
         {
             var options = provider.GetRequiredService<IOptions<NLWebOptions>>();
-            if (options.Value.MultiBackend.Enabled)
+            var multiBackendOptions = provider.GetRequiredService<IOptions<MultiBackendOptions>>();
+            if (multiBackendOptions.Value.Enabled)
             {
                 // Use multi-backend constructor
                 return new NLWebService(
@@ -154,7 +155,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IResultGenerator>(provider =>
         {
             var options = provider.GetRequiredService<IOptions<NLWebOptions>>();
-            if (options.Value.MultiBackend.Enabled)
+            var multiBackendOptions = provider.GetRequiredService<IOptions<MultiBackendOptions>>();
+            if (multiBackendOptions.Value.Enabled)
             {
                 // Use multi-backend constructor
                 return new ResultGenerator(
