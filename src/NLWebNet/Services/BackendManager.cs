@@ -30,12 +30,27 @@ public class BackendManager : IBackendManager
         // based on the configuration
         _backendsByName = new Dictionary<string, IDataBackend>();
 
-        // For now, assign backends simple numeric names since we don't have
-        // the backend factory implementation yet
+        // Assign backends names based on configured endpoints if available,
+        // otherwise fall back to generic names for backward compatibility
         var backendArray = _backends.ToArray();
-        for (int i = 0; i < backendArray.Length; i++)
+        var configuredEndpoints = _options.Endpoints?.Where(e => e.Value.Enabled).ToList() ?? new List<KeyValuePair<string, BackendEndpointOptions>>();
+        
+        if (configuredEndpoints.Count > 0 && configuredEndpoints.Count == backendArray.Length)
         {
-            _backendsByName[$"backend_{i}"] = backendArray[i];
+            // Use configured endpoint identifiers
+            for (int i = 0; i < backendArray.Length; i++)
+            {
+                var endpointName = configuredEndpoints[i].Key;
+                _backendsByName[endpointName] = backendArray[i];
+            }
+        }
+        else
+        {
+            // Fall back to generic names for backward compatibility
+            for (int i = 0; i < backendArray.Length; i++)
+            {
+                _backendsByName[$"backend_{i}"] = backendArray[i];
+            }
         }
 
         // Set write backend - for now use the first backend if writeEndpoint is configured

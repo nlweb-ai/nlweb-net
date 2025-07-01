@@ -185,4 +185,67 @@ public class BackendManagerTests
         Assert.IsNotNull(results);
         Assert.IsTrue(results.Any(), "Should return results even with sequential querying");
     }
+
+    [TestMethod]
+    public void GetBackendInfo_UsesConfiguredEndpointNames_WhenEndpointsProvided()
+    {
+        // Arrange
+        var optionsWithEndpoints = new MultiBackendOptions
+        {
+            Enabled = true,
+            EnableParallelQuerying = true,
+            EnableResultDeduplication = true,
+            MaxConcurrentQueries = 5,
+            BackendTimeoutSeconds = 30,
+            WriteEndpoint = "primary_backend",
+            Endpoints = new Dictionary<string, BackendEndpointOptions>
+            {
+                ["primary_backend"] = new() { Enabled = true, BackendType = "mock", Priority = 10 },
+                ["secondary_backend"] = new() { Enabled = true, BackendType = "mock", Priority = 5 }
+            }
+        };
+
+        var backends = new[] { _backend1, _backend2 };
+        var optionsWrapper = Options.Create(optionsWithEndpoints);
+        var manager = new BackendManager(backends, optionsWrapper, _logger);
+
+        // Act
+        var backendInfo = manager.GetBackendInfo();
+
+        // Assert
+        Assert.IsNotNull(backendInfo);
+        var infoList = backendInfo.ToList();
+        Assert.AreEqual(2, infoList.Count, "Should return info for all backends");
+
+        // Verify that configured endpoint names are used instead of generic backend_0, backend_1
+        var backendIds = infoList.Select(info => info.Id).OrderBy(id => id).ToList();
+        CollectionAssert.AreEqual(new[] { "primary_backend", "secondary_backend" }, backendIds, 
+            "Backend IDs should use configured endpoint names");
+
+        // Verify write endpoint identification works with configured names
+        var writeBackend = infoList.Single(info => info.IsWriteEndpoint);
+        Assert.AreEqual("primary_backend", writeBackend.Id, "Primary backend should be identified as write endpoint");
+    }
+
+    [TestMethod]
+    public void GetBackendInfo_FallsBackToGenericNames_WhenNoEndpointsConfigured()
+    {
+        // Arrange - use original options without configured endpoints
+        var backends = new[] { _backend1, _backend2 };
+        var optionsWrapper = Options.Create(_options);
+        var manager = new BackendManager(backends, optionsWrapper, _logger);
+
+        // Act
+        var backendInfo = manager.GetBackendInfo();
+
+        // Assert
+        Assert.IsNotNull(backendInfo);
+        var infoList = backendInfo.ToList();
+        Assert.AreEqual(2, infoList.Count, "Should return info for all backends");
+
+        // Verify that generic names are used as fallback
+        var backendIds = infoList.Select(info => info.Id).OrderBy(id => id).ToList();
+        CollectionAssert.AreEqual(new[] { "backend_0", "backend_1" }, backendIds, 
+            "Backend IDs should fall back to generic names when no endpoints configured");
+    }
 }
