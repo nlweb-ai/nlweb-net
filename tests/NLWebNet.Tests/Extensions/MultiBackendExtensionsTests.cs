@@ -15,10 +15,12 @@ public class MultiBackendExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddNLWebNetMultiBackend(options =>
-        {
-            options.MultiBackend.Enabled = true;
-        });
+        services.AddNLWebNetMultiBackend(
+            configureOptions: null,
+            configureMultiBackend: options =>
+            {
+                options.Enabled = true;
+            });
 
         // Assert
         var serviceProvider = services.BuildServiceProvider();
@@ -38,16 +40,18 @@ public class MultiBackendExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddNLWebNetMultiBackend(options =>
-        {
-            options.MultiBackend.Enabled = false;
-        });
+        services.AddNLWebNetMultiBackend(
+            configureOptions: null,
+            configureMultiBackend: options =>
+            {
+                options.Enabled = false;
+            });
 
         // Assert
         var serviceProvider = services.BuildServiceProvider();
-        var options = serviceProvider.GetRequiredService<IOptions<NLWebOptions>>();
+        var multiBackendOptions = serviceProvider.GetRequiredService<IOptions<MultiBackendOptions>>();
         
-        Assert.IsFalse(options.Value.MultiBackend.Enabled);
+        Assert.IsFalse(multiBackendOptions.Value.Enabled);
         
         // Should still be able to get the main service
         var nlWebService = serviceProvider.GetService<INLWebService>();
