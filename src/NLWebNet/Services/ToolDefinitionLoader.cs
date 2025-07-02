@@ -73,7 +73,7 @@ public class ToolDefinitionLoader : IToolDefinitionLoader
             using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
             var toolDefinitions = await Task.Run(() => LoadFromStream(fileStream));
 
-            _logger.LogInformation("Successfully loaded {ToolCount} tool definitions from {FilePath}", 
+            _logger.LogInformation("Successfully loaded {ToolCount} tool definitions from {FilePath}",
                 toolDefinitions.Tools.Count, filePath);
 
             return toolDefinitions;

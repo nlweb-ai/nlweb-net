@@ -24,9 +24,9 @@ public static class ConfigurationExtensions
     /// <param name="optional">Whether the file is optional.</param>
     /// <param name="reloadOnChange">Whether to reload when the file changes.</param>
     /// <returns>The configuration builder for chaining.</returns>
-    public static IConfigurationBuilder AddYamlFile(this IConfigurationBuilder builder, 
-        string path, 
-        bool optional = false, 
+    public static IConfigurationBuilder AddYamlFile(this IConfigurationBuilder builder,
+        string path,
+        bool optional = false,
         bool reloadOnChange = false)
     {
         return builder.AddYamlFile(provider: null, path: path, optional: optional, reloadOnChange: reloadOnChange);
@@ -84,7 +84,7 @@ public static class ConfigurationExtensions
     /// <param name="services">The service collection.</param>
     /// <param name="configuration">The configuration instance.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddNLWebConfigurationFormats(this IServiceCollection services, 
+    public static IServiceCollection AddNLWebConfigurationFormats(this IServiceCollection services,
         IConfiguration configuration)
     {
         // Register the tool definition loader service
@@ -111,7 +111,7 @@ public static class ConfigurationExtensions
         var yamlFiles = new[]
         {
             "config_retrieval.yaml",
-            "config_retrieval.yml", 
+            "config_retrieval.yml",
             "nlweb.yaml",
             "nlweb.yml"
         };
@@ -158,7 +158,7 @@ public static class ConfigurationExtensions
     /// <param name="args">Command line arguments.</param>
     /// <param name="environment">The hosting environment.</param>
     /// <returns>A configured configuration builder.</returns>
-    public static IConfigurationBuilder CreateNLWebConfiguration(string[]? args = null, 
+    public static IConfigurationBuilder CreateNLWebConfiguration(string[]? args = null,
         IHostEnvironment? environment = null)
     {
         var builder = new ConfigurationBuilder();

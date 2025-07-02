@@ -76,7 +76,7 @@ nlweb:
         // Test multibackend enabled
         // Assert.IsTrue(options.Value.MultiBackend.Enabled);
         // Assert.AreEqual("primary", options.Value.MultiBackend.WriteEndpoint);
-        
+
         // For now, just verify the basic YAML parsing works
         Assert.IsNotNull(options.Value);
     }
@@ -118,7 +118,7 @@ nlweb:
         // Arrange
         var services = new ServiceCollection();
         var configuration = new ConfigurationBuilder().Build();
-        
+
         // Add logging support to resolve dependencies
         services.AddLogging();
 
