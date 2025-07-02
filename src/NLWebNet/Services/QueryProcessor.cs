@@ -11,16 +11,31 @@ namespace NLWebNet.Services;
 public class QueryProcessor : IQueryProcessor
 {
     private readonly ILogger<QueryProcessor> _logger;
+    private readonly IToolSelector? _toolSelector;
 
-    public QueryProcessor(ILogger<QueryProcessor> logger)
+    public QueryProcessor(ILogger<QueryProcessor> logger, IToolSelector? toolSelector = null)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _toolSelector = toolSelector;
     }
 
     /// <inheritdoc />
     public async Task<string> ProcessQueryAsync(NLWebRequest request, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Processing query for request {QueryId}", request.QueryId);
+
+        // Perform tool selection if available and enabled
+        if (_toolSelector != null && _toolSelector.ShouldSelectTool(request))
+        {
+            var selectedTool = await _toolSelector.SelectToolAsync(request, cancellationToken);
+            if (!string.IsNullOrEmpty(selectedTool))
+            {
+                _logger.LogDebug("Tool selection complete: {Tool} for request {QueryId}", selectedTool, request.QueryId);
+                // Store the selected tool in the request for downstream processing
+                // Note: This is a minimal implementation - the tool selection result could be used
+                // by other components in the pipeline
+            }
+        }
 
         // If decontextualized query is already provided, use it
         if (!string.IsNullOrEmpty(request.DecontextualizedQuery))

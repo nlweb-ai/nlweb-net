@@ -36,6 +36,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<INLWebService, NLWebService>();
         services.AddScoped<IQueryProcessor, QueryProcessor>();
         services.AddScoped<IResultGenerator, ResultGenerator>();
+        services.AddScoped<IToolSelector, ToolSelector>();
 
         // Register MCP services
         services.AddScoped<IMcpService, McpService>();        // Register default data backend (can be overridden)
@@ -76,6 +77,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<INLWebService, NLWebService>();
         services.AddScoped<IQueryProcessor, QueryProcessor>();
         services.AddScoped<IResultGenerator, ResultGenerator>();
+        services.AddScoped<IToolSelector, ToolSelector>();
 
         // Register MCP services
         services.AddScoped<IMcpService, McpService>();
@@ -152,6 +154,7 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddScoped<IQueryProcessor, QueryProcessor>();
+        services.AddScoped<IToolSelector, ToolSelector>();
         services.AddScoped<IResultGenerator>(provider =>
         {
             var options = provider.GetRequiredService<IOptions<NLWebOptions>>();

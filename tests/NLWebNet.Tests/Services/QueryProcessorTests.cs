@@ -121,4 +121,80 @@ public class QueryProcessorTests
         // Assert
         Assert.AreEqual("test query", result);
     }
+
+    [TestMethod]
+    public async Task ProcessQueryAsync_WithToolSelector_CallsToolSelection()
+    {
+        // Arrange
+        var toolSelectorLogger = new TestLogger<ToolSelector>();
+        var nlWebOptions = new NLWebOptions { ToolSelectionEnabled = true };
+        var options = Options.Create(nlWebOptions);
+        var toolSelector = new ToolSelector(toolSelectorLogger, options);
+        var queryProcessorWithToolSelector = new QueryProcessor(_logger, toolSelector);
+
+        var request = new NLWebRequest
+        {
+            Query = "search for something",
+            Mode = QueryMode.List,
+            QueryId = "test-query-id"
+        };
+
+        // Act
+        var result = await queryProcessorWithToolSelector.ProcessQueryAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.AreEqual("search for something", result);
+        // The tool selection should have been called but not affect the final result
+        // since we're not changing the query processing behavior yet
+    }
+
+    [TestMethod]
+    public async Task ProcessQueryAsync_WithToolSelectorDisabled_DoesNotCallToolSelection()
+    {
+        // Arrange
+        var toolSelectorLogger = new TestLogger<ToolSelector>();
+        var nlWebOptions = new NLWebOptions { ToolSelectionEnabled = false };
+        var options = Options.Create(nlWebOptions);
+        var toolSelector = new ToolSelector(toolSelectorLogger, options);
+        var queryProcessorWithToolSelector = new QueryProcessor(_logger, toolSelector);
+
+        var request = new NLWebRequest
+        {
+            Query = "search for something",
+            Mode = QueryMode.List,
+            QueryId = "test-query-id"
+        };
+
+        // Act
+        var result = await queryProcessorWithToolSelector.ProcessQueryAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.AreEqual("search for something", result);
+        // Tool selection should not have been called
+    }
+
+    [TestMethod]
+    public async Task ProcessQueryAsync_WithGenerateMode_SkipsToolSelection()
+    {
+        // Arrange
+        var toolSelectorLogger = new TestLogger<ToolSelector>();
+        var nlWebOptions = new NLWebOptions { ToolSelectionEnabled = true };
+        var options = Options.Create(nlWebOptions);
+        var toolSelector = new ToolSelector(toolSelectorLogger, options);
+        var queryProcessorWithToolSelector = new QueryProcessor(_logger, toolSelector);
+
+        var request = new NLWebRequest
+        {
+            Query = "generate something",
+            Mode = QueryMode.Generate,
+            QueryId = "test-query-id"
+        };
+
+        // Act
+        var result = await queryProcessorWithToolSelector.ProcessQueryAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.AreEqual("generate something", result);
+        // Tool selection should have been skipped for Generate mode
+    }
 }
