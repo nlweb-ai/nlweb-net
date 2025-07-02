@@ -117,7 +117,7 @@ public class NLWebService : INLWebService
             _logger.LogDebug("ProcessQueryAsync complete for QueryId={QueryId}", queryId);
 
             // Check if tool execution is available and enabled
-            var toolResponse = await HandleToolSelectionAsync(request, queryId, cancellationToken);
+            var toolResponse = await TryExecuteToolAsync(request, queryId, cancellationToken);
             if (toolResponse != null)
             {
                 return toolResponse;

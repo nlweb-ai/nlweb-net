@@ -39,11 +39,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IResultGenerator, ResultGenerator>();
         services.AddScoped<IToolSelector, ToolSelector>();
 
-        // Register Advanced Tool System
-        if (!services.Any(service => service.ServiceType == typeof(IAdvancedToolService)))
-        {
-            services.AddAdvancedToolSystem();
-        }
+        // Register Advanced Tool System (idempotent)
+        services.AddAdvancedToolSystem();
 
         // Register MCP services
         services.AddScoped<IMcpService, McpService>();        // Register default data backend (can be overridden)
