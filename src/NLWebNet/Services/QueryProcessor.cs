@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using NLWebNet.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
