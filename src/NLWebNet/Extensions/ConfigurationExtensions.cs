@@ -343,7 +343,8 @@ internal static class YamlConfigurationFileParser
                 break;
 
             default:
-                data[prefix] = value?.ToString();
+                var effectivePrefix = string.IsNullOrEmpty(prefix) ? "root" : prefix;
+                data[effectivePrefix] = value?.ToString();
                 break;
         }
     }
