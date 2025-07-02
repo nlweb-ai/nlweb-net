@@ -14,7 +14,7 @@ public class MultiBackendIntegrationTests
     {
         // Arrange - Set up a complete multi-backend service configuration
         var services = new ServiceCollection();
-        
+
         services.AddNLWebNetMultiBackend(
             options =>
             {
@@ -61,7 +61,7 @@ public class MultiBackendIntegrationTests
         // Verify write backend is accessible
         var writeBackend = backendManager.GetWriteBackend();
         Assert.IsNotNull(writeBackend, "Should have a write backend available");
-        
+
         var capabilities = writeBackend.GetCapabilities();
         Assert.IsNotNull(capabilities, "Write backend should have capabilities");
     }
@@ -71,7 +71,7 @@ public class MultiBackendIntegrationTests
     {
         // Arrange - Set up multi-backend service but with multi-backend disabled
         var services = new ServiceCollection();
-        
+
         services.AddNLWebNetMultiBackend(
             options =>
             {
@@ -98,7 +98,7 @@ public class MultiBackendIntegrationTests
         Assert.IsNotNull(response);
         Assert.AreEqual("test-002", response.QueryId);
         Assert.IsNull(response.Error, "Response should not have an error");
-        
+
         // Verify configuration
         var options = serviceProvider.GetRequiredService<IOptions<NLWebOptions>>();
         Assert.IsFalse(options.Value.MultiBackend.Enabled, "Multi-backend should be disabled");
@@ -109,7 +109,7 @@ public class MultiBackendIntegrationTests
     {
         // Arrange
         var services = new ServiceCollection();
-        
+
         services.AddNLWebNetMultiBackend(options =>
         {
             options.EnableStreaming = true;
@@ -134,7 +134,7 @@ public class MultiBackendIntegrationTests
             responseCount++;
             Assert.IsNotNull(response);
             Assert.AreEqual("test-003", response.QueryId);
-            
+
             // Break after a few responses to avoid long test
             if (responseCount >= 3) break;
         }
@@ -147,7 +147,7 @@ public class MultiBackendIntegrationTests
     {
         // Arrange
         var services = new ServiceCollection();
-        
+
         services.AddNLWebNetMultiBackend(options =>
         {
             options.MultiBackend.Enabled = true;
@@ -163,16 +163,16 @@ public class MultiBackendIntegrationTests
         // Assert
         var resultList = results.ToList();
         var uniqueUrls = resultList.Select(r => r.Url).Distinct().Count();
-        
-        Assert.AreEqual(resultList.Count, uniqueUrls, 
+
+        Assert.AreEqual(resultList.Count, uniqueUrls,
             "Results should be deduplicated - no duplicate URLs");
-        
+
         if (resultList.Count > 1)
         {
             // Verify results are sorted by score
             var scores = resultList.Select(r => r.Score).ToList();
             var sortedScores = scores.OrderByDescending(s => s).ToList();
-            CollectionAssert.AreEqual(sortedScores, scores, 
+            CollectionAssert.AreEqual(sortedScores, scores,
                 "Results should be sorted by relevance score");
         }
     }

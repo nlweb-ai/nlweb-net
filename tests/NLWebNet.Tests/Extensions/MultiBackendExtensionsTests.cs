@@ -24,7 +24,7 @@ public class MultiBackendExtensionsTests
 
         // Assert
         var serviceProvider = services.BuildServiceProvider();
-        
+
         // Check that all required services are registered
         Assert.IsNotNull(serviceProvider.GetService<INLWebService>());
         Assert.IsNotNull(serviceProvider.GetService<IQueryProcessor>());
@@ -50,9 +50,9 @@ public class MultiBackendExtensionsTests
         // Assert
         var serviceProvider = services.BuildServiceProvider();
         var multiBackendOptions = serviceProvider.GetRequiredService<IOptions<MultiBackendOptions>>();
-        
+
         Assert.IsFalse(multiBackendOptions.Value.Enabled);
-        
+
         // Should still be able to get the main service
         var nlWebService = serviceProvider.GetService<INLWebService>();
         Assert.IsNotNull(nlWebService);
@@ -78,7 +78,7 @@ public class MultiBackendExtensionsTests
         var serviceProvider = services.BuildServiceProvider();
         var options = serviceProvider.GetRequiredService<IOptions<NLWebOptions>>();
         var multiBackendOptions = serviceProvider.GetRequiredService<IOptions<MultiBackendOptions>>();
-        
+
         Assert.AreEqual(QueryMode.Summarize, options.Value.DefaultMode);
         Assert.IsTrue(multiBackendOptions.Value.Enabled);
         Assert.IsFalse(multiBackendOptions.Value.EnableParallelQuerying);
@@ -98,7 +98,7 @@ public class MultiBackendExtensionsTests
         var serviceProvider = services.BuildServiceProvider();
         var options = serviceProvider.GetRequiredService<IOptions<NLWebOptions>>();
         var multiBackendOptions = serviceProvider.GetRequiredService<IOptions<MultiBackendOptions>>();
-        
+
         // Should use default values
         Assert.AreEqual(QueryMode.List, options.Value.DefaultMode);
         Assert.IsFalse(multiBackendOptions.Value.Enabled); // Default is false for backward compatibility

@@ -105,7 +105,7 @@ public static class ServiceCollectionExtensions
     /// <param name="configureOptions">Optional configuration callback</param>
     /// <param name="configureMultiBackend">Multi-backend configuration callback</param>
     /// <returns>The service collection for chaining</returns>
-    public static IServiceCollection AddNLWebNetMultiBackend(this IServiceCollection services, 
+    public static IServiceCollection AddNLWebNetMultiBackend(this IServiceCollection services,
         Action<NLWebOptions>? configureOptions = null,
         Action<MultiBackendOptions>? configureMultiBackend = null)
     {

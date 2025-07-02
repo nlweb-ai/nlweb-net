@@ -59,7 +59,7 @@ public class ResultGenerator : IResultGenerator
         _logger.LogDebug("Generating list results for query: {Query}", query);
 
         IEnumerable<NLWebResult> results;
-        
+
         if (_backendManager != null)
         {
             // Use multi-backend manager

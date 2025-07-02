@@ -34,7 +34,7 @@ public class BackendManager : IBackendManager
         // otherwise fall back to generic names for backward compatibility
         var backendArray = _backends.ToArray();
         var configuredEndpoints = _options.Endpoints?.Where(e => e.Value.Enabled).ToList() ?? new List<KeyValuePair<string, BackendEndpointOptions>>();
-        
+
         if (configuredEndpoints.Count > 0 && configuredEndpoints.Count == backendArray.Length)
         {
             // Use configured endpoint identifiers
@@ -54,7 +54,7 @@ public class BackendManager : IBackendManager
         }
 
         // Set write backend - for now use the first backend if writeEndpoint is configured
-        if (!string.IsNullOrEmpty(_options.WriteEndpoint) && 
+        if (!string.IsNullOrEmpty(_options.WriteEndpoint) &&
             _backendsByName.TryGetValue(_options.WriteEndpoint, out var writeBackend))
         {
             _writeBackend = writeBackend;
@@ -64,7 +64,7 @@ public class BackendManager : IBackendManager
             _writeBackend = backendArray[0]; // Default to first backend
         }
 
-        _logger.LogInformation("BackendManager initialized with {BackendCount} backends, WriteEndpoint: {WriteEndpoint}", 
+        _logger.LogInformation("BackendManager initialized with {BackendCount} backends, WriteEndpoint: {WriteEndpoint}",
             _backendsByName.Count, _options.WriteEndpoint ?? "default");
     }
 
@@ -82,7 +82,7 @@ public class BackendManager : IBackendManager
             return await firstBackend.SearchAsync(query, site, maxResults, cancellationToken);
         }
 
-        _logger.LogDebug("Starting parallel search across {BackendCount} backends for query: {Query}", 
+        _logger.LogDebug("Starting parallel search across {BackendCount} backends for query: {Query}",
             _backends.Count(), query);
 
         var results = new ConcurrentBag<NLWebResult>();

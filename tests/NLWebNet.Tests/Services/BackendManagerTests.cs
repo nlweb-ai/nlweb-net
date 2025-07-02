@@ -19,7 +19,7 @@ public class BackendManagerTests
         _logger = new TestLogger<BackendManager>();
         _backend1 = new MockDataBackend(new TestLogger<MockDataBackend>());
         _backend2 = new MockDataBackend(new TestLogger<MockDataBackend>());
-        
+
         _options = new MultiBackendOptions
         {
             Enabled = true,
@@ -219,7 +219,7 @@ public class BackendManagerTests
 
         // Verify that configured endpoint names are used instead of generic backend_0, backend_1
         var backendIds = infoList.Select(info => info.Id).OrderBy(id => id).ToList();
-        CollectionAssert.AreEqual(new[] { "primary_backend", "secondary_backend" }, backendIds, 
+        CollectionAssert.AreEqual(new[] { "primary_backend", "secondary_backend" }, backendIds,
             "Backend IDs should use configured endpoint names");
 
         // Verify write endpoint identification works with configured names
@@ -245,7 +245,7 @@ public class BackendManagerTests
 
         // Verify that generic names are used as fallback
         var backendIds = infoList.Select(info => info.Id).OrderBy(id => id).ToList();
-        CollectionAssert.AreEqual(new[] { "backend_0", "backend_1" }, backendIds, 
+        CollectionAssert.AreEqual(new[] { "backend_0", "backend_1" }, backendIds,
             "Backend IDs should fall back to generic names when no endpoints configured");
     }
 }
