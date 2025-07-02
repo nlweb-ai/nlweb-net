@@ -20,10 +20,10 @@ public class ToolSelectorPerformanceTests
         // Use a logger that doesn't output debug messages for performance testing
         _queryLogger = new TestLogger<QueryProcessor>(LogLevel.Warning);
         _toolSelectorLogger = new TestLogger<ToolSelector>(LogLevel.Warning);
-        
+
         // Create QueryProcessor without tool selection
         _queryProcessorWithoutToolSelection = new QueryProcessor(_queryLogger);
-        
+
         // Create QueryProcessor with tool selection enabled
         var nlWebOptions = new NLWebOptions { ToolSelectionEnabled = true };
         var options = Options.Create(nlWebOptions);
@@ -43,7 +43,7 @@ public class ToolSelectorPerformanceTests
         };
 
         const int iterations = 1000;
-        
+
         // Warm up
         await _queryProcessorWithoutToolSelection.ProcessQueryAsync(request);
         await _queryProcessorWithToolSelection.ProcessQueryAsync(request);
@@ -74,7 +74,7 @@ public class ToolSelectorPerformanceTests
         // Calculate averages
         var avgWithoutTicks = timesWithout.Average();
         var avgWithTicks = timesWith.Average();
-        
+
         var performanceImpactPercent = ((avgWithTicks - avgWithoutTicks) / avgWithoutTicks) * 100;
 
         Console.WriteLine($"Performance impact: {performanceImpactPercent:F2}%");
@@ -86,10 +86,10 @@ public class ToolSelectorPerformanceTests
         // 2. Async tool selection that doesn't block the main processing path
         // 3. More efficient intent analysis algorithms
         // 4. Preprocessing at the API gateway level
-        
+
         // For this implementation, we focus on ensuring the feature works correctly
         // and that backward compatibility is maintained (tested separately)
-        Assert.IsTrue(performanceImpactPercent < 1000, 
+        Assert.IsTrue(performanceImpactPercent < 1000,
             "Performance impact should be reasonable for a test environment with debug overhead");
     }
 
@@ -130,7 +130,7 @@ public class ToolSelectorPerformanceTests
         // Performance should be nearly identical when tool selection is disabled
         var withoutMs = stopwatchWithout.ElapsedMilliseconds;
         var withDisabledMs = stopwatchWithDisabled.ElapsedMilliseconds;
-        
+
         // Handle case where both are 0 (very fast execution)
         var performanceImpactPercent = 0.0;
         if (withoutMs > 0)
@@ -145,8 +145,8 @@ public class ToolSelectorPerformanceTests
 
         // Should have minimal impact when disabled (less than 5% or very small absolute difference)
         var acceptableImpact = performanceImpactPercent < 5 || Math.Abs(withDisabledMs - withoutMs) <= 1;
-        
-        Assert.IsTrue(acceptableImpact, 
+
+        Assert.IsTrue(acceptableImpact,
             $"Performance impact when disabled was {performanceImpactPercent:F2}%, which should be minimal. " +
             $"Without: {withoutMs}ms, With disabled: {withDisabledMs}ms");
 

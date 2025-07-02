@@ -44,7 +44,7 @@ public class ToolSelector : IToolSelector
         // 1. Tool selection is disabled in configuration
         // 2. Generate mode is used (maintain existing behavior)
         // 3. Request already has a decontextualized query (already processed)
-        
+
         if (!_options.ToolSelectionEnabled)
         {
             return false;
@@ -75,7 +75,7 @@ public class ToolSelector : IToolSelector
 
         // Basic keyword-based intent detection
         // In production, this would use ML models or more sophisticated analysis
-        
+
         if (ContainsKeywords(queryLower, "search", "find", "look for", "locate"))
         {
             return Task.FromResult<string?>("search");

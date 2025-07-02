@@ -22,7 +22,7 @@ public class TestLogger<T> : ILogger<T>
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         if (!IsEnabled(logLevel)) return;
-        
+
         // In a real test, you might want to capture log messages for assertions
         Console.WriteLine($"[{logLevel}] {formatter(state, exception)}");
     }
