@@ -143,7 +143,7 @@ public class DetailsToolHandler : BaseToolHandler
     private IList<NLWebResult> EnhanceDetailsResults(IList<NLWebResult> results, string subject)
     {
         if (results == null || !results.Any())
-            return results;
+            return Array.Empty<NLWebResult>();
 
         // Filter and rank results by their detail relevance
         var detailResults = results

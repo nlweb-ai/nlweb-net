@@ -113,7 +113,7 @@ public class SearchToolHandler : BaseToolHandler
     private IList<NLWebResult> EnhanceSearchResults(IList<NLWebResult> results, string originalQuery)
     {
         if (results == null || !results.Any())
-            return results;
+            return Array.Empty<NLWebResult>();
 
         // Sort results by relevance (simple implementation)
         var sortedResults = results
