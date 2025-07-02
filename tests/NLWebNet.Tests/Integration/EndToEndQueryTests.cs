@@ -19,7 +19,7 @@ public class EndToEndQueryTests
     public void Initialize()
     {
         var services = new ServiceCollection();
-        
+
         // Configure with default settings
         services.AddNLWebNetMultiBackend(options =>
         {
@@ -50,7 +50,7 @@ public class EndToEndQueryTests
         foreach (var scenario in basicSearchScenarios)
         {
             Console.WriteLine($"Testing scenario: {scenario.Name}");
-            
+
             var request = scenario.ToRequest();
             var response = await _nlWebService.ProcessRequestAsync(request);
 
@@ -58,7 +58,7 @@ public class EndToEndQueryTests
             Assert.IsNotNull(response, $"Response should not be null for scenario: {scenario.Name}");
             Assert.AreEqual(request.QueryId, response.QueryId, "QueryId should match");
             Assert.IsNull(response.Error, $"Response should not have error for scenario: {scenario.Name}");
-            
+
             // Assert result count
             if (scenario.MinExpectedResults > 0)
             {
@@ -66,7 +66,7 @@ public class EndToEndQueryTests
                 Assert.IsTrue(response.Results.Count() >= scenario.MinExpectedResults,
                     $"Should have at least {scenario.MinExpectedResults} results for scenario: {scenario.Name}");
             }
-            
+
             Console.WriteLine($"✓ Scenario '{scenario.Name}' passed with {response.Results?.Count() ?? 0} results");
         }
     }
@@ -83,14 +83,14 @@ public class EndToEndQueryTests
         foreach (var scenario in edgeCaseScenarios)
         {
             Console.WriteLine($"Testing edge case: {scenario.Name}");
-            
+
             var request = scenario.ToRequest();
             var response = await _nlWebService.ProcessRequestAsync(request);
 
             // Edge cases should not throw exceptions
             Assert.IsNotNull(response, $"Response should not be null for edge case: {scenario.Name}");
             Assert.AreEqual(request.QueryId, response.QueryId, "QueryId should match");
-            
+
             // Edge cases might have zero results, which is acceptable
             var resultCount = response.Results?.Count() ?? 0;
             Console.WriteLine($"✓ Edge case '{scenario.Name}' handled correctly with {resultCount} results");
@@ -109,27 +109,27 @@ public class EndToEndQueryTests
         foreach (var scenario in siteFilteringScenarios)
         {
             Console.WriteLine($"Testing site filtering: {scenario.Name}");
-            
+
             var request = scenario.ToRequest();
             var response = await _nlWebService.ProcessRequestAsync(request);
 
             Assert.IsNotNull(response, $"Response should not be null for scenario: {scenario.Name}");
             Assert.IsNull(response.Error, $"Response should not have error for scenario: {scenario.Name}");
-            
+
             if (response.Results?.Any() == true && !string.IsNullOrEmpty(scenario.Site))
             {
                 // Verify site filtering is applied (all results should be from the specified site)
-                var resultsFromOtherSites = response.Results.Where(r => 
-                    !string.IsNullOrEmpty(r.Site) && 
+                var resultsFromOtherSites = response.Results.Where(r =>
+                    !string.IsNullOrEmpty(r.Site) &&
                     !r.Site.Equals(scenario.Site, StringComparison.OrdinalIgnoreCase)).ToList();
-                
+
                 if (resultsFromOtherSites.Count > 0)
                 {
                     Console.WriteLine($"Warning: Found {resultsFromOtherSites.Count} results from other sites. " +
                         "This might be expected if site filtering is not strictly enforced.");
                 }
             }
-            
+
             Console.WriteLine($"✓ Site filtering scenario '{scenario.Name}' completed");
         }
     }
@@ -146,19 +146,19 @@ public class EndToEndQueryTests
         foreach (var scenario in technicalScenarios)
         {
             Console.WriteLine($"Testing technical query: {scenario.Name}");
-            
+
             var request = scenario.ToRequest();
             var response = await _nlWebService.ProcessRequestAsync(request);
 
             Assert.IsNotNull(response, $"Response should not be null for scenario: {scenario.Name}");
             Assert.IsNull(response.Error, $"Response should not have error for scenario: {scenario.Name}");
-            
+
             if (scenario.MinExpectedResults > 0)
             {
                 Assert.IsNotNull(response.Results, $"Results should not be null for scenario: {scenario.Name}");
                 Assert.IsTrue(response.Results.Count() >= scenario.MinExpectedResults,
                     $"Should have at least {scenario.MinExpectedResults} results for scenario: {scenario.Name}");
-                
+
                 // Verify results have meaningful content
                 foreach (var result in response.Results.Take(3)) // Check first 3 results
                 {
@@ -167,7 +167,7 @@ public class EndToEndQueryTests
                     Assert.IsFalse(string.IsNullOrWhiteSpace(result.Url), "Result URL should not be empty");
                 }
             }
-            
+
             Console.WriteLine($"✓ Technical query '{scenario.Name}' passed with {response.Results?.Count() ?? 0} results");
         }
     }
@@ -184,7 +184,7 @@ public class EndToEndQueryTests
         foreach (var mode in queryModes)
         {
             Console.WriteLine($"Testing query mode: {mode}");
-            
+
             var request = new NLWebRequest
             {
                 QueryId = $"test-mode-{mode}-{Guid.NewGuid():N}",
@@ -197,7 +197,7 @@ public class EndToEndQueryTests
             Assert.IsNotNull(response, $"Response should not be null for mode: {mode}");
             Assert.AreEqual(request.QueryId, response.QueryId, "QueryId should match");
             Assert.IsNull(response.Error, $"Response should not have error for mode: {mode}");
-            
+
             Console.WriteLine($"✓ Query mode '{mode}' worked correctly");
         }
     }
@@ -225,10 +225,10 @@ public class EndToEndQueryTests
             {
                 responseCount++;
                 lastResponse = response;
-                
+
                 Assert.IsNotNull(response, "Streamed response should not be null");
                 Assert.AreEqual(request.QueryId, response.QueryId, "QueryId should match in streamed response");
-                
+
                 // Break after a reasonable number of responses to avoid long test
                 if (responseCount >= 5) break;
             }
@@ -242,7 +242,7 @@ public class EndToEndQueryTests
 
         Assert.IsTrue(responseCount > 0, "Should receive at least one streamed response");
         Assert.IsNotNull(lastResponse, "Should have received at least one response");
-        
+
         Console.WriteLine($"✓ Streaming test completed with {responseCount} responses");
     }
 }

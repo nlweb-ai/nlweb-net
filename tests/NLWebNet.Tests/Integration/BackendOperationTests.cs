@@ -52,7 +52,7 @@ public class BackendOperationTests
         // Test basic search
         var searchResults = await mockBackend.SearchAsync("millennium falcon", null, 10, CancellationToken.None);
         var resultsList = searchResults.ToList();
-        
+
         Assert.IsTrue(resultsList.Count > 0, "Should return results for 'millennium falcon'");
         Assert.IsTrue(resultsList.Count <= 10, "Should respect max results limit");
 
@@ -73,7 +73,7 @@ public class BackendOperationTests
         {
             foreach (var result in siteFilteredList)
             {
-                Assert.AreEqual("scifi-cinema.com", result.Site, 
+                Assert.AreEqual("scifi-cinema.com", result.Site,
                     "All results should be from the specified site when site filtering is applied");
             }
             Console.WriteLine($"✓ Site filtering returned {siteFilteredList.Count} results from scifi-cinema.com");
@@ -113,7 +113,7 @@ public class BackendOperationTests
             Assert.IsFalse(string.IsNullOrWhiteSpace(backend.Id), "Backend ID should not be empty");
             Assert.IsNotNull(backend.Capabilities, "Backend capabilities should not be null");
             Assert.IsFalse(string.IsNullOrWhiteSpace(backend.Capabilities.Description), "Backend description should not be empty");
-            
+
             Console.WriteLine($"Backend: {backend.Id} - {backend.Capabilities.Description}");
             Console.WriteLine($"  Write endpoint: {backend.IsWriteEndpoint}");
         }
@@ -156,7 +156,7 @@ public class BackendOperationTests
         // Test max results limitation
         var maxResultsQuery = await mockBackend.SearchAsync("space", null, capabilities.MaxResults + 10, CancellationToken.None);
         var maxResultsList = maxResultsQuery.ToList();
-        
+
         Assert.IsTrue(maxResultsList.Count <= capabilities.MaxResults,
             $"Should not return more than MaxResults ({capabilities.MaxResults}). Got {maxResultsList.Count}");
 
@@ -179,7 +179,7 @@ public class BackendOperationTests
         }
 
         // Test semantic search capability (should be false for MockDataBackend)
-        Assert.IsFalse(capabilities.SupportsSemanticSearch, 
+        Assert.IsFalse(capabilities.SupportsSemanticSearch,
             "MockDataBackend should not support semantic search");
         Console.WriteLine("✓ Semantic search capability correctly reported as not supported");
     }
@@ -213,7 +213,7 @@ public class BackendOperationTests
         // Test with very large max results
         var largeMaxResults = await mockBackend.SearchAsync("test", null, int.MaxValue, CancellationToken.None);
         var largeResultsList = largeMaxResults.ToList();
-        
+
         // Should not crash or cause issues
         Assert.IsTrue(largeResultsList.Count >= 0, "Should handle large max results gracefully");
         Console.WriteLine($"✓ Large max results handled gracefully: {largeResultsList.Count} results");
@@ -222,7 +222,7 @@ public class BackendOperationTests
         var longQuery = new string('a', 10000); // 10k character query
         var longQueryResults = await mockBackend.SearchAsync(longQuery, null, 10, CancellationToken.None);
         var longQueryList = longQueryResults.ToList();
-        
+
         // Should not crash
         Assert.IsTrue(longQueryList.Count >= 0, "Should handle long queries gracefully");
         Console.WriteLine($"✓ Long query handled gracefully: {longQueryList.Count} results");
@@ -254,11 +254,11 @@ public class BackendOperationTests
             stopwatch.Stop();
 
             var elapsedMs = stopwatch.ElapsedMilliseconds;
-            
+
             // Mock backend should be reasonably fast (< 500ms) in test environment
-            Assert.IsTrue(elapsedMs < 500, 
+            Assert.IsTrue(elapsedMs < 500,
                 $"MockDataBackend should be reasonably fast. Query '{query}' took {elapsedMs}ms");
-            
+
             Console.WriteLine($"✓ Query '{query}' completed in {elapsedMs}ms with {resultsList.Count} results");
         }
 

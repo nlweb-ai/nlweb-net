@@ -171,7 +171,7 @@ public class TestScenario
     public string[] ExpectedTools { get; set; } = Array.Empty<string>();
     public int MinExpectedResults { get; set; }
     public string[] TestCategories { get; set; } = Array.Empty<string>();
-    
+
     public NLWebRequest ToRequest(string? queryId = null)
     {
         return new NLWebRequest

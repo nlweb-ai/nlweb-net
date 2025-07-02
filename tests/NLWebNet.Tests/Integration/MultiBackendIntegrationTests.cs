@@ -206,7 +206,7 @@ public class MultiBackendIntegrationTests
         foreach (var scenario in consistencyScenarios)
         {
             Console.WriteLine($"Testing consistency for: {scenario.Name}");
-            
+
             var request = new NLWebRequest
             {
                 QueryId = $"consistency-{Guid.NewGuid():N}",
@@ -233,20 +233,20 @@ public class MultiBackendIntegrationTests
             if (responses.All(r => r.Results?.Any() == true))
             {
                 var firstResults = responses[0].Results!.ToList();
-                
+
                 foreach (var response in responses.Skip(1))
                 {
                     var currentResults = response.Results!.ToList();
-                    
+
                     // Check for reasonable overlap in results
                     var commonUrls = firstResults.Select(r => r.Url)
                         .Intersect(currentResults.Select(r => r.Url))
                         .Count();
-                    
+
                     var overlapPercent = (double)commonUrls / Math.Max(firstResults.Count, currentResults.Count) * 100;
-                    
+
                     Console.WriteLine($"Result overlap: {overlapPercent:F1}% ({commonUrls} common URLs)");
-                    
+
                     // Results should have reasonable consistency for the same query
                     // Note: Some variation is expected due to scoring differences or backend variations
                     Assert.IsTrue(overlapPercent >= scenario.MinOverlapPercent || firstResults.Count <= 2,
@@ -254,7 +254,7 @@ public class MultiBackendIntegrationTests
                         $"Got {overlapPercent:F1}% for scenario: {scenario.Name}");
                 }
             }
-            
+
             Console.WriteLine($"✓ Consistency validated for '{scenario.Name}'");
         }
     }
@@ -275,32 +275,32 @@ public class MultiBackendIntegrationTests
         var backendManager = serviceProvider.GetRequiredService<IBackendManager>();
 
         var backendInfo = backendManager.GetBackendInfo().ToList();
-        
+
         Assert.IsTrue(backendInfo.Count >= 1, "Should have at least one backend configured");
 
         foreach (var backend in backendInfo)
         {
             Console.WriteLine($"Testing backend capabilities: {backend.Id}");
-            
+
             // Verify backend information is complete
             Assert.IsFalse(string.IsNullOrWhiteSpace(backend.Id), "Backend ID should not be empty");
             Assert.IsNotNull(backend.Capabilities, "Backend capabilities should not be null");
             Assert.IsFalse(string.IsNullOrWhiteSpace(backend.Capabilities.Description), "Backend description should not be empty");
-            
+
             // Test backend capabilities
             if (backend.IsWriteEndpoint)
             {
                 var writeBackend = backendManager.GetWriteBackend();
                 Assert.IsNotNull(writeBackend, "Write backend should be accessible");
-                
+
                 var capabilities = writeBackend.GetCapabilities();
                 Assert.IsNotNull(capabilities, "Backend capabilities should not be null");
-                Assert.IsFalse(string.IsNullOrWhiteSpace(capabilities.Description), 
+                Assert.IsFalse(string.IsNullOrWhiteSpace(capabilities.Description),
                     "Backend capabilities description should not be empty");
-                
+
                 Console.WriteLine($"✓ Write backend capabilities verified: {capabilities.Description}");
             }
-            
+
             Console.WriteLine($"✓ Backend '{backend.Id}' capabilities validated");
         }
     }

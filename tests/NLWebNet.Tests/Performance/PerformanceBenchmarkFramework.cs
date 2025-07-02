@@ -41,15 +41,15 @@ public class PerformanceBenchmarkFramework
         foreach (var scenario in performanceScenarios)
         {
             Console.WriteLine($"Running performance benchmark: {scenario.Name}");
-            
+
             var benchmarkResult = await RunPerformanceBenchmark(scenario);
             results.Add(benchmarkResult);
-            
+
             // Assert performance meets expectations
             Assert.IsTrue(benchmarkResult.AverageResponseTimeMs <= scenario.ExpectedMaxResponseTimeMs,
                 $"Average response time ({benchmarkResult.AverageResponseTimeMs:F2}ms) should be <= " +
                 $"{scenario.ExpectedMaxResponseTimeMs}ms for scenario: {scenario.Name}");
-            
+
             Console.WriteLine($"✓ Benchmark '{scenario.Name}' passed");
             Console.WriteLine($"  Average: {benchmarkResult.AverageResponseTimeMs:F2}ms");
             Console.WriteLine($"  Min: {benchmarkResult.MinResponseTimeMs:F2}ms");
@@ -71,9 +71,9 @@ public class PerformanceBenchmarkFramework
             .First(s => s.Category == "Baseline");
 
         Console.WriteLine($"Running regression test for: {baselineScenario.Name}");
-        
+
         var benchmarkResult = await RunPerformanceBenchmark(baselineScenario);
-        
+
         // For regression testing, we would typically compare against stored baseline metrics
         // For now, we'll use the expected max as our baseline
         var baselineMs = baselineScenario.ExpectedMaxResponseTimeMs;
@@ -83,7 +83,7 @@ public class PerformanceBenchmarkFramework
         Assert.IsTrue(benchmarkResult.AverageResponseTimeMs <= maxAllowedMs,
             $"Performance regression detected. Average response time ({benchmarkResult.AverageResponseTimeMs:F2}ms) " +
             $"exceeds regression threshold ({maxAllowedMs:F2}ms) based on baseline ({baselineMs}ms)");
-        
+
         Console.WriteLine($"✓ No significant performance regression detected");
         Console.WriteLine($"Baseline threshold: {baselineMs}ms");
         Console.WriteLine($"Regression threshold: {maxAllowedMs:F2}ms");
@@ -98,9 +98,9 @@ public class PerformanceBenchmarkFramework
     {
         var singleBackendResult = await BenchmarkConfiguration("Single Backend", false);
         var multiBackendResult = await BenchmarkConfiguration("Multi Backend", true);
-        
-        var performanceImpactPercent = 
-            ((multiBackendResult.AverageResponseTimeMs - singleBackendResult.AverageResponseTimeMs) / 
+
+        var performanceImpactPercent =
+            ((multiBackendResult.AverageResponseTimeMs - singleBackendResult.AverageResponseTimeMs) /
              singleBackendResult.AverageResponseTimeMs) * 100;
 
         Console.WriteLine($"Single backend average: {singleBackendResult.AverageResponseTimeMs:F2}ms");
@@ -110,7 +110,7 @@ public class PerformanceBenchmarkFramework
         // Multi-backend should not cause more than 100% performance degradation in test environment
         Assert.IsTrue(performanceImpactPercent <= 100,
             $"Multi-backend performance impact ({performanceImpactPercent:F2}%) should be within acceptable limits");
-        
+
         Console.WriteLine("✓ Multi-backend performance impact within acceptable limits");
     }
 
@@ -127,11 +127,11 @@ public class PerformanceBenchmarkFramework
 
         var concurrentRequests = 10;
         var testQuery = "performance test query";
-        
+
         Console.WriteLine($"Testing concurrent load with {concurrentRequests} requests");
-        
+
         var stopwatch = Stopwatch.StartNew();
-        
+
         var tasks = Enumerable.Range(0, concurrentRequests)
             .Select(async i =>
             {
@@ -141,11 +141,11 @@ public class PerformanceBenchmarkFramework
                     Query = testQuery,
                     Mode = QueryMode.List
                 };
-                
+
                 var taskStopwatch = Stopwatch.StartNew();
                 var response = await nlWebService.ProcessRequestAsync(request);
                 taskStopwatch.Stop();
-                
+
                 return new { Response = response, ElapsedMs = taskStopwatch.ElapsedMilliseconds };
             })
             .ToArray();
@@ -162,7 +162,7 @@ public class PerformanceBenchmarkFramework
 
         var averageResponseTime = results.Average(r => r.ElapsedMs);
         var totalTime = stopwatch.ElapsedMilliseconds;
-        
+
         Console.WriteLine($"Concurrent requests completed in {totalTime}ms");
         Console.WriteLine($"Average individual response time: {averageResponseTime:F2}ms");
         Console.WriteLine($"Throughput: {concurrentRequests * 1000.0 / totalTime:F2} requests/second");
@@ -170,17 +170,17 @@ public class PerformanceBenchmarkFramework
         // Verify reasonable performance under load
         Assert.IsTrue(averageResponseTime <= 5000, // 5 second max per request under load
             $"Average response time under concurrent load ({averageResponseTime:F2}ms) should be reasonable");
-        
+
         Console.WriteLine("✓ Concurrent load handling performance validated");
     }
 
     private async Task<BenchmarkResult> RunPerformanceBenchmark(PerformanceScenario scenario)
     {
         var services = new ServiceCollection();
-        
+
         if (scenario.BackendCount > 1)
         {
-            services.AddNLWebNetMultiBackend(options => { }, 
+            services.AddNLWebNetMultiBackend(options => { },
                 multiOptions => multiOptions.Enabled = true);
         }
         else
@@ -205,7 +205,7 @@ public class PerformanceBenchmarkFramework
         for (int i = 0; i < scenario.MinIterations; i++)
         {
             request.QueryId = $"perf-{scenario.Category}-{i}";
-            
+
             var stopwatch = Stopwatch.StartNew();
             var response = await nlWebService.ProcessRequestAsync(request);
             stopwatch.Stop();
@@ -228,10 +228,10 @@ public class PerformanceBenchmarkFramework
     private async Task<BenchmarkResult> BenchmarkConfiguration(string configName, bool enableMultiBackend)
     {
         var services = new ServiceCollection();
-        
+
         if (enableMultiBackend)
         {
-            services.AddNLWebNetMultiBackend(options => { }, 
+            services.AddNLWebNetMultiBackend(options => { },
                 multiOptions => multiOptions.Enabled = true);
         }
         else
@@ -254,7 +254,7 @@ public class PerformanceBenchmarkFramework
                 Query = testQuery,
                 Mode = QueryMode.List
             };
-            
+
             var stopwatch = Stopwatch.StartNew();
             await nlWebService.ProcessRequestAsync(request);
             stopwatch.Stop();
@@ -277,12 +277,12 @@ public class PerformanceBenchmarkFramework
     {
         var sorted = values.OrderBy(v => v).ToList();
         var index = (percentile / 100.0) * (sorted.Count - 1);
-        
+
         if (index == Math.Floor(index))
         {
             return sorted[(int)index];
         }
-        
+
         var lower = sorted[(int)Math.Floor(index)];
         var upper = sorted[(int)Math.Ceiling(index)];
         return lower + (upper - lower) * (index - Math.Floor(index));
@@ -293,7 +293,7 @@ public class PerformanceBenchmarkFramework
         Console.WriteLine("\n" + new string('=', 60));
         Console.WriteLine("PERFORMANCE BENCHMARK REPORT");
         Console.WriteLine(new string('=', 60));
-        
+
         foreach (var result in results)
         {
             Console.WriteLine($"\nScenario: {result.ScenarioName}");
@@ -303,7 +303,7 @@ public class PerformanceBenchmarkFramework
             Console.WriteLine($"Max: {result.MaxResponseTimeMs:F2}ms");
             Console.WriteLine($"95th percentile: {result.Percentile95Ms:F2}ms");
         }
-        
+
         Console.WriteLine("\n" + new string('=', 60));
     }
 }
