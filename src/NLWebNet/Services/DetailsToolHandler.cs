@@ -44,7 +44,6 @@ public class DetailsToolHandler : BaseToolHandler
 
             // Create details-focused query
             var detailsQuery = $"{subject} overview definition explanation details";
-            var processedQuery = await QueryProcessor.ProcessQueryAsync(request, cancellationToken);
 
             // Generate detailed results
             var searchResults = await ResultGenerator.GenerateListAsync(detailsQuery, request.Site, cancellationToken);

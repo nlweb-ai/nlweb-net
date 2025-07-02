@@ -117,32 +117,10 @@ public class NLWebService : INLWebService
             _logger.LogDebug("ProcessQueryAsync complete for QueryId={QueryId}", queryId);
 
             // Check if tool execution is available and enabled
-            if (_toolSelector != null && _toolExecutor != null && _options.ToolSelectionEnabled)
+            var toolResponse = await HandleToolSelectionAsync(request, queryId, cancellationToken);
+            if (toolResponse != null)
             {
-                _logger.LogDebug("Tool execution enabled, checking if tool selection is needed for QueryId={QueryId}", queryId);
-
-                if (_toolSelector.ShouldSelectTool(request))
-                {
-                    _logger.LogDebug("Tool selection needed for QueryId={QueryId}", queryId);
-
-                    var selectedTool = await _toolSelector.SelectToolAsync(request, cancellationToken);
-                    if (!string.IsNullOrEmpty(selectedTool))
-                    {
-                        _logger.LogInformation("Tool '{Tool}' selected for QueryId={QueryId}, executing tool", selectedTool, queryId);
-
-                        try
-                        {
-                            var toolResponse = await _toolExecutor.ExecuteToolAsync(request, selectedTool, cancellationToken);
-                            _logger.LogInformation("[END] Tool execution completed for QueryId={QueryId} with tool '{Tool}'", queryId, selectedTool);
-                            return toolResponse;
-                        }
-                        catch (Exception toolEx)
-                        {
-                            _logger.LogError(toolEx, "Tool execution failed for QueryId={QueryId} with tool '{Tool}', falling back to standard processing", queryId, selectedTool);
-                            // Fall through to standard processing
-                        }
-                    }
-                }
+                return toolResponse;
             }
 
             _logger.LogDebug("Using standard processing pipeline for QueryId={QueryId}", queryId);
