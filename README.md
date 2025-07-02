@@ -191,6 +191,61 @@ app.UseNLWebNet();     // Add NLWebNet middleware (optional)
 app.MapNLWebNet();     // Map NLWebNet minimal API endpoints
 ```
 
+### Configuration Format Support
+
+NLWebNet supports multiple configuration formats for enhanced flexibility:
+
+#### YAML Configuration
+
+```csharp
+// Enable YAML configuration support
+builder.Configuration.AddNLWebConfigurationFormats(builder.Environment);
+builder.Services.AddNLWebConfigurationFormats(builder.Configuration);
+```
+
+Example YAML configuration (`config_retrieval.yaml`):
+
+```yaml
+# Multi-backend configuration
+write_endpoint: primary_backend
+endpoints:
+  primary_backend:
+    enabled: true
+    db_type: azure_ai_search
+    priority: 1
+
+# NLWeb settings
+nlweb:
+  default_mode: List
+  enable_streaming: true
+  tool_selection_enabled: true
+```
+
+#### XML Tool Definitions
+
+Define tools for the tool selection framework:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<ToolDefinitions>
+  <Tool id="search-tool" name="Enhanced Search" type="search" enabled="true">
+    <Description>Advanced search with semantic understanding</Description>
+    <Parameters>
+      <MaxResults>50</MaxResults>
+      <TimeoutSeconds>30</TimeoutSeconds>
+    </Parameters>
+    <TriggerPatterns>
+      <Pattern>search for*</Pattern>
+      <Pattern>find*</Pattern>
+    </TriggerPatterns>
+  </Tool>
+</ToolDefinitions>
+```
+
+#### Backward Compatibility
+
+All existing JSON configuration continues to work unchanged. See the [Configuration Format Guide](doc/configuration-format-updates.md) for detailed documentation and migration examples.
+
 ### Prerequisites
 
 - .NET 9.0 SDK

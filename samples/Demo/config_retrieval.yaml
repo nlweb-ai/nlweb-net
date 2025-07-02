@@ -1,0 +1,55 @@
+# NLWeb Multi-Backend Configuration Example
+# This file demonstrates the YAML-style configuration format introduced in June 2025
+
+# Primary backend for write operations
+write_endpoint: primary_backend
+
+# Backend endpoint configurations
+endpoints:
+  primary_backend:
+    enabled: true
+    db_type: azure_ai_search
+    priority: 1
+    properties:
+      service_name: "nlweb-search"
+      index_name: "nlweb-index"
+      api_version: "2023-11-01"
+      # connection_string: "..." # Set via environment variables
+
+  secondary_backend:
+    enabled: true
+    db_type: mock
+    priority: 0
+    properties:
+      data_source: "sample_data"
+      enable_fuzzy_matching: true
+
+  backup_backend:
+    enabled: false
+    db_type: azure_ai_search
+    priority: -1
+    properties:
+      service_name: "nlweb-backup"
+      index_name: "nlweb-backup-index"
+
+# Multi-backend settings
+enable_parallel_querying: true
+enable_result_deduplication: true
+max_concurrent_queries: 3
+backend_timeout_seconds: 30
+
+# General NLWeb settings that can also be configured via YAML
+nlweb:
+  default_mode: "List"
+  enable_streaming: true
+  default_timeout_seconds: 30
+  max_results_per_query: 50
+  enable_caching: true
+  cache_expiration_minutes: 60
+  tool_selection_enabled: true
+
+# Tool selection configuration
+tool_selection:
+  default_tool: "search"
+  enable_auto_detection: true
+  fallback_to_search: true

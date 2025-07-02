@@ -37,6 +37,10 @@
 		<PackageReference Include="Microsoft.Extensions.Options" Version="9.0.6" />
 		<PackageReference Include="ModelContextProtocol" Version="0.3.0-preview.1" />
 		
+		<!-- Configuration Format Support -->
+		<PackageReference Include="YamlDotNet" Version="16.2.1" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Xml" Version="9.0.6" />
+		
 		<!-- Health Checks and Monitoring -->
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.6" />
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="9.0.6" />
