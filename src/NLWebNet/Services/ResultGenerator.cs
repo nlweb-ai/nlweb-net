@@ -11,10 +11,16 @@ namespace NLWebNet.Services;
 /// </summary>
 public class ResultGenerator : IResultGenerator
 {
-    private readonly IDataBackend _dataBackend;
+    private readonly IDataBackend? _dataBackend;
+    private readonly IBackendManager? _backendManager;
     private readonly ILogger<ResultGenerator> _logger;
     private readonly NLWebOptions _options;
-    private readonly IChatClient? _chatClient; public ResultGenerator(
+    private readonly IChatClient? _chatClient;
+
+    /// <summary>
+    /// Constructor for single-backend mode (backward compatibility).
+    /// </summary>
+    public ResultGenerator(
         IDataBackend dataBackend,
         ILogger<ResultGenerator> logger,
         IOptions<NLWebOptions> options,
@@ -25,7 +31,25 @@ public class ResultGenerator : IResultGenerator
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         _chatClient = chatClient;
 
-        _logger.LogDebug("ResultGenerator initialized with ChatClient: {ChatClientType}",
+        _logger.LogDebug("ResultGenerator initialized with single backend and ChatClient: {ChatClientType}",
+            _chatClient?.GetType().Name ?? "null");
+    }
+
+    /// <summary>
+    /// Constructor for multi-backend mode.
+    /// </summary>
+    public ResultGenerator(
+        IBackendManager backendManager,
+        ILogger<ResultGenerator> logger,
+        IOptions<NLWebOptions> options,
+        IChatClient? chatClient = null)
+    {
+        _backendManager = backendManager ?? throw new ArgumentNullException(nameof(backendManager));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+        _chatClient = chatClient;
+
+        _logger.LogDebug("ResultGenerator initialized with multi-backend manager and ChatClient: {ChatClientType}",
             _chatClient?.GetType().Name ?? "null");
     }
 
@@ -34,7 +58,22 @@ public class ResultGenerator : IResultGenerator
     {
         _logger.LogDebug("Generating list results for query: {Query}", query);
 
-        var results = await _dataBackend.SearchAsync(query, site, _options.MaxResultsPerQuery, cancellationToken);
+        IEnumerable<NLWebResult> results;
+
+        if (_backendManager != null)
+        {
+            // Use multi-backend manager
+            results = await _backendManager.SearchAsync(query, site, _options.MaxResultsPerQuery, cancellationToken);
+        }
+        else if (_dataBackend != null)
+        {
+            // Use single backend for backward compatibility
+            results = await _dataBackend.SearchAsync(query, site, _options.MaxResultsPerQuery, cancellationToken);
+        }
+        else
+        {
+            throw new InvalidOperationException("Neither backend manager nor single backend is configured");
+        }
 
         _logger.LogDebug("Generated {Count} list results", results.Count());
         return results;

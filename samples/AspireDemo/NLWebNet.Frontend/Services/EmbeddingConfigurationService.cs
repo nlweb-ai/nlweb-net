@@ -40,7 +40,7 @@ public class EmbeddingConfigurationService : IEmbeddingConfigurationService
         {
             // Try to restore token from session storage
             var storedToken = await _jsRuntime.InvokeAsync<string>("sessionStorage.getItem", "github-token");
-            
+
             if (!string.IsNullOrEmpty(storedToken))
             {
                 _githubToken = storedToken;
@@ -53,7 +53,7 @@ public class EmbeddingConfigurationService : IEmbeddingConfigurationService
             _logger.LogWarning(ex, "Failed to restore token from session storage");
             // Session storage not available or error - continue without token
         }
-        
+
         _initialized = true;
     }
 
@@ -68,12 +68,12 @@ public class EmbeddingConfigurationService : IEmbeddingConfigurationService
             }
 
             _githubToken = token;
-            
+
             // Store in session storage
             await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "github-token", token);
-            
+
             _logger.LogInformation("GitHub Models token configured and stored in session storage");
-            
+
             ConfigurationChanged?.Invoke(this, true);
             return true;
         }
@@ -89,12 +89,12 @@ public class EmbeddingConfigurationService : IEmbeddingConfigurationService
         try
         {
             _githubToken = null;
-            
+
             // Remove from session storage
             await _jsRuntime.InvokeVoidAsync("sessionStorage.removeItem", "github-token");
-            
+
             _logger.LogInformation("GitHub Models configuration cleared from session storage");
-            
+
             ConfigurationChanged?.Invoke(this, false);
         }
         catch (Exception ex)

@@ -71,4 +71,9 @@ public class NLWebOptions
     /// Rate limiting configuration
     /// </summary>
     public RateLimitingOptions RateLimiting { get; set; } = new();
+
+    /// <summary>
+    /// Multi-backend configuration options. When enabled, overrides single backend behavior.
+    /// </summary>
+    public MultiBackendOptions MultiBackend { get; set; } = new();
 }

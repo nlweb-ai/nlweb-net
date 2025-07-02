@@ -27,7 +27,7 @@ public class QdrantVectorStorageService : IVectorStorageService
         try
         {
             // Check if collection exists by trying to get its info
-            try 
+            try
             {
                 await _qdrantClient.GetCollectionInfoAsync(CollectionName, cancellationToken);
                 _logger.LogInformation("Qdrant collection already exists: {CollectionName}", CollectionName);
@@ -50,7 +50,7 @@ public class QdrantVectorStorageService : IVectorStorageService
                 },
                 cancellationToken: cancellationToken);
 
-            _logger.LogInformation("Created Qdrant collection: {CollectionName} with vector size: {VectorSize}", 
+            _logger.LogInformation("Created Qdrant collection: {CollectionName} with vector size: {VectorSize}",
                 CollectionName, VectorSize);
             _isInitialized = true;
         }
@@ -64,7 +64,7 @@ public class QdrantVectorStorageService : IVectorStorageService
     public async Task<string> StoreDocumentAsync(DocumentRecord document, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(document);
-        
+
         if (!_isInitialized)
             await InitializeAsync(cancellationToken);
 
@@ -78,7 +78,7 @@ public class QdrantVectorStorageService : IVectorStorageService
 
             // Convert ReadOnlyMemory<float> to float array for Qdrant
             var embeddingArray = document.Embedding.ToArray();
-            
+
             var point = new PointStruct
             {
                 Id = new PointId { Uuid = document.Id },
@@ -118,9 +118,9 @@ public class QdrantVectorStorageService : IVectorStorageService
     }
 
     public async Task<IEnumerable<(DocumentRecord Document, float Score)>> SearchSimilarAsync(
-        ReadOnlyMemory<float> queryEmbedding, 
-        int limit = 10, 
-        float threshold = 0.7f, 
+        ReadOnlyMemory<float> queryEmbedding,
+        int limit = 10,
+        float threshold = 0.7f,
         CancellationToken cancellationToken = default)
     {
         if (!_isInitialized)
@@ -129,7 +129,7 @@ public class QdrantVectorStorageService : IVectorStorageService
         try
         {
             var embeddingArray = queryEmbedding.ToArray();
-            
+
             var searchResponse = await _qdrantClient.SearchAsync(
                 collectionName: CollectionName,
                 vector: embeddingArray,
@@ -236,11 +236,11 @@ public class QdrantVectorStorageService : IVectorStorageService
             // Delete the collection and recreate it
             await _qdrantClient.DeleteCollectionAsync(CollectionName, cancellationToken: cancellationToken);
             _logger.LogInformation("Deleted Qdrant collection: {CollectionName}", CollectionName);
-            
+
             // Recreate the collection
             _isInitialized = false;
             await InitializeAsync(cancellationToken);
-            
+
             _logger.LogInformation("Cleared all documents from Qdrant collection: {CollectionName}", CollectionName);
             return true;
         }
