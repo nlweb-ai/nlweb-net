@@ -82,4 +82,9 @@ public class NLWebOptions
     /// When disabled, maintains existing behavior for backward compatibility.
     /// </summary>
     public bool ToolSelectionEnabled { get; set; } = false;
+
+    /// <summary>
+    /// Configuration format options for YAML and XML support.
+    /// </summary>
+    public ConfigurationFormatOptions ConfigurationFormat { get; set; } = new();
 }

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NLWeb Tool Definitions Example -->
+<!-- This file demonstrates the XML-based tool definitions format introduced in June 2025 -->
+<ToolDefinitions>
+  <!-- Enhanced Search Tool -->
+  <Tool id="enhanced-search" name="Enhanced Search Tool" type="search" enabled="true" priority="10">
+    <Description>Advanced search capability with semantic understanding and keyword matching</Description>
+    <Parameters>
+      <MaxResults>50</MaxResults>
+      <TimeoutSeconds>30</TimeoutSeconds>
+      <EnableCaching>true</EnableCaching>
+      <CustomProperties>
+        <Property name="semantic_search" value="true" type="boolean" />
+        <Property name="relevance_threshold" value="0.7" type="float" />
+        <Property name="include_snippets" value="true" type="boolean" />
+      </CustomProperties>
+    </Parameters>
+    <TriggerPatterns>
+      <Pattern>search for*</Pattern>
+      <Pattern>find*</Pattern>
+      <Pattern>look for*</Pattern>
+      <Pattern>what is*</Pattern>
+      <Pattern>tell me about*</Pattern>
+    </TriggerPatterns>
+    <SupportedBackends>
+      <Backend>azure_ai_search</Backend>
+      <Backend>mock</Backend>
+      <Backend>custom</Backend>
+    </SupportedBackends>
+  </Tool>
+
+  <!-- Details Tool -->
+  <Tool id="details-retriever" name="Details Retrieval Tool" type="details" enabled="true" priority="8">
+    <Description>Retrieve specific detailed information about named items or entities</Description>
+    <Parameters>
+      <MaxResults>10</MaxResults>
+      <TimeoutSeconds>20</TimeoutSeconds>
+      <EnableCaching>true</EnableCaching>
+      <CustomProperties>
+        <Property name="include_metadata" value="true" type="boolean" />
+        <Property name="max_detail_depth" value="3" type="integer" />
+        <Property name="include_related_items" value="false" type="boolean" />
+      </CustomProperties>
+    </Parameters>
+    <TriggerPatterns>
+      <Pattern>details about*</Pattern>
+      <Pattern>more information on*</Pattern>
+      <Pattern>tell me more about*</Pattern>
+      <Pattern>what are the details of*</Pattern>
+    </TriggerPatterns>
+    <SupportedBackends>
+      <Backend>azure_ai_search</Backend>
+      <Backend>custom</Backend>
+    </SupportedBackends>
+  </Tool>
+
+  <!-- Compare Tool -->
+  <Tool id="item-comparator" name="Item Comparison Tool" type="compare" enabled="true" priority="6">
+    <Description>Side-by-side comparison of two or more items highlighting similarities and differences</Description>
+    <Parameters>
+      <MaxResults>20</MaxResults>
+      <TimeoutSeconds>45</TimeoutSeconds>
+      <EnableCaching>true</EnableCaching>
+      <CustomProperties>
+        <Property name="comparison_mode" value="detailed" type="string" />
+        <Property name="highlight_differences" value="true" type="boolean" />
+        <Property name="include_similarity_score" value="true" type="boolean" />
+        <Property name="max_items_to_compare" value="5" type="integer" />
+      </CustomProperties>
+    </Parameters>
+    <TriggerPatterns>
+      <Pattern>compare*</Pattern>
+      <Pattern>difference between*</Pattern>
+      <Pattern>vs*</Pattern>
+      <Pattern>versus*</Pattern>
+      <Pattern>how does * compare to*</Pattern>
+    </TriggerPatterns>
+    <SupportedBackends>
+      <Backend>azure_ai_search</Backend>
+      <Backend>mock</Backend>
+    </SupportedBackends>
+  </Tool>
+
+  <!-- Ensemble Tool -->
+  <Tool id="ensemble-builder" name="Ensemble Creation Tool" type="ensemble" enabled="true" priority="5">
+    <Description>Create cohesive sets of related items for comprehensive experiences</Description>
+    <Parameters>
+      <MaxResults>30</MaxResults>
+      <TimeoutSeconds>60</TimeoutSeconds>
+      <EnableCaching>true</EnableCaching>
+      <CustomProperties>
+        <Property name="ensemble_strategy" value="thematic" type="string" />
+        <Property name="ensure_diversity" value="true" type="boolean" />
+        <Property name="max_ensemble_size" value="10" type="integer" />
+        <Property name="min_ensemble_size" value="3" type="integer" />
+      </CustomProperties>
+    </Parameters>
+    <TriggerPatterns>
+      <Pattern>plan a*</Pattern>
+      <Pattern>create a set of*</Pattern>
+      <Pattern>give me a collection of*</Pattern>
+      <Pattern>ensemble of*</Pattern>
+      <Pattern>group of related*</Pattern>
+    </TriggerPatterns>
+    <SupportedBackends>
+      <Backend>azure_ai_search</Backend>
+      <Backend>mock</Backend>
+      <Backend>custom</Backend>
+    </SupportedBackends>
+  </Tool>
+
+  <!-- Recipe Tool (Specialized Domain Example) -->
+  <Tool id="recipe-assistant" name="Recipe and Cooking Assistant" type="ensemble" enabled="false" priority="3">
+    <Description>Specialized tool for food-related queries including ingredient substitutions and meal planning</Description>
+    <Parameters>
+      <MaxResults>15</MaxResults>
+      <TimeoutSeconds>30</TimeoutSeconds>
+      <EnableCaching>true</EnableCaching>
+      <CustomProperties>
+        <Property name="include_nutrition_info" value="true" type="boolean" />
+        <Property name="dietary_restrictions_aware" value="true" type="boolean" />
+        <Property name="suggest_substitutions" value="true" type="boolean" />
+        <Property name="seasonal_preferences" value="false" type="boolean" />
+      </CustomProperties>
+    </Parameters>
+    <TriggerPatterns>
+      <Pattern>recipe for*</Pattern>
+      <Pattern>how to cook*</Pattern>
+      <Pattern>substitute for*</Pattern>
+      <Pattern>meal plan*</Pattern>
+      <Pattern>cooking*</Pattern>
+    </TriggerPatterns>
+    <SupportedBackends>
+      <Backend>custom</Backend>
+    </SupportedBackends>
+  </Tool>
+</ToolDefinitions>

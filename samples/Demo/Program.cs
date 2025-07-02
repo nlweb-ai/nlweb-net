@@ -6,6 +6,9 @@ using NLWebNet.Demo.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure configuration with NLWeb format support
+builder.Configuration.AddNLWebConfigurationFormats(builder.Environment);
+
 // Detect if running in Aspire and configure accordingly
 var isAspireEnabled = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_ASPIRE_URLS")) ||
                      !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT"));
@@ -81,6 +84,9 @@ else
         // otlBuilder.AddConsoleExporters(); // Simple console output for development
     });
 }
+
+// Add NLWeb configuration format support (YAML, XML tool definitions)
+builder.Services.AddNLWebConfigurationFormats(builder.Configuration);
 
 // IMPORTANT: Override the default MockDataBackend with our enhanced version AFTER AddNLWebNet
 // Use enhanced data backend with RSS feed integration and better sample data
