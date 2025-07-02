@@ -69,10 +69,8 @@ public class ToolSelector : IToolSelector
     /// Analyzes the query intent to determine the appropriate tool.
     /// This is a simplified implementation - production would use more sophisticated NLP.
     /// </summary>
-    private async Task<string?> AnalyzeQueryIntentAsync(string query, CancellationToken cancellationToken)
+    private Task<string?> AnalyzeQueryIntentAsync(string query, CancellationToken cancellationToken)
     {
-        await Task.Delay(1, cancellationToken); // Simulate async analysis
-
         var queryLower = query.ToLowerInvariant();
 
         // Basic keyword-based intent detection
@@ -80,26 +78,26 @@ public class ToolSelector : IToolSelector
         
         if (ContainsKeywords(queryLower, "search", "find", "look for", "locate"))
         {
-            return "search";
+            return Task.FromResult<string?>("search");
         }
 
         if (ContainsKeywords(queryLower, "compare", "difference", "versus", "vs", "contrast"))
         {
-            return "compare";
+            return Task.FromResult<string?>("compare");
         }
 
         if (ContainsKeywords(queryLower, "details", "information about", "tell me about", "describe"))
         {
-            return "details";
+            return Task.FromResult<string?>("details");
         }
 
         if (ContainsKeywords(queryLower, "recommend", "suggest", "what should", "ensemble", "set of"))
         {
-            return "ensemble";
+            return Task.FromResult<string?>("ensemble");
         }
 
         // Default to search tool for general queries
-        return "search";
+        return Task.FromResult<string?>("search");
     }
 
     private static bool ContainsKeywords(string text, params string[] keywords)
