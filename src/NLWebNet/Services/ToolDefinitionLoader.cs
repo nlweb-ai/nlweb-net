@@ -101,9 +101,20 @@ public class ToolDefinitionLoader : IToolDefinitionLoader
             });
 
             var result = (ToolDefinitions?)_serializer.Deserialize(xmlReader);
-            return result ?? new ToolDefinitions();
+            var toolDefinitions = result ?? new ToolDefinitions();
+
+            // Validate the loaded definitions
+            var validationErrors = ValidateToolDefinitions(toolDefinitions).ToList();
+            if (validationErrors.Any())
+            {
+                var errorMessage = $"Tool definitions validation failed: {string.Join("; ", validationErrors)}";
+                _logger.LogError(errorMessage);
+                throw new InvalidOperationException(errorMessage);
+            }
+
+            return toolDefinitions;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (!(ex is InvalidOperationException))
         {
             _logger.LogError(ex, "Failed to deserialize tool definitions from XML content");
             throw new InvalidOperationException("Failed to parse tool definitions XML", ex);

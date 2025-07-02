@@ -113,6 +113,30 @@ nlweb:
     }
 
     [TestMethod]
+    public void XmlToolDefinitions_ValidationErrors_ShouldThrowException()
+    {
+        // Arrange - XML with validation errors (empty tool ID)
+        var xml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<ToolDefinitions>
+    <Tool id="""" name=""Invalid Tool"" type=""search"" enabled=""true"" priority=""1"">
+        <Description>Tool with empty ID</Description>
+        <Parameters>
+            <MaxResults>10</MaxResults>
+            <TimeoutSeconds>30</TimeoutSeconds>
+        </Parameters>
+    </Tool>
+</ToolDefinitions>";
+
+        var logger = Substitute.For<Microsoft.Extensions.Logging.ILogger<ToolDefinitionLoader>>();
+        var loader = new ToolDefinitionLoader(logger);
+
+        // Act & Assert
+        var exception = Assert.ThrowsException<InvalidOperationException>(() => loader.LoadFromXml(xml));
+        Assert.IsTrue(exception.Message.Contains("Tool definitions validation failed"));
+        Assert.IsTrue(exception.Message.Contains("Tool ID cannot be empty"));
+    }
+
+    [TestMethod]
     public void ConfigurationExtensions_ServiceRegistration_ShouldWork()
     {
         // Arrange
