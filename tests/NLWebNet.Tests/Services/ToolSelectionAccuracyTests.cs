@@ -97,7 +97,7 @@ public class ToolSelectionAccuracyTests
                 var queryLower = scenario.Query.ToLowerInvariant();
                 var detailsKeywords = new[] { "details", "information about", "tell me about", "describe" };
                 var shouldSelectDetails = detailsKeywords.Any(keyword => queryLower.Contains(keyword));
-                
+
                 if (shouldSelectDetails)
                 {
                     Assert.AreEqual("details", selectedTool,
@@ -146,7 +146,7 @@ public class ToolSelectionAccuracyTests
                 var queryLower = scenario.Query.ToLowerInvariant();
                 var ensembleKeywords = new[] { "recommend", "suggest", "what should", "ensemble", "set of" };
                 var shouldSelectEnsemble = ensembleKeywords.Any(keyword => queryLower.Contains(keyword));
-                
+
                 if (shouldSelectEnsemble)
                 {
                     Assert.AreEqual("ensemble", selectedTool,
