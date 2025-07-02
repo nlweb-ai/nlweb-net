@@ -32,23 +32,27 @@ public class SearchToolHandler : BaseToolHandler
         {
             Logger.LogDebug("Executing search tool for query: {Query}", request.Query);
 
-            // Enhanced search processing - leverage existing QueryProcessor but with search-specific enhancements
-            var enhancedRequest = await EnhanceSearchRequest(request, cancellationToken);
+            // Process query for enhanced search
+            var processedQuery = await QueryProcessor.ProcessQueryAsync(request, cancellationToken);
+            var enhancedQuery = await OptimizeSearchQuery(processedQuery, cancellationToken);
             
-            // Use the existing query processor as the underlying engine
-            var response = await QueryProcessor.ProcessQueryAsync(enhancedRequest, cancellationToken);
+            // Generate search results using the existing result generator
+            var searchResults = await ResultGenerator.GenerateListAsync(enhancedQuery, request.Site, cancellationToken);
+            var resultsList = searchResults.ToList();
             
-            // Post-process results for search-specific enhancements
-            var enhancedResponse = await EnhanceSearchResponse(response, request, cancellationToken);
+            // Enhance results for search-specific improvements
+            var enhancedResults = EnhanceSearchResults(resultsList, request.Query);
             
             stopwatch.Stop();
-            enhancedResponse.ProcessingTimeMs = stopwatch.ElapsedMilliseconds;
-            enhancedResponse.Message = $"Enhanced search completed - found {enhancedResponse.Results.Count} results";
+            
+            var response = CreateSuccessResponse(request, enhancedResults, stopwatch.ElapsedMilliseconds);
+            response.ProcessedQuery = enhancedQuery;
+            response.Summary = $"Enhanced search completed - found {enhancedResults.Count} results";
             
             Logger.LogDebug("Search tool completed in {ElapsedMs}ms with {ResultCount} results", 
-                stopwatch.ElapsedMilliseconds, enhancedResponse.Results.Count);
+                stopwatch.ElapsedMilliseconds, enhancedResults.Count);
             
-            return enhancedResponse;
+            return response;
         }
         catch (Exception ex)
         {
@@ -82,30 +86,6 @@ public class SearchToolHandler : BaseToolHandler
     }
 
     /// <summary>
-    /// Enhances the search request with search-specific optimizations.
-    /// </summary>
-    private async Task<NLWebRequest> EnhanceSearchRequest(NLWebRequest request, CancellationToken cancellationToken)
-    {
-        // Create enhanced request with search optimizations
-        var enhancedRequest = new NLWebRequest
-        {
-            QueryId = request.QueryId,
-            Query = await OptimizeSearchQuery(request.Query, cancellationToken),
-            Mode = request.Mode,
-            Site = request.Site,
-            MaxResults = Math.Min(request.MaxResults ?? Options.MaxResultsPerQuery, Options.MaxResultsPerQuery),
-            TimeoutSeconds = request.TimeoutSeconds,
-            DecontextualizedQuery = request.DecontextualizedQuery,
-            Context = request.Context
-        };
-
-        Logger.LogDebug("Enhanced search query from '{Original}' to '{Enhanced}'", 
-            request.Query, enhancedRequest.Query);
-
-        return enhancedRequest;
-    }
-
-    /// <summary>
     /// Optimizes the search query for better results.
     /// </summary>
     private Task<string> OptimizeSearchQuery(string query, CancellationToken cancellationToken)
@@ -128,39 +108,28 @@ public class SearchToolHandler : BaseToolHandler
     }
 
     /// <summary>
-    /// Enhances the search response with additional search-specific features.
+    /// Enhances search results with search-specific improvements.
     /// </summary>
-    private Task<NLWebResponse> EnhanceSearchResponse(NLWebResponse response, NLWebRequest originalRequest, CancellationToken cancellationToken)
+    private IList<NLWebResult> EnhanceSearchResults(IList<NLWebResult> results, string originalQuery)
     {
-        if (!response.Success || response.Results == null)
-            return Task.FromResult(response);
+        if (results == null || !results.Any())
+            return results;
 
         // Sort results by relevance (simple implementation)
-        var sortedResults = response.Results
-            .OrderByDescending(r => CalculateSearchRelevance(r, originalRequest.Query))
+        var sortedResults = results
+            .OrderByDescending(r => CalculateSearchRelevance(r, originalQuery))
             .ToList();
 
         // Add search-specific metadata
         foreach (var result in sortedResults)
         {
-            if (result is NLWebResult webResult && string.IsNullOrEmpty(webResult.Site))
+            if (string.IsNullOrEmpty(result.Site))
             {
-                webResult.Site = "Search";
+                result.Site = "Search";
             }
         }
 
-        var enhancedResponse = new NLWebResponse
-        {
-            QueryId = response.QueryId,
-            Query = response.Query,
-            Mode = response.Mode,
-            Results = sortedResults,
-            Success = response.Success,
-            Message = response.Message,
-            ProcessingTimeMs = response.ProcessingTimeMs,
-        };
-
-        return Task.FromResult(enhancedResponse);
+        return sortedResults;
     }
 
     /// <summary>
@@ -169,40 +138,31 @@ public class SearchToolHandler : BaseToolHandler
     private double CalculateSearchRelevance(NLWebResult result, string query)
     {
         if (result == null || string.IsNullOrWhiteSpace(query))
-            return 0.0;
+            return result?.Score ?? 0.0;
 
-        double score = 0.0;
+        double score = result.Score;
         var queryLower = query.ToLowerInvariant();
         var queryTerms = queryLower.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-        // Title relevance (higher weight)
+        // Name relevance (higher weight)
         if (!string.IsNullOrEmpty(result.Name))
         {
-            var titleLower = result.Name.ToLowerInvariant();
+            var nameLower = result.Name.ToLowerInvariant();
             foreach (var term in queryTerms)
             {
-                if (titleLower.Contains(term))
+                if (nameLower.Contains(term))
                     score += 3.0;
             }
         }
 
-        // Summary relevance (medium weight)
+        // Description relevance (medium weight)
         if (!string.IsNullOrEmpty(result.Description))
         {
-            var summaryLower = result.Description.ToLowerInvariant();
+            var descriptionLower = result.Description.ToLowerInvariant();
             foreach (var term in queryTerms)
             {
-                if (summaryLower.Contains(term))
+                if (descriptionLower.Contains(term))
                     score += 2.0;
-            }
-        }
-
-        // Content relevance (lower weight)
-        {
-            foreach (var term in queryTerms)
-            {
-                if (contentLower.Contains(term))
-                    score += 1.0;
             }
         }
 

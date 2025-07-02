@@ -15,7 +15,8 @@ public class CompareToolHandler : BaseToolHandler
     public CompareToolHandler(
         ILogger<CompareToolHandler> logger,
         IOptions<NLWebOptions> options,
-        IQueryProcessor queryProcessor, IResultGenerator resultGenerator) 
+        IQueryProcessor queryProcessor,
+        IResultGenerator resultGenerator) 
         : base(logger, options, queryProcessor, resultGenerator)
     {
     }
@@ -41,22 +42,25 @@ public class CompareToolHandler : BaseToolHandler
 
             Logger.LogDebug("Comparing '{Item1}' vs '{Item2}'", comparisonItems.Item1, comparisonItems.Item2);
 
-            // Gather information about both items
-            var item1Results = await GatherItemInformation(comparisonItems.Item1, request, cancellationToken);
-            var item2Results = await GatherItemInformation(comparisonItems.Item2, request, cancellationToken);
+            // Create comparison query
+            var comparisonQuery = $"{comparisonItems.Item1} vs {comparisonItems.Item2} comparison differences";
+            
+            // Generate comparison results
+            var searchResults = await ResultGenerator.GenerateListAsync(comparisonQuery, request.Site, cancellationToken);
+            var resultsList = searchResults.ToList();
             
             // Create structured comparison results
-            var comparisonResponse = CreateComparisonResponse(
-                request, comparisonItems.Item1, comparisonItems.Item2, 
-                item1Results, item2Results);
+            var comparisonResults = CreateComparisonResults(resultsList, comparisonItems.Item1, comparisonItems.Item2);
             
             stopwatch.Stop();
-            comparisonResponse.ProcessingTimeMs = stopwatch.ElapsedMilliseconds;
-            comparisonResponse.Message = $"Comparison completed between '{comparisonItems.Item1}' and '{comparisonItems.Item2}'";
+            
+            var response = CreateSuccessResponse(request, comparisonResults, stopwatch.ElapsedMilliseconds);
+            response.ProcessedQuery = comparisonQuery;
+            response.Summary = $"Comparison completed between '{comparisonItems.Item1}' and '{comparisonItems.Item2}'";
             
             Logger.LogDebug("Compare tool completed in {ElapsedMs}ms", stopwatch.ElapsedMilliseconds);
             
-            return comparisonResponse;
+            return response;
         }
         catch (Exception ex)
         {
@@ -119,10 +123,6 @@ public class CompareToolHandler : BaseToolHandler
             @"(.+?)\s+(?:vs|versus)\s+(.+)",
             // "difference between A and B"
             @"difference\s+between\s+(.+?)\s+and\s+(.+)",
-            // "A or B" (when asking which is better)
-            @"(.+?)\s+or\s+(.+?)(?:\s+which|$)",
-            // "A and B comparison"
-            @"(.+?)\s+and\s+(.+?)\s+comparison",
         };
 
         foreach (var pattern in patterns)
@@ -130,8 +130,8 @@ public class CompareToolHandler : BaseToolHandler
             var match = Regex.Match(queryLower, pattern, RegexOptions.IgnoreCase);
             if (match.Success && match.Groups.Count > 2)
             {
-                var item1 = CleanComparisonItem(match.Groups[1].Value);
-                var item2 = CleanComparisonItem(match.Groups[2].Value);
+                var item1 = match.Groups[1].Value.Trim();
+                var item2 = match.Groups[2].Value.Trim();
                 
                 if (!string.IsNullOrWhiteSpace(item1) && !string.IsNullOrWhiteSpace(item2))
                 {
@@ -144,226 +144,48 @@ public class CompareToolHandler : BaseToolHandler
     }
 
     /// <summary>
-    /// Cleans up extracted comparison items by removing noise words.
+    /// Creates structured comparison results.
     /// </summary>
-    private string CleanComparisonItem(string item)
-    {
-        if (string.IsNullOrWhiteSpace(item))
-            return string.Empty;
-
-        var cleaned = item.Trim();
-        
-        // Remove common noise words from the beginning
-        var prefixNoise = new[] { "the", "a", "an", "which", "what", "how" };
-        foreach (var noise in prefixNoise)
-        {
-            if (cleaned.StartsWith(noise + " ", StringComparison.OrdinalIgnoreCase))
-            {
-                cleaned = cleaned.Substring(noise.Length + 1).Trim();
-            }
-        }
-
-        // Remove common noise words from the end
-        var suffixNoise = new[] { "better", "worse", "best", "good", "bad" };
-        foreach (var noise in suffixNoise)
-        {
-            if (cleaned.EndsWith(" " + noise, StringComparison.OrdinalIgnoreCase))
-            {
-                cleaned = cleaned.Substring(0, cleaned.Length - noise.Length - 1).Trim();
-            }
-        }
-
-        return cleaned;
-    }
-
-    /// <summary>
-    /// Gathers information about a specific item for comparison.
-    /// </summary>
-    private async Task<IList<NLWebResult>> GatherItemInformation(string item, NLWebRequest originalRequest, CancellationToken cancellationToken)
-    {
-        // Create a focused query for this specific item
-        var itemQuery = $"{item} features overview specifications";
-        
-        var itemRequest = new NLWebRequest
-        {
-            QueryId = originalRequest.QueryId,
-            Query = itemQuery,
-            Mode = originalRequest.Mode,
-            Site = originalRequest.Site,
-            MaxResults = 5, // Limit results per item
-            TimeoutSeconds = originalRequest.TimeoutSeconds,
-            DecontextualizedQuery = originalRequest.DecontextualizedQuery,
-            Context = originalRequest.Context
-        };
-
-        try
-        {
-            var response = await QueryProcessor.ProcessQueryAsync(itemRequest, cancellationToken);
-            return response.Success ? response.Results : new List<NLWebResult>();
-        }
-        catch (Exception ex)
-        {
-            Logger.LogWarning(ex, "Failed to gather information for item '{Item}'", item);
-            return new List<NLWebResult>();
-        }
-    }
-
-    /// <summary>
-    /// Creates a structured comparison response from the gathered information.
-    /// </summary>
-    private NLWebResponse CreateComparisonResponse(
-        NLWebRequest request, 
-        string item1, 
-        string item2, 
-        IList<NLWebResult> item1Results, 
-        IList<NLWebResult> item2Results)
+    private IList<NLWebResult> CreateComparisonResults(IList<NLWebResult> results, string item1, string item2)
     {
         var comparisonResults = new List<NLWebResult>();
 
         // Create summary comparison result
-        var summaryResult = CreateComparisonSummary(item1, item2, item1Results, item2Results);
-        comparisonResults.Add(summaryResult);
+        comparisonResults.Add(CreateToolResult(
+            $"Comparison: {item1} vs {item2}",
+            $"Side-by-side comparison analysis of {item1} and {item2}",
+            "",
+            "Compare",
+            1.0
+        ));
 
-        // Add detailed results for item 1
-        var item1Section = CreateItemSection(item1, item1Results, "A");
-        comparisonResults.AddRange(item1Section);
+        // Add relevant comparison results
+        var relevantResults = results
+            .Where(r => IsRelevantForComparison(r, item1, item2))
+            .Take(8)
+            .ToList();
 
-        // Add detailed results for item 2
-        var item2Section = CreateItemSection(item2, item2Results, "B");
-        comparisonResults.AddRange(item2Section);
-
-        // Add side-by-side comparison if we have good data
-        if (item1Results.Any() && item2Results.Any())
+        foreach (var result in relevantResults)
         {
-            var sideBySideResult = CreateSideBySideComparison(item1, item2, item1Results, item2Results);
-            comparisonResults.Add(sideBySideResult);
+            comparisonResults.Add(CreateToolResult(
+                $"[Compare] {result.Name}",
+                result.Description,
+                result.Url,
+                result.Site ?? "Compare",
+                result.Score
+            ));
         }
 
-        return CreateSuccessResponse(request, comparisonResults, 0);
+        return comparisonResults;
     }
 
     /// <summary>
-    /// Creates a high-level comparison summary.
+    /// Checks if a result is relevant for comparison.
     /// </summary>
-    private NLWebResult CreateComparisonSummary(string item1, string item2, IList<NLWebResult> item1Results, IList<NLWebResult> item2Results)
+    private bool IsRelevantForComparison(NLWebResult result, string item1, string item2)
     {
-        var summary = $"Comparison between {item1} and {item2}:\n\n";
-        
-        if (item1Results.Any())
-        {
-            summary += $"**{item1}**: {GetBestSummary(item1Results)}\n\n";
-        }
-        
-        if (item2Results.Any())
-        {
-            summary += $"**{item2}**: {GetBestSummary(item2Results)}\n\n";
-        }
-
-        if (!item1Results.Any() && !item2Results.Any())
-        {
-            summary += "Limited information available for detailed comparison.";
-        }
-
-        return new NLWebResult
-        {
-            Title = $"Comparison: {item1} vs {item2}",
-            Summary = summary,
-            Url = string.Empty,
-            Site = "Compare",
-            Content = "Structured comparison analysis",
-            Timestamp = DateTime.UtcNow
-        };
-    }
-
-    /// <summary>
-    /// Creates a section of results for a specific item.
-    /// </summary>
-    private IList<NLWebResult> CreateItemSection(string item, IList<NLWebResult> results, string section)
-    {
-        var sectionResults = new List<NLWebResult>();
-
-        // Add section header
-        sectionResults.Add(new NLWebResult
-        {
-            Title = $"Option {section}: {item}",
-            Summary = $"Information about {item}",
-            Url = string.Empty,
-            Site = "Compare",
-            Content = string.Empty,
-            Timestamp = DateTime.UtcNow
-        });
-
-        // Add the best results for this item
-        var bestResults = results.Take(3).ToList();
-        foreach (var result in bestResults)
-        {
-            if (result is NLWebResult webResult)
-            {
-                var enhancedResult = new NLWebResult
-                {
-                    Title = $"{item}: {webResult.Name}",
-                    Summary = webResult.Description,
-                    Url = webResult.Url,
-                    Site = webResult.Site ?? "Compare",
-                };
-                sectionResults.Add(enhancedResult);
-            }
-        }
-
-        return sectionResults;
-    }
-
-    /// <summary>
-    /// Creates a side-by-side comparison result.
-    /// </summary>
-    private NLWebResult CreateSideBySideComparison(string item1, string item2, IList<NLWebResult> item1Results, IList<NLWebResult> item2Results)
-    {
-        var comparison = $"**Side-by-Side Comparison**\n\n";
-        comparison += $"| Aspect | {item1} | {item2} |\n";
-        comparison += "|--------|---------|----------|\n";
-        
-        // Extract key aspects from both sets of results
-        var item1Summary = GetBestSummary(item1Results);
-        var item2Summary = GetBestSummary(item2Results);
-        
-        comparison += $"| Overview | {TruncateForTable(item1Summary)} | {TruncateForTable(item2Summary)} |\n";
-        
-        return new NLWebResult
-        {
-            Title = $"Side-by-Side: {item1} vs {item2}",
-            Summary = comparison,
-            Url = string.Empty,
-            Site = "Compare",
-            Content = "Detailed side-by-side comparison table",
-            Timestamp = DateTime.UtcNow
-        };
-    }
-
-    /// <summary>
-    /// Gets the best summary from a collection of results.
-    /// </summary>
-    private string GetBestSummary(IList<NLWebResult> results)
-    {
-        var bestResult = results
-            .Where(r => !string.IsNullOrWhiteSpace(r.Description))
-            .OrderByDescending(r => r.Description?.Length ?? 0)
-            .FirstOrDefault();
-
-        return bestResult?.Description ?? "No detailed information available";
-    }
-
-    /// <summary>
-    /// Truncates text for table display.
-    /// </summary>
-    private string TruncateForTable(string text)
-    {
-        if (string.IsNullOrWhiteSpace(text))
-            return "N/A";
-
-        const int maxLength = 100;
-        if (text.Length <= maxLength)
-            return text;
-
-        return text.Substring(0, maxLength - 3) + "...";
+        var text = $"{result.Name} {result.Description}".ToLowerInvariant();
+        return text.Contains(item1.ToLowerInvariant()) || text.Contains(item2.ToLowerInvariant()) ||
+               text.Contains("compare") || text.Contains("difference") || text.Contains("versus");
     }
 }

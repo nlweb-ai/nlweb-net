@@ -15,7 +15,8 @@ public class DetailsToolHandler : BaseToolHandler
     public DetailsToolHandler(
         ILogger<DetailsToolHandler> logger,
         IOptions<NLWebOptions> options,
-        IQueryProcessor queryProcessor, IResultGenerator resultGenerator) 
+        IQueryProcessor queryProcessor,
+        IResultGenerator resultGenerator) 
         : base(logger, options, queryProcessor, resultGenerator)
     {
     }
@@ -41,23 +42,27 @@ public class DetailsToolHandler : BaseToolHandler
 
             Logger.LogDebug("Extracted subject '{Subject}' from query", subject);
 
-            // Create details-focused request
-            var detailsRequest = await CreateDetailsRequest(request, subject, cancellationToken);
+            // Create details-focused query
+            var detailsQuery = $"{subject} overview definition explanation details";
+            var processedQuery = await QueryProcessor.ProcessQueryAsync(request, cancellationToken);
             
-            // Use the existing query processor to gather information
-            var response = await QueryProcessor.ProcessQueryAsync(detailsRequest, cancellationToken);
+            // Generate detailed results
+            var searchResults = await ResultGenerator.GenerateListAsync(detailsQuery, request.Site, cancellationToken);
+            var resultsList = searchResults.ToList();
             
-            // Post-process results to focus on details
-            var detailsResponse = await EnhanceDetailsResponse(response, subject, request, cancellationToken);
+            // Enhance results for details focus
+            var detailsResults = EnhanceDetailsResults(resultsList, subject);
             
             stopwatch.Stop();
-            detailsResponse.ProcessingTimeMs = stopwatch.ElapsedMilliseconds;
-            detailsResponse.Message = $"Details retrieved for '{subject}' - found {detailsResponse.Results.Count} detailed results";
+            
+            var response = CreateSuccessResponse(request, detailsResults, stopwatch.ElapsedMilliseconds);
+            response.ProcessedQuery = detailsQuery;
+            response.Summary = $"Details retrieved for '{subject}' - found {detailsResults.Count} detailed results";
             
             Logger.LogDebug("Details tool completed in {ElapsedMs}ms for subject '{Subject}'", 
                 stopwatch.ElapsedMilliseconds, subject);
             
-            return detailsResponse;
+            return response;
         }
         catch (Exception ex)
         {
@@ -117,7 +122,6 @@ public class DetailsToolHandler : BaseToolHandler
             @"(?:tell me about|information about|details about|describe)\s+(.+)",
             @"(?:what is|what are)\s+(.+)",
             @"(?:explain|definition of|overview of)\s+(.+)",
-            @"(?:how does|how do)\s+(.+?)\s+(?:work|function)",
         };
 
         foreach (var pattern in patterns)
@@ -129,95 +133,44 @@ public class DetailsToolHandler : BaseToolHandler
             }
         }
 
-        // If no pattern matches, try to extract meaningful nouns (simple approach)
-        var words = queryLower.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var stopWords = new HashSet<string> 
-        { 
-            "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with", "by", "about"
-        };
-
-        var meaningfulWords = words.Where(w => !stopWords.Contains(w) && w.Length > 2).ToList();
-        return meaningfulWords.Any() ? string.Join(" ", meaningfulWords) : query;
+        // If no pattern matches, return the whole query
+        return query;
     }
 
     /// <summary>
-    /// Creates a details-focused request for the specified subject.
+    /// Enhances results to focus on detailed information.
     /// </summary>
-    private Task<NLWebRequest> CreateDetailsRequest(NLWebRequest request, string subject, CancellationToken cancellationToken)
+    private IList<NLWebResult> EnhanceDetailsResults(IList<NLWebResult> results, string subject)
     {
-        // Create a more specific query focused on getting comprehensive details
-        var detailsQuery = $"{subject} overview definition explanation details";
-
-        var detailsRequest = new NLWebRequest
-        {
-            QueryId = request.QueryId,
-            Query = detailsQuery,
-            Mode = request.Mode,
-            Site = request.Site,
-            MaxResults = Math.Min(request.MaxResults ?? 20, 20), // Limit results for focused details
-            TimeoutSeconds = request.TimeoutSeconds,
-            DecontextualizedQuery = request.DecontextualizedQuery,
-            Context = request.Context
-        };
-
-        Logger.LogDebug("Created details-focused query: {Query}", detailsQuery);
-        return Task.FromResult(detailsRequest);
-    }
-
-    /// <summary>
-    /// Enhances the response to focus on detailed information.
-    /// </summary>
-    private Task<NLWebResponse> EnhanceDetailsResponse(NLWebResponse response, string subject, NLWebRequest originalRequest, CancellationToken cancellationToken)
-    {
-        if (!response.Success || response.Results == null)
-            return Task.FromResult(response);
+        if (results == null || !results.Any())
+            return results;
 
         // Filter and rank results by their detail relevance
-        var detailResults = response.Results
+        var detailResults = results
             .Select(r => new { Result = r, Score = CalculateDetailsRelevance(r, subject) })
             .Where(x => x.Score > 0)
             .OrderByDescending(x => x.Score)
-            .Take(15) // Focus on top detailed results
+            .Take(10) // Focus on top detailed results
             .Select(x => x.Result)
             .ToList();
 
         // Enhance results with details-specific formatting
         foreach (var result in detailResults)
         {
-            if (result is NLWebResult webResult)
+            // Enhance name to indicate it's a details result
+            if (!string.IsNullOrEmpty(result.Name) && !result.Name.ToLowerInvariant().Contains("details"))
             {
-                // Enhance title to indicate it's a details result
-                if (!string.IsNullOrEmpty(webResult.Name) && !webResult.Name.ToLowerInvariant().Contains("details"))
-                {
-                    webResult.Name = $"Details: {webResult.Name}";
-                }
+                result.Name = $"Details: {result.Name}";
+            }
 
-                // Set site to indicate details processing
-                if (string.IsNullOrEmpty(webResult.Site))
-                {
-                    webResult.Site = "Details";
-                }
-
-                // Enhance summary to focus on key details
-                if (!string.IsNullOrEmpty(webResult.Description))
-                {
-                    webResult.Description = EnhanceSummaryForDetails(webResult.Description, subject);
-                }
+            // Set site to indicate details processing
+            if (string.IsNullOrEmpty(result.Site))
+            {
+                result.Site = "Details";
             }
         }
 
-        var enhancedResponse = new NLWebResponse
-        {
-            QueryId = response.QueryId,
-            Query = response.Query,
-            Mode = response.Mode,
-            Results = detailResults,
-            Success = response.Success,
-            Message = response.Message,
-            ProcessingTimeMs = response.ProcessingTimeMs,
-        };
-
-        return Task.FromResult(enhancedResponse);
+        return detailResults;
     }
 
     /// <summary>
@@ -226,71 +179,46 @@ public class DetailsToolHandler : BaseToolHandler
     private double CalculateDetailsRelevance(NLWebResult result, string subject)
     {
         if (result == null || string.IsNullOrWhiteSpace(subject))
-            return 0.0;
+            return result?.Score ?? 0.0;
 
-        double score = 0.0;
+        double score = result.Score;
         var subjectLower = subject.ToLowerInvariant();
         var subjectTerms = subjectLower.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
         // Check if result contains comprehensive information
         var detailsIndicators = new[] { "overview", "introduction", "definition", "explanation", "guide", "about" };
         
-        // Title relevance with details indicators
+        // Name relevance with details indicators
         if (!string.IsNullOrEmpty(result.Name))
         {
-            var titleLower = result.Name.ToLowerInvariant();
+            var nameLower = result.Name.ToLowerInvariant();
             
-            // High score for exact subject match in title
-            if (subjectTerms.All(term => titleLower.Contains(term)))
+            // High score for exact subject match in name
+            if (subjectTerms.All(term => nameLower.Contains(term)))
                 score += 5.0;
             
             // Bonus for details indicators
             foreach (var indicator in detailsIndicators)
             {
-                if (titleLower.Contains(indicator))
+                if (nameLower.Contains(indicator))
                     score += 2.0;
             }
         }
 
-        // Summary relevance
+        // Description relevance
         if (!string.IsNullOrEmpty(result.Description))
         {
-            var summaryLower = result.Description.ToLowerInvariant();
+            var descriptionLower = result.Description.ToLowerInvariant();
             
-            // Score for subject terms in summary
-            var matchingTerms = subjectTerms.Count(term => summaryLower.Contains(term));
+            // Score for subject terms in description
+            var matchingTerms = subjectTerms.Count(term => descriptionLower.Contains(term));
             score += matchingTerms * 1.5;
             
-            // Bonus for comprehensive summary (longer, more detailed)
+            // Bonus for comprehensive description (longer, more detailed)
             if (result.Description.Length > 100)
                 score += 1.0;
         }
 
-        // Content depth bonus
-        {
-            score += 1.0;
-        }
-
         return score;
-    }
-
-    /// <summary>
-    /// Enhances a summary to better highlight details about the subject.
-    /// </summary>
-    private string EnhanceSummaryForDetails(string summary, string subject)
-    {
-        if (string.IsNullOrWhiteSpace(summary) || summary.Length < 50)
-            return summary;
-
-        // Simple enhancement - ensure summary starts with subject context if not already present
-        var summaryLower = summary.ToLowerInvariant();
-        var subjectLower = subject.ToLowerInvariant();
-
-        if (!summaryLower.StartsWith(subjectLower) && summary.Length < 300)
-        {
-            return $"{subject}: {summary}";
-        }
-
-        return summary;
     }
 }
