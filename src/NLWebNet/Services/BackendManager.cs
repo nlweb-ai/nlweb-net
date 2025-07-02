@@ -235,29 +235,27 @@ public class BackendManager : IBackendManager
     /// </summary>
     private List<NLWebResult> DeduplicateResults(List<NLWebResult> results)
     {
-        var deduplicated = new List<NLWebResult>();
-        var seenUrls = new HashSet<string>();
+        // Use Dictionary for O(n) performance instead of O(n²)
+        var resultsByUrl = new Dictionary<string, NLWebResult>();
 
-        foreach (var result in results.OrderByDescending(r => r.Score))
+        foreach (var result in results)
         {
-            // Simple deduplication by URL
-            if (!seenUrls.Contains(result.Url))
+            // Check if we've seen this URL before
+            if (resultsByUrl.TryGetValue(result.Url, out var existing))
             {
-                seenUrls.Add(result.Url);
-                deduplicated.Add(result);
+                // Keep the result with the higher score
+                if (result.Score > existing.Score)
+                {
+                    resultsByUrl[result.Url] = result;
+                }
             }
             else
             {
-                // If we've seen this URL, but the current result has a higher relevance score,
-                // replace the existing one
-                var existingIndex = deduplicated.FindIndex(r => r.Url == result.Url);
-                if (existingIndex >= 0 && result.Score > deduplicated[existingIndex].Score)
-                {
-                    deduplicated[existingIndex] = result;
-                }
+                // First time seeing this URL
+                resultsByUrl[result.Url] = result;
             }
         }
 
-        return deduplicated;
+        return resultsByUrl.Values.ToList();
     }
 }
