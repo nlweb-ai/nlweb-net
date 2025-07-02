@@ -9,6 +9,7 @@ using NLWebNet.MCP;
 using NLWebNet.Health;
 using NLWebNet.RateLimiting;
 using NLWebNet.Metrics;
+using NLWebNet.Extensions;
 using System.Diagnostics;
 
 namespace NLWebNet;
@@ -37,6 +38,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IQueryProcessor, QueryProcessor>();
         services.AddScoped<IResultGenerator, ResultGenerator>();
         services.AddScoped<IToolSelector, ToolSelector>();
+
+        // Register Advanced Tool System
+        services.AddAdvancedToolSystem();
 
         // Register MCP services
         services.AddScoped<IMcpService, McpService>();        // Register default data backend (can be overridden)
@@ -78,6 +82,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IQueryProcessor, QueryProcessor>();
         services.AddScoped<IResultGenerator, ResultGenerator>();
         services.AddScoped<IToolSelector, ToolSelector>();
+
+        // Register Advanced Tool System
+        services.AddAdvancedToolSystem();
 
         // Register MCP services
         services.AddScoped<IMcpService, McpService>();
@@ -155,6 +162,10 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IQueryProcessor, QueryProcessor>();
         services.AddScoped<IToolSelector, ToolSelector>();
+
+        // Register Advanced Tool System
+        services.AddAdvancedToolSystem();
+
         services.AddScoped<IResultGenerator>(provider =>
         {
             var options = provider.GetRequiredService<IOptions<NLWebOptions>>();
