@@ -100,15 +100,15 @@ public class SimpleEmbeddingService : IEmbeddingService
         // Create a simple hash-based embedding for demo purposes
         // This is NOT suitable for production use
         var embedding = new float[EmbeddingSize];
-        
+
         var hash = text.GetHashCode();
         var random = new Random(hash);
-        
+
         for (int i = 0; i < EmbeddingSize; i++)
         {
             embedding[i] = (float)(random.NextDouble() * 2.0 - 1.0); // Range: -1 to 1
         }
-        
+
         // Normalize the embedding vector
         var magnitude = Math.Sqrt(embedding.Sum(x => x * x));
         if (magnitude > 0)
@@ -118,7 +118,7 @@ public class SimpleEmbeddingService : IEmbeddingService
                 embedding[i] = (float)(embedding[i] / magnitude);
             }
         }
-        
+
         return new ReadOnlyMemory<float>(embedding);
     }
 }

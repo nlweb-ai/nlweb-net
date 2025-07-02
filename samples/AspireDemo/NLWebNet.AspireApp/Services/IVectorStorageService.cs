@@ -30,9 +30,9 @@ public interface IVectorStorageService
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of similar documents with their similarity scores</returns>
     Task<IEnumerable<(DocumentRecord Document, float Score)>> SearchSimilarAsync(
-        ReadOnlyMemory<float> queryEmbedding, 
-        int limit = 10, 
-        float threshold = 0.7f, 
+        ReadOnlyMemory<float> queryEmbedding,
+        int limit = 10,
+        float threshold = 0.7f,
         CancellationToken cancellationToken = default);
 
     /// <summary>

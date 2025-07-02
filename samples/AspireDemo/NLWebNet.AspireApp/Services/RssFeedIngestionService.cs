@@ -61,21 +61,21 @@ public class RssFeedIngestionService : IRssFeedIngestionService
             var request = new HttpRequestMessage(HttpMethod.Get, feedUrl);
             request.Headers.Add("User-Agent", "NLWebNet RSS Ingestion Service 1.0");
             request.Headers.Add("Accept", "application/rss+xml, application/xml, text/xml");
-            
+
             var response = await _httpClient.SendAsync(request, cancellationToken);
-            
+
             _logger.LogInformation("RSS feed response: {StatusCode} for {FeedUrl}", response.StatusCode, feedUrl);
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-                _logger.LogError("Failed to fetch RSS feed {FeedUrl}. Status: {StatusCode}. Content: {Content}", 
+                _logger.LogError("Failed to fetch RSS feed {FeedUrl}. Status: {StatusCode}. Content: {Content}",
                     feedUrl, response.StatusCode, errorContent);
                 throw new HttpRequestException($"Failed to fetch RSS feed from {feedUrl}. Status: {response.StatusCode}");
             }
 
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
-            
+
             // Parse the RSS feed with proper XML settings
             using var stringReader = new StringReader(content);
             var xmlSettings = new XmlReaderSettings
@@ -84,7 +84,7 @@ public class RssFeedIngestionService : IRssFeedIngestionService
                 XmlResolver = null // Disable external entity resolution for security
             };
             using var xmlReader = XmlReader.Create(stringReader, xmlSettings);
-            
+
             var feed = SyndicationFeed.Load(xmlReader);
             if (feed == null)
             {
@@ -97,7 +97,7 @@ public class RssFeedIngestionService : IRssFeedIngestionService
 
             // Process only the latest 25 items to keep ingestion fast and focused
             var itemsToProcess = feed.Items.Take(25);
-            _logger.LogInformation("Processing latest {ItemCount} items from feed: {SiteName}", 
+            _logger.LogInformation("Processing latest {ItemCount} items from feed: {SiteName}",
                 itemsToProcess.Count(), siteName);
 
             // Process each item in the feed
@@ -111,7 +111,7 @@ public class RssFeedIngestionService : IRssFeedIngestionService
                         // Generate semantic embedding for the document using the provided GitHub token
                         var textToEmbed = $"{document.Title} {document.Description}";
                         document.Embedding = await _embeddingService.GenerateEmbeddingAsync(textToEmbed, githubToken, cancellationToken);
-                        
+
                         await _vectorStorage.StoreDocumentAsync(document, cancellationToken);
                         processedCount++;
                     }
@@ -122,9 +122,9 @@ public class RssFeedIngestionService : IRssFeedIngestionService
                 }
             }
 
-            _logger.LogInformation("Successfully ingested {ProcessedCount} items from feed: {FeedUrl}", 
+            _logger.LogInformation("Successfully ingested {ProcessedCount} items from feed: {FeedUrl}",
                 processedCount, feedUrl);
-            
+
             return processedCount;
         }
         catch (Exception ex)
@@ -137,7 +137,7 @@ public class RssFeedIngestionService : IRssFeedIngestionService
     public async Task<int> IngestDemoFeedsAsync(CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Starting ingestion of demo RSS feeds");
-        
+
         int totalProcessed = 0;
         var tasks = new List<Task<int>>();
 
@@ -150,8 +150,8 @@ public class RssFeedIngestionService : IRssFeedIngestionService
         {
             var results = await Task.WhenAll(tasks);
             totalProcessed = results.Sum();
-            
-            _logger.LogInformation("Successfully ingested {TotalProcessed} items from {FeedCount} demo feeds", 
+
+            _logger.LogInformation("Successfully ingested {TotalProcessed} items from {FeedCount} demo feeds",
                 totalProcessed, _demoFeeds.Length);
         }
         catch (Exception ex)
@@ -166,7 +166,7 @@ public class RssFeedIngestionService : IRssFeedIngestionService
     public async Task<int> IngestDemoFeedsAsync(string? githubToken, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Starting focused ingestion of .NET blog RSS feed with GitHub token: {HasToken}", !string.IsNullOrEmpty(githubToken));
-        
+
         int totalProcessed = 0;
 
         // Process feeds sequentially to reduce server load and improve reliability
@@ -186,9 +186,9 @@ public class RssFeedIngestionService : IRssFeedIngestionService
             }
         }
 
-        _logger.LogInformation("Demo ingestion completed: {TotalProcessed} items from {FeedCount} feeds", 
+        _logger.LogInformation("Demo ingestion completed: {TotalProcessed} items from {FeedCount} feeds",
             totalProcessed, _demoFeeds.Length);
-        
+
         return totalProcessed;
     }
 

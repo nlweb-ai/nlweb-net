@@ -18,7 +18,7 @@ public class CompositeEmbeddingService : IEmbeddingService
     {
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        
+
         // Always create simple embedding service as fallback
         var simpleLogger = _serviceProvider.GetRequiredService<ILogger<SimpleEmbeddingService>>();
         _simpleEmbeddingService = new SimpleEmbeddingService(simpleLogger);
@@ -37,10 +37,10 @@ public class CompositeEmbeddingService : IEmbeddingService
             try
             {
                 _logger.LogDebug("Attempting to use GitHub Models embedding service with provided token");
-                
+
                 var githubService = CreateGitHubModelsService(githubToken);
                 var result = await githubService.GenerateEmbeddingAsync(text, githubToken, cancellationToken);
-                
+
                 _logger.LogDebug("Successfully generated embedding using GitHub Models");
                 return result;
             }
@@ -63,14 +63,14 @@ public class CompositeEmbeddingService : IEmbeddingService
     {
         var httpClientFactory = _serviceProvider.GetRequiredService<IHttpClientFactory>();
         var httpClient = httpClientFactory.CreateClient("GitHubModels");
-        
+
         // Configure the HttpClient for this request
         httpClient.BaseAddress = new Uri("https://models.inference.ai.azure.com/");
-        httpClient.DefaultRequestHeaders.Authorization = 
+        httpClient.DefaultRequestHeaders.Authorization =
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", githubToken);
         httpClient.DefaultRequestHeaders.Add("User-Agent", "NLWebNet-AspireDemo");
         httpClient.Timeout = TimeSpan.FromSeconds(30);
-        
+
         var logger = _serviceProvider.GetRequiredService<ILogger<GitHubModelsEmbeddingService>>();
         return new GitHubModelsEmbeddingService(httpClient, "text-embedding-3-small", logger);
     }
@@ -79,7 +79,7 @@ public class CompositeEmbeddingService : IEmbeddingService
     {
         // Basic validation for GitHub token format
         // Real tokens start with 'gho_', 'ghp_', or 'github_pat_'
-        return !string.IsNullOrWhiteSpace(token) && 
+        return !string.IsNullOrWhiteSpace(token) &&
                (token.StartsWith("gho_") || token.StartsWith("ghp_") || token.StartsWith("github_pat_")) &&
                token.Length > 20; // GitHub tokens are typically much longer
     }

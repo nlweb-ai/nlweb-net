@@ -12,7 +12,7 @@ public class GitHubModelsEmbeddingService : IEmbeddingService
     private readonly HttpClient _httpClient;
     private readonly string _model;
     private readonly ILogger<GitHubModelsEmbeddingService> _logger;
-    
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
@@ -20,7 +20,7 @@ public class GitHubModelsEmbeddingService : IEmbeddingService
     };
 
     public GitHubModelsEmbeddingService(
-        HttpClient httpClient, 
+        HttpClient httpClient,
         string model,
         ILogger<GitHubModelsEmbeddingService> logger)
     {
