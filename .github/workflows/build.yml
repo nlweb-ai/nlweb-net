@@ -121,10 +121,61 @@ jobs:
           demo/bin/Release/
         retention-days: 7
 
-  code-quality:
+  auto-format:
     runs-on: ubuntu-latest
     needs: [check-changes, build]
-    if: needs.check-changes.outputs.should-skip != 'true'
+    if: needs.check-changes.outputs.should-skip != 'true' && github.event_name == 'push' && github.ref != 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Format code - Main Solution
+      run: |
+        echo "🔧 Formatting main solution..."
+        dotnet format NLWebNet.sln --verbosity diagnostic
+        
+    - name: Format code - AspireDemo Solution
+      run: |
+        echo "🔧 Formatting AspireDemo solution..."
+        dotnet format samples/AspireDemo/NLWebNet.AspireDemo.sln --verbosity diagnostic
+
+    - name: Check for formatting changes
+      id: format-check
+      run: |
+        if git diff --quiet; then
+          echo "No formatting changes needed"
+          echo "changes=false" >> $GITHUB_OUTPUT
+        else
+          echo "Formatting changes detected"
+          echo "changes=true" >> $GITHUB_OUTPUT
+          git status --porcelain
+        fi
+
+    - name: Commit formatting changes
+      if: steps.format-check.outputs.changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -m "🔧 Auto-format code with dotnet format"
+        git push
+
+  code-quality:
+    runs-on: ubuntu-latest
+    needs: [check-changes, build, auto-format]
+    if: needs.check-changes.outputs.should-skip != 'true' && always() && (needs.auto-format.result == 'success' || needs.auto-format.result == 'skipped')
     
     steps:
     - name: Checkout code
@@ -145,12 +196,15 @@ jobs:
         dotnet build --configuration Release --verbosity minimal --warnaserror
         
     - name: Check formatting
-      run: dotnet format --verify-no-changes --verbosity diagnostic
+      run: |
+        echo "🔍 Checking code formatting..."
+        dotnet format NLWebNet.sln --verify-no-changes --verbosity diagnostic
+        dotnet format samples/AspireDemo/NLWebNet.AspireDemo.sln --verify-no-changes --verbosity diagnostic
 
   security-scan:
     runs-on: ubuntu-latest
-    needs: [check-changes, build]
-    if: needs.check-changes.outputs.should-skip != 'true'
+    needs: [check-changes, build, auto-format]
+    if: needs.check-changes.outputs.should-skip != 'true' && always() && (needs.auto-format.result == 'success' || needs.auto-format.result == 'skipped')
     
     steps:
     - name: Checkout code
@@ -176,8 +230,8 @@ jobs:
 
   package-validation:
     runs-on: ubuntu-latest
-    needs: [check-changes, build]
-    if: needs.check-changes.outputs.should-skip != 'true' && (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')))
+    needs: [check-changes, build, auto-format]
+    if: needs.check-changes.outputs.should-skip != 'true' && always() && (needs.auto-format.result == 'success' || needs.auto-format.result == 'skipped') && (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')))
     
     steps:
     - name: Checkout code
@@ -269,8 +323,8 @@ jobs:
 
   docker-build:
     runs-on: ubuntu-latest
-    needs: [check-changes, build]
-    if: needs.check-changes.outputs.should-skip != 'true' && (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')))
+    needs: [check-changes, build, auto-format]
+    if: needs.check-changes.outputs.should-skip != 'true' && always() && (needs.auto-format.result == 'success' || needs.auto-format.result == 'skipped') && (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')))
     
     steps:
     - name: Checkout code
@@ -313,8 +367,8 @@ jobs:
   # Alternative: .NET SDK Container Build (modern approach)
   dotnet-container-build:
     runs-on: ubuntu-latest
-    needs: [check-changes, build]
-    if: needs.check-changes.outputs.should-skip != 'true' && (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')))
+    needs: [check-changes, build, auto-format]
+    if: needs.check-changes.outputs.should-skip != 'true' && always() && (needs.auto-format.result == 'success' || needs.auto-format.result == 'skipped') && (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')))
     
     steps:
     - name: Checkout code
