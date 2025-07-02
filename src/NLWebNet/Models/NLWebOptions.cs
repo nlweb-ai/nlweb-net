@@ -76,4 +76,10 @@ public class NLWebOptions
     /// Multi-backend configuration options. When enabled, overrides single backend behavior.
     /// </summary>
     public MultiBackendOptions MultiBackend { get; set; } = new();
+
+    /// <summary>
+    /// Whether to enable tool selection framework for routing queries to appropriate tools.
+    /// When disabled, maintains existing behavior for backward compatibility.
+    /// </summary>
+    public bool ToolSelectionEnabled { get; set; } = false;
 }
