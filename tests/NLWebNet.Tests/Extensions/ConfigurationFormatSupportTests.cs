@@ -56,12 +56,6 @@ nlweb:
         builder.AddYamlStream(stream);
         var configuration = builder.Build();
 
-        // Debug: Check what configuration values are actually being loaded
-        var defaultMode = configuration["nlweb:default_mode"];
-        var enableStreaming = configuration["nlweb:enable_streaming"];
-        var toolSelection = configuration["nlweb:tool_selection_enabled"];
-        var multiBackendEnabled = configuration["nlweb:multi_backend:enabled"];
-
         var services = new ServiceCollection();
         services.Configure<NLWebOptions>(configuration.GetSection("nlweb"));
         var serviceProvider = services.BuildServiceProvider();
