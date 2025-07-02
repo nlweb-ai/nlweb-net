@@ -12,6 +12,24 @@ public class ToolSelector : IToolSelector
     private readonly ILogger<ToolSelector> _logger;
     private readonly NLWebOptions _options;
 
+    /// <summary>
+    /// Constants for tool names and associated keywords
+    /// </summary>
+    private static class ToolConstants
+    {
+        // Tool names
+        public const string SearchTool = "search";
+        public const string CompareTool = "compare";
+        public const string DetailsTool = "details";
+        public const string EnsembleTool = "ensemble";
+
+        // Keywords for each tool
+        public static readonly string[] SearchKeywords = { "search", "find", "look for", "locate" };
+        public static readonly string[] CompareKeywords = { "compare", "difference", "versus", "vs", "contrast" };
+        public static readonly string[] DetailsKeywords = { "details", "information about", "tell me about", "describe" };
+        public static readonly string[] EnsembleKeywords = { "recommend", "suggest", "what should", "ensemble", "set of" };
+    }
+
     public ToolSelector(ILogger<ToolSelector> logger, IOptions<NLWebOptions> options)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -76,31 +94,31 @@ public class ToolSelector : IToolSelector
         // Basic keyword-based intent detection
         // In production, this would use ML models or more sophisticated analysis
 
-        if (ContainsKeywords(queryLower, "search", "find", "look for", "locate"))
+        if (ContainsKeywords(queryLower, ToolConstants.SearchKeywords))
         {
-            return Task.FromResult<string?>("search");
+            return Task.FromResult<string?>(ToolConstants.SearchTool);
         }
 
-        if (ContainsKeywords(queryLower, "compare", "difference", "versus", "vs", "contrast"))
+        if (ContainsKeywords(queryLower, ToolConstants.CompareKeywords))
         {
-            return Task.FromResult<string?>("compare");
+            return Task.FromResult<string?>(ToolConstants.CompareTool);
         }
 
-        if (ContainsKeywords(queryLower, "details", "information about", "tell me about", "describe"))
+        if (ContainsKeywords(queryLower, ToolConstants.DetailsKeywords))
         {
-            return Task.FromResult<string?>("details");
+            return Task.FromResult<string?>(ToolConstants.DetailsTool);
         }
 
-        if (ContainsKeywords(queryLower, "recommend", "suggest", "what should", "ensemble", "set of"))
+        if (ContainsKeywords(queryLower, ToolConstants.EnsembleKeywords))
         {
-            return Task.FromResult<string?>("ensemble");
+            return Task.FromResult<string?>(ToolConstants.EnsembleTool);
         }
 
         // Default to search tool for general queries
-        return Task.FromResult<string?>("search");
+        return Task.FromResult<string?>(ToolConstants.SearchTool);
     }
 
-    private static bool ContainsKeywords(string text, params string[] keywords)
+    private static bool ContainsKeywords(string text, string[] keywords)
     {
         return keywords.Any(keyword => text.Contains(keyword));
     }
