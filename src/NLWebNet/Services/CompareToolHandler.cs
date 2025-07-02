@@ -16,7 +16,7 @@ public class CompareToolHandler : BaseToolHandler
         ILogger<CompareToolHandler> logger,
         IOptions<NLWebOptions> options,
         IQueryProcessor queryProcessor,
-        IResultGenerator resultGenerator) 
+        IResultGenerator resultGenerator)
         : base(logger, options, queryProcessor, resultGenerator)
     {
     }
@@ -28,7 +28,7 @@ public class CompareToolHandler : BaseToolHandler
     public override async Task<NLWebResponse> ExecuteAsync(NLWebRequest request, CancellationToken cancellationToken = default)
     {
         var stopwatch = Stopwatch.StartNew();
-        
+
         try
         {
             Logger.LogDebug("Executing compare tool for query: {Query}", request.Query);
@@ -44,22 +44,22 @@ public class CompareToolHandler : BaseToolHandler
 
             // Create comparison query
             var comparisonQuery = $"{comparisonItems.Item1} vs {comparisonItems.Item2} comparison differences";
-            
+
             // Generate comparison results
             var searchResults = await ResultGenerator.GenerateListAsync(comparisonQuery, request.Site, cancellationToken);
             var resultsList = searchResults.ToList();
-            
+
             // Create structured comparison results
             var comparisonResults = CreateComparisonResults(resultsList, comparisonItems.Item1, comparisonItems.Item2);
-            
+
             stopwatch.Stop();
-            
+
             var response = CreateSuccessResponse(request, comparisonResults, stopwatch.ElapsedMilliseconds);
             response.ProcessedQuery = comparisonQuery;
             response.Summary = $"Comparison completed between '{comparisonItems.Item1}' and '{comparisonItems.Item2}'";
-            
+
             Logger.LogDebug("Compare tool completed in {ElapsedMs}ms", stopwatch.ElapsedMilliseconds);
-            
+
             return response;
         }
         catch (Exception ex)
@@ -76,11 +76,11 @@ public class CompareToolHandler : BaseToolHandler
             return false;
 
         var query = request.Query?.ToLowerInvariant() ?? string.Empty;
-        
+
         // Can handle queries that contain comparison keywords
-        var compareKeywords = new[] 
-        { 
-            "compare", "vs", "versus", "difference", "differences", 
+        var compareKeywords = new[]
+        {
+            "compare", "vs", "versus", "difference", "differences",
             "contrast", "better", "worse", "pros and cons", "which is better"
         };
 
@@ -91,15 +91,15 @@ public class CompareToolHandler : BaseToolHandler
     public override int GetPriority(NLWebRequest request)
     {
         var query = request.Query?.ToLowerInvariant() ?? string.Empty;
-        
+
         // Higher priority for explicit comparison requests
         if (query.Contains(" vs ") || query.Contains(" versus ") || query.StartsWith("compare"))
             return 95;
-        
+
         // High priority for difference queries
         if (query.Contains("difference") || query.Contains("contrast"))
             return 85;
-        
+
         // Medium priority for other comparison-related queries
         return 70;
     }
@@ -132,7 +132,7 @@ public class CompareToolHandler : BaseToolHandler
             {
                 var item1 = match.Groups[1].Value.Trim();
                 var item2 = match.Groups[2].Value.Trim();
-                
+
                 if (!string.IsNullOrWhiteSpace(item1) && !string.IsNullOrWhiteSpace(item2))
                 {
                     return (item1, item2);

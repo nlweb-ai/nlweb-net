@@ -15,7 +15,7 @@ public class RecipeToolHandler : BaseToolHandler
         ILogger<RecipeToolHandler> logger,
         IOptions<NLWebOptions> options,
         IQueryProcessor queryProcessor,
-        IResultGenerator resultGenerator) 
+        IResultGenerator resultGenerator)
         : base(logger, options, queryProcessor, resultGenerator)
     {
     }
@@ -27,29 +27,29 @@ public class RecipeToolHandler : BaseToolHandler
     public override async Task<NLWebResponse> ExecuteAsync(NLWebRequest request, CancellationToken cancellationToken = default)
     {
         var stopwatch = Stopwatch.StartNew();
-        
+
         try
         {
             Logger.LogDebug("Executing recipe tool for query: {Query}", request.Query);
 
             // Create recipe-focused query
             var recipeQuery = $"{request.Query} recipe cooking instructions";
-            
+
             // Generate recipe results
             var searchResults = await ResultGenerator.GenerateListAsync(recipeQuery, request.Site, cancellationToken);
             var resultsList = searchResults.ToList();
-            
+
             // Create recipe-specific results
             var recipeResults = CreateRecipeResults(resultsList, request.Query);
-            
+
             stopwatch.Stop();
-            
+
             var response = CreateSuccessResponse(request, recipeResults, stopwatch.ElapsedMilliseconds);
             response.ProcessedQuery = recipeQuery;
             response.Summary = $"Recipe information and cooking guidance provided";
-            
+
             Logger.LogDebug("Recipe tool completed in {ElapsedMs}ms", stopwatch.ElapsedMilliseconds);
-            
+
             return response;
         }
         catch (Exception ex)
@@ -66,10 +66,10 @@ public class RecipeToolHandler : BaseToolHandler
             return false;
 
         var query = request.Query?.ToLowerInvariant() ?? string.Empty;
-        
+
         // Can handle recipe, cooking, and food-related queries
-        var recipeKeywords = new[] 
-        { 
+        var recipeKeywords = new[]
+        {
             "recipe", "cooking", "cook", "ingredient", "substitute", "substitution",
             "bake", "baking", "preparation", "kitchen", "culinary", "food",
             "accompaniment", "side dish", "pair with", "serve with", "goes with"
@@ -82,17 +82,17 @@ public class RecipeToolHandler : BaseToolHandler
     public override int GetPriority(NLWebRequest request)
     {
         var query = request.Query?.ToLowerInvariant() ?? string.Empty;
-        
+
         // Higher priority for specific recipe operations
         if (query.Contains("substitute") || query.Contains("substitution"))
             return 95;
-        
+
         if (query.Contains("recipe for") || query.Contains("how to cook"))
             return 90;
-        
+
         if (query.Contains("serve with") || query.Contains("goes with"))
             return 85;
-        
+
         // Medium priority for general cooking queries
         return 70;
     }
@@ -137,7 +137,7 @@ public class RecipeToolHandler : BaseToolHandler
     private string DetermineQueryType(string query)
     {
         var queryLower = query.ToLowerInvariant();
-        
+
         if (queryLower.Contains("substitute"))
             return "Substitution";
         if (queryLower.Contains("serve with") || queryLower.Contains("goes with"))
@@ -146,7 +146,7 @@ public class RecipeToolHandler : BaseToolHandler
             return "Recipe";
         if (queryLower.Contains("cook") || queryLower.Contains("bake"))
             return "Technique";
-        
+
         return "Cooking";
     }
 
@@ -157,7 +157,7 @@ public class RecipeToolHandler : BaseToolHandler
     {
         var text = $"{result.Name} {result.Description}".ToLowerInvariant();
         var recipeTerms = new[] { "recipe", "cooking", "food", "ingredient", "kitchen", "culinary" };
-        
+
         return recipeTerms.Any(term => text.Contains(term));
     }
 }

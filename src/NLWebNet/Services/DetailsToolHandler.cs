@@ -16,7 +16,7 @@ public class DetailsToolHandler : BaseToolHandler
         ILogger<DetailsToolHandler> logger,
         IOptions<NLWebOptions> options,
         IQueryProcessor queryProcessor,
-        IResultGenerator resultGenerator) 
+        IResultGenerator resultGenerator)
         : base(logger, options, queryProcessor, resultGenerator)
     {
     }
@@ -28,7 +28,7 @@ public class DetailsToolHandler : BaseToolHandler
     public override async Task<NLWebResponse> ExecuteAsync(NLWebRequest request, CancellationToken cancellationToken = default)
     {
         var stopwatch = Stopwatch.StartNew();
-        
+
         try
         {
             Logger.LogDebug("Executing details tool for query: {Query}", request.Query);
@@ -45,23 +45,23 @@ public class DetailsToolHandler : BaseToolHandler
             // Create details-focused query
             var detailsQuery = $"{subject} overview definition explanation details";
             var processedQuery = await QueryProcessor.ProcessQueryAsync(request, cancellationToken);
-            
+
             // Generate detailed results
             var searchResults = await ResultGenerator.GenerateListAsync(detailsQuery, request.Site, cancellationToken);
             var resultsList = searchResults.ToList();
-            
+
             // Enhance results for details focus
             var detailsResults = EnhanceDetailsResults(resultsList, subject);
-            
+
             stopwatch.Stop();
-            
+
             var response = CreateSuccessResponse(request, detailsResults, stopwatch.ElapsedMilliseconds);
             response.ProcessedQuery = detailsQuery;
             response.Summary = $"Details retrieved for '{subject}' - found {detailsResults.Count} detailed results";
-            
-            Logger.LogDebug("Details tool completed in {ElapsedMs}ms for subject '{Subject}'", 
+
+            Logger.LogDebug("Details tool completed in {ElapsedMs}ms for subject '{Subject}'",
                 stopwatch.ElapsedMilliseconds, subject);
-            
+
             return response;
         }
         catch (Exception ex)
@@ -78,12 +78,12 @@ public class DetailsToolHandler : BaseToolHandler
             return false;
 
         var query = request.Query?.ToLowerInvariant() ?? string.Empty;
-        
+
         // Can handle queries that ask for details, information, or descriptions
-        var detailsKeywords = new[] 
-        { 
-            "details", "information about", "tell me about", "describe", 
-            "what is", "explain", "definition of", "overview of" 
+        var detailsKeywords = new[]
+        {
+            "details", "information about", "tell me about", "describe",
+            "what is", "explain", "definition of", "overview of"
         };
 
         return detailsKeywords.Any(keyword => query.Contains(keyword));
@@ -93,15 +93,15 @@ public class DetailsToolHandler : BaseToolHandler
     public override int GetPriority(NLWebRequest request)
     {
         var query = request.Query?.ToLowerInvariant() ?? string.Empty;
-        
+
         // Higher priority for explicit details requests
         if (query.StartsWith("tell me about") || query.StartsWith("what is") || query.Contains("details about"))
             return 90;
-        
+
         // Medium-high priority for informational queries
         if (query.Contains("information about") || query.Contains("describe"))
             return 75;
-        
+
         // Default priority for details-related queries
         return 65;
     }
@@ -187,16 +187,16 @@ public class DetailsToolHandler : BaseToolHandler
 
         // Check if result contains comprehensive information
         var detailsIndicators = new[] { "overview", "introduction", "definition", "explanation", "guide", "about" };
-        
+
         // Name relevance with details indicators
         if (!string.IsNullOrEmpty(result.Name))
         {
             var nameLower = result.Name.ToLowerInvariant();
-            
+
             // High score for exact subject match in name
             if (subjectTerms.All(term => nameLower.Contains(term)))
                 score += 5.0;
-            
+
             // Bonus for details indicators
             foreach (var indicator in detailsIndicators)
             {
@@ -209,11 +209,11 @@ public class DetailsToolHandler : BaseToolHandler
         if (!string.IsNullOrEmpty(result.Description))
         {
             var descriptionLower = result.Description.ToLowerInvariant();
-            
+
             // Score for subject terms in description
             var matchingTerms = subjectTerms.Count(term => descriptionLower.Contains(term));
             score += matchingTerms * 1.5;
-            
+
             // Bonus for comprehensive description (longer, more detailed)
             if (result.Description.Length > 100)
                 score += 1.0;

@@ -16,7 +16,7 @@ public class EnsembleToolHandler : BaseToolHandler
         ILogger<EnsembleToolHandler> logger,
         IOptions<NLWebOptions> options,
         IQueryProcessor queryProcessor,
-        IResultGenerator resultGenerator) 
+        IResultGenerator resultGenerator)
         : base(logger, options, queryProcessor, resultGenerator)
     {
     }
@@ -28,29 +28,29 @@ public class EnsembleToolHandler : BaseToolHandler
     public override async Task<NLWebResponse> ExecuteAsync(NLWebRequest request, CancellationToken cancellationToken = default)
     {
         var stopwatch = Stopwatch.StartNew();
-        
+
         try
         {
             Logger.LogDebug("Executing ensemble tool for query: {Query}", request.Query);
 
             // Create ensemble-focused query
             var ensembleQuery = $"{request.Query} recommendations suggestions set";
-            
+
             // Generate ensemble results
             var searchResults = await ResultGenerator.GenerateListAsync(ensembleQuery, request.Site, cancellationToken);
             var resultsList = searchResults.ToList();
-            
+
             // Create ensemble response
             var ensembleResults = CreateEnsembleResults(resultsList, request.Query);
-            
+
             stopwatch.Stop();
-            
+
             var response = CreateSuccessResponse(request, ensembleResults, stopwatch.ElapsedMilliseconds);
             response.ProcessedQuery = ensembleQuery;
             response.Summary = $"Ensemble recommendations created for your request";
-            
+
             Logger.LogDebug("Ensemble tool completed in {ElapsedMs}ms", stopwatch.ElapsedMilliseconds);
-            
+
             return response;
         }
         catch (Exception ex)
@@ -67,10 +67,10 @@ public class EnsembleToolHandler : BaseToolHandler
             return false;
 
         var query = request.Query?.ToLowerInvariant() ?? string.Empty;
-        
+
         // Can handle queries that ask for recommendations, suggestions, or sets of items
-        var ensembleKeywords = new[] 
-        { 
+        var ensembleKeywords = new[]
+        {
             "recommend", "suggest", "give me", "plan", "set of", "ensemble",
             "what should i", "help me choose", "i need", "looking for"
         };
@@ -82,20 +82,20 @@ public class EnsembleToolHandler : BaseToolHandler
     public override int GetPriority(NLWebRequest request)
     {
         var query = request.Query?.ToLowerInvariant() ?? string.Empty;
-        
+
         // Higher priority for explicit ensemble requests
         if (query.Contains("give me") && (query.Contains(" and ") || query.Contains(", ")))
             return 90;
-        
+
         // High priority for planning requests
         if (query.StartsWith("plan") || query.Contains("help me plan"))
             return 85;
-        
+
         // Medium-high priority for recommendation requests with multiple items
-        if ((query.Contains("recommend") || query.Contains("suggest")) && 
+        if ((query.Contains("recommend") || query.Contains("suggest")) &&
             (query.Contains(" and ") || query.Contains(", ")))
             return 80;
-        
+
         // Default priority for ensemble-related queries
         return 65;
     }

@@ -15,7 +15,7 @@ public class SearchToolHandler : BaseToolHandler
         ILogger<SearchToolHandler> logger,
         IOptions<NLWebOptions> options,
         IQueryProcessor queryProcessor,
-        IResultGenerator resultGenerator) 
+        IResultGenerator resultGenerator)
         : base(logger, options, queryProcessor, resultGenerator)
     {
     }
@@ -27,7 +27,7 @@ public class SearchToolHandler : BaseToolHandler
     public override async Task<NLWebResponse> ExecuteAsync(NLWebRequest request, CancellationToken cancellationToken = default)
     {
         var stopwatch = Stopwatch.StartNew();
-        
+
         try
         {
             Logger.LogDebug("Executing search tool for query: {Query}", request.Query);
@@ -35,23 +35,23 @@ public class SearchToolHandler : BaseToolHandler
             // Process query for enhanced search
             var processedQuery = await QueryProcessor.ProcessQueryAsync(request, cancellationToken);
             var enhancedQuery = await OptimizeSearchQuery(processedQuery, cancellationToken);
-            
+
             // Generate search results using the existing result generator
             var searchResults = await ResultGenerator.GenerateListAsync(enhancedQuery, request.Site, cancellationToken);
             var resultsList = searchResults.ToList();
-            
+
             // Enhance results for search-specific improvements
             var enhancedResults = EnhanceSearchResults(resultsList, request.Query);
-            
+
             stopwatch.Stop();
-            
+
             var response = CreateSuccessResponse(request, enhancedResults, stopwatch.ElapsedMilliseconds);
             response.ProcessedQuery = enhancedQuery;
             response.Summary = $"Enhanced search completed - found {enhancedResults.Count} results";
-            
-            Logger.LogDebug("Search tool completed in {ElapsedMs}ms with {ResultCount} results", 
+
+            Logger.LogDebug("Search tool completed in {ElapsedMs}ms with {ResultCount} results",
                 stopwatch.ElapsedMilliseconds, enhancedResults.Count);
-            
+
             return response;
         }
         catch (Exception ex)
@@ -76,11 +76,11 @@ public class SearchToolHandler : BaseToolHandler
     public override int GetPriority(NLWebRequest request)
     {
         var query = request.Query?.ToLowerInvariant() ?? string.Empty;
-        
+
         // Higher priority for explicit search terms
         if (ContainsSearchKeywords(query))
             return 80;
-        
+
         // Medium priority for general queries (search is often the default)
         return 60;
     }
@@ -92,7 +92,7 @@ public class SearchToolHandler : BaseToolHandler
     {
         // Basic query optimization - in production this could use ML models
         var optimized = query.Trim();
-        
+
         // Remove redundant search terms
         var searchTerms = new[] { "search for", "find", "look for", "locate" };
         foreach (var term in searchTerms)

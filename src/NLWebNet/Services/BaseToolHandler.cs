@@ -15,7 +15,7 @@ public abstract class BaseToolHandler : IToolHandler
     protected readonly IResultGenerator ResultGenerator;
 
     protected BaseToolHandler(
-        ILogger logger, 
+        ILogger logger,
         IOptions<NLWebOptions> options,
         IQueryProcessor queryProcessor,
         IResultGenerator resultGenerator)
@@ -55,7 +55,7 @@ public abstract class BaseToolHandler : IToolHandler
     /// <returns>Error response</returns>
     protected NLWebResponse CreateErrorResponse(NLWebRequest request, string errorMessage, Exception? exception = null)
     {
-        Logger.LogError(exception, "Tool '{ToolType}' error for request {QueryId}: {ErrorMessage}", 
+        Logger.LogError(exception, "Tool '{ToolType}' error for request {QueryId}: {ErrorMessage}",
             ToolType, request.QueryId, errorMessage);
 
         return new NLWebResponse

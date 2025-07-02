@@ -18,20 +18,20 @@ public class ToolExecutorTests
     public void Setup()
     {
         var services = new ServiceCollection();
-        
+
         // Add logging
         services.AddLogging(builder => builder.AddConsole());
-        
+
         // Configure NLWebNet options
         services.Configure<NLWebOptions>(options =>
         {
             options.ToolSelectionEnabled = true;
             options.DefaultMode = QueryMode.List;
         });
-        
+
         // Add NLWebNet services with tool system
         services.AddNLWebNet();
-        
+
         _serviceProvider = services.BuildServiceProvider();
         _toolExecutor = _serviceProvider.GetRequiredService<IToolExecutor>();
     }
@@ -50,7 +50,7 @@ public class ToolExecutorTests
 
         // Assert
         Assert.IsTrue(tools.Count > 0, "Should have at least one tool handler");
-        
+
         var toolTypes = tools.Select(t => t.ToolType).ToList();
         Assert.IsTrue(toolTypes.Contains("search"), "Should include search tool");
         Assert.IsTrue(toolTypes.Contains("details"), "Should include details tool");
@@ -99,7 +99,7 @@ public class ToolExecutorTests
         Assert.AreEqual(request.QueryId, response.QueryId);
         Assert.IsNotNull(response.Results);
         // The mock backend may return empty results, but the response should be processed by details tool
-        Assert.IsTrue(response.Summary?.Contains("Details") == true || response.Summary?.Contains("details") == true, 
+        Assert.IsTrue(response.Summary?.Contains("Details") == true || response.Summary?.Contains("details") == true,
                      "Should be processed by details tool");
     }
 

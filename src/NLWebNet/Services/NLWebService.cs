@@ -120,16 +120,16 @@ public class NLWebService : INLWebService
             if (_toolSelector != null && _toolExecutor != null && _options.ToolSelectionEnabled)
             {
                 _logger.LogDebug("Tool execution enabled, checking if tool selection is needed for QueryId={QueryId}", queryId);
-                
+
                 if (_toolSelector.ShouldSelectTool(request))
                 {
                     _logger.LogDebug("Tool selection needed for QueryId={QueryId}", queryId);
-                    
+
                     var selectedTool = await _toolSelector.SelectToolAsync(request, cancellationToken);
                     if (!string.IsNullOrEmpty(selectedTool))
                     {
                         _logger.LogInformation("Tool '{Tool}' selected for QueryId={QueryId}, executing tool", selectedTool, queryId);
-                        
+
                         try
                         {
                             var toolResponse = await _toolExecutor.ExecuteToolAsync(request, selectedTool, cancellationToken);
@@ -229,11 +229,11 @@ public class NLWebService : INLWebService
         if (_toolSelector != null && _toolExecutor != null && _options.ToolSelectionEnabled)
         {
             _logger.LogDebug("[StreamInternal] Tool execution enabled, checking if tool selection is needed for QueryId={QueryId}", queryId);
-            
+
             if (_toolSelector.ShouldSelectTool(request))
             {
                 _logger.LogDebug("[StreamInternal] Tool selection needed for QueryId={QueryId}", queryId);
-                
+
                 var toolResponse = await TryExecuteToolAsync(request, queryId, cancellationToken);
                 if (toolResponse != null)
                 {
@@ -259,7 +259,7 @@ public class NLWebService : INLWebService
             if (!string.IsNullOrEmpty(selectedTool))
             {
                 _logger.LogInformation("[StreamInternal] Tool '{Tool}' selected for QueryId={QueryId}, executing tool", selectedTool, queryId);
-                
+
                 var toolResponse = await _toolExecutor!.ExecuteToolAsync(request, selectedTool, cancellationToken);
                 _logger.LogInformation("[StreamInternal] Tool execution completed for QueryId={QueryId} with tool '{Tool}'", queryId, selectedTool);
                 return toolResponse;
