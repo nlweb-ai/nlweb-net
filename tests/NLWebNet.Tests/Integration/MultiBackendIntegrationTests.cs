@@ -263,7 +263,7 @@ public class MultiBackendIntegrationTests
     /// Tests backend capability verification across multiple backends
     /// </summary>
     [TestMethod]
-    public async Task EndToEnd_BackendCapabilities_AreAccessibleAndValid()
+    public Task EndToEnd_BackendCapabilities_AreAccessibleAndValid()
     {
         var services = new ServiceCollection();
         services.AddNLWebNetMultiBackend(options =>
@@ -303,5 +303,7 @@ public class MultiBackendIntegrationTests
 
             Console.WriteLine($"✓ Backend '{backend.Id}' capabilities validated");
         }
+
+        return Task.CompletedTask;
     }
 }

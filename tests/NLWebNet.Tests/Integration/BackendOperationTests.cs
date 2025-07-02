@@ -98,7 +98,7 @@ public class BackendOperationTests
     /// Tests backend manager operations with multiple backends
     /// </summary>
     [TestMethod]
-    public async Task BackendOperation_BackendManager_ManagesBackendsCorrectly()
+    public Task BackendOperation_BackendManager_ManagesBackendsCorrectly()
     {
         var backendManager = _serviceProvider.GetRequiredService<IBackendManager>();
 
@@ -138,6 +138,8 @@ public class BackendOperationTests
         // This test verifies the backend manager can coordinate query execution
         // The actual implementation details depend on the specific backend manager implementation
         Console.WriteLine("✓ BackendManager operations validated");
+
+        return Task.CompletedTask;
     }
 
     /// <summary>
