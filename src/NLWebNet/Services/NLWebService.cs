@@ -14,6 +14,8 @@ public class NLWebService : INLWebService
     private readonly IResultGenerator _resultGenerator;
     private readonly IDataBackend? _dataBackend;
     private readonly IBackendManager? _backendManager;
+    private readonly IToolSelector? _toolSelector;
+    private readonly IToolExecutor? _toolExecutor;
     private readonly ILogger<NLWebService> _logger;
     private readonly NLWebOptions _options;
 
@@ -51,6 +53,48 @@ public class NLWebService : INLWebService
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
+    /// <summary>
+    /// Constructor for single-backend mode with tool support.
+    /// </summary>
+    public NLWebService(
+        IQueryProcessor queryProcessor,
+        IResultGenerator resultGenerator,
+        IDataBackend dataBackend,
+        IToolSelector toolSelector,
+        IToolExecutor toolExecutor,
+        ILogger<NLWebService> logger,
+        IOptions<NLWebOptions> options)
+    {
+        _queryProcessor = queryProcessor ?? throw new ArgumentNullException(nameof(queryProcessor));
+        _resultGenerator = resultGenerator ?? throw new ArgumentNullException(nameof(resultGenerator));
+        _dataBackend = dataBackend ?? throw new ArgumentNullException(nameof(dataBackend));
+        _toolSelector = toolSelector ?? throw new ArgumentNullException(nameof(toolSelector));
+        _toolExecutor = toolExecutor ?? throw new ArgumentNullException(nameof(toolExecutor));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+    }
+
+    /// <summary>
+    /// Constructor for multi-backend mode with tool support.
+    /// </summary>
+    public NLWebService(
+        IQueryProcessor queryProcessor,
+        IResultGenerator resultGenerator,
+        IBackendManager backendManager,
+        IToolSelector toolSelector,
+        IToolExecutor toolExecutor,
+        ILogger<NLWebService> logger,
+        IOptions<NLWebOptions> options)
+    {
+        _queryProcessor = queryProcessor ?? throw new ArgumentNullException(nameof(queryProcessor));
+        _resultGenerator = resultGenerator ?? throw new ArgumentNullException(nameof(resultGenerator));
+        _backendManager = backendManager ?? throw new ArgumentNullException(nameof(backendManager));
+        _toolSelector = toolSelector ?? throw new ArgumentNullException(nameof(toolSelector));
+        _toolExecutor = toolExecutor ?? throw new ArgumentNullException(nameof(toolExecutor));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+    }
+
     /// <inheritdoc />
     public async Task<NLWebResponse> ProcessRequestAsync(NLWebRequest request, CancellationToken cancellationToken = default)
     {
@@ -72,6 +116,14 @@ public class NLWebService : INLWebService
             var processedQuery = await _queryProcessor.ProcessQueryAsync(request, cancellationToken);
             _logger.LogDebug("ProcessQueryAsync complete for QueryId={QueryId}", queryId);
 
+            // Check if tool execution is available and enabled
+            var toolResponse = await TryExecuteToolAsync(request, queryId, cancellationToken);
+            if (toolResponse != null)
+            {
+                return toolResponse;
+            }
+
+            _logger.LogDebug("Using standard processing pipeline for QueryId={QueryId}", queryId);
             _logger.LogDebug("Calling GenerateListAsync for QueryId={QueryId}", queryId);
             var searchResults = await _resultGenerator.GenerateListAsync(processedQuery, request.Site, cancellationToken);
             var resultsList = searchResults.ToList();
@@ -151,6 +203,58 @@ public class NLWebService : INLWebService
         string queryId,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
+        // Check if tool execution is available and enabled first
+        if (_toolSelector != null && _toolExecutor != null && _options.ToolSelectionEnabled)
+        {
+            _logger.LogDebug("[StreamInternal] Tool execution enabled, checking if tool selection is needed for QueryId={QueryId}", queryId);
+
+            if (_toolSelector.ShouldSelectTool(request))
+            {
+                _logger.LogDebug("[StreamInternal] Tool selection needed for QueryId={QueryId}", queryId);
+
+                var toolResponse = await TryExecuteToolAsync(request, queryId, cancellationToken);
+                if (toolResponse != null)
+                {
+                    yield return toolResponse;
+                    yield break;
+                }
+                // If tool execution failed, fall through to standard processing
+            }
+        }
+
+        // Standard processing pipeline
+        await foreach (var response in ProcessStandardStreamingAsync(request, queryId, cancellationToken))
+        {
+            yield return response;
+        }
+    }
+
+    private async Task<NLWebResponse?> TryExecuteToolAsync(NLWebRequest request, string queryId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var selectedTool = await _toolSelector!.SelectToolAsync(request, cancellationToken);
+            if (!string.IsNullOrEmpty(selectedTool))
+            {
+                _logger.LogInformation("[StreamInternal] Tool '{Tool}' selected for QueryId={QueryId}, executing tool", selectedTool, queryId);
+
+                var toolResponse = await _toolExecutor!.ExecuteToolAsync(request, selectedTool, cancellationToken);
+                _logger.LogInformation("[StreamInternal] Tool execution completed for QueryId={QueryId} with tool '{Tool}'", queryId, selectedTool);
+                return toolResponse;
+            }
+        }
+        catch (Exception toolEx)
+        {
+            _logger.LogError(toolEx, "[StreamInternal] Tool execution failed for QueryId={QueryId}, falling back to standard processing", queryId);
+        }
+        return null;
+    }
+
+    private async IAsyncEnumerable<NLWebResponse> ProcessStandardStreamingAsync(
+        NLWebRequest request,
+        string queryId,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
         IAsyncEnumerable<NLWebResponse>? responseStream = null;
         Exception? processingException = null;
 
@@ -158,6 +262,7 @@ public class NLWebService : INLWebService
         bool hadException = false;
         try
         {
+            _logger.LogDebug("[StreamInternal] Using standard processing pipeline for QueryId={QueryId}", queryId);
             _logger.LogDebug("[StreamInternal] Calling ProcessQueryAsync for QueryId={QueryId}", queryId);
             var processedQuery = await _queryProcessor.ProcessQueryAsync(request, cancellationToken);
             _logger.LogDebug("[StreamInternal] ProcessQueryAsync complete for QueryId={QueryId}", queryId);
