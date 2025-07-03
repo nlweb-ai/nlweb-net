@@ -13,9 +13,21 @@ Welcome to the NLWebNet documentation directory. This contains comprehensive gui
 ### 🔧 Development & Testing
 
 - **[Development Guide](development-guide.md)** - Complete developer guidance for contributing to NLWebNet
-- **[TODO & Implementation Status](todo.md)** - Current project status, completed features, and future roadmap
+- **[Current Tasks](todo.md)** - Active tasks and immediate priorities for the project
+- **[Design Decisions](design-decisions.md)** - Design decisions, open questions, and architecture principles
 - **[Package Validation](package-validation.md)** - Guide for validating the NuGet package functionality
 - **[Sample Requests](sample-requests.http)** - HTTP request samples for testing the API endpoints
+
+### 🏗️ Advanced Features
+
+- **[Advanced Tool System Guide](advanced-tool-system-guide.md)** - Complete guide to the tool selection framework
+- **[Multi-Backend Configuration](multi-backend-configuration.md)** - Guide for configuring multiple data backends
+- **[Configuration Format Updates](configuration-format-updates.md)** - YAML and XML configuration support
+
+### 📋 Planning & Analysis
+
+- **[NLWeb June 2025 Analysis](nlweb-june-2025-analysis.md)** - Analysis of upcoming protocol changes
+- **[GitHub Issues Plan](github-issues-plan.md)** - Planned GitHub issues for protocol updates
 
 ### 📊 Monitoring & Operations
 
@@ -37,9 +49,10 @@ Welcome to the NLWebNet documentation directory. This contains comprehensive gui
 ### For Developers
 
 1. Review the [Development Guide](development-guide.md) for comprehensive coding guidelines
-2. Check the [TODO & Implementation Status](todo.md) for current project state
-3. Use [Package Validation](package-validation.md) for testing the library
-4. Reference [Sample Requests](sample-requests.http) for API development
+2. Check the [Current Tasks](todo.md) for active project priorities
+3. Review [Design Decisions](design-decisions.md) for architecture principles and open questions
+4. Use [Package Validation](package-validation.md) for testing the library
+5. Reference [Sample Requests](sample-requests.http) for API development
 
 ### For DevOps/Deployment
 
