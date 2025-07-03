@@ -420,10 +420,10 @@ public class SearchToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        
+
         var resultsList = response.Results.ToList();
         Assert.AreEqual(2, resultsList.Count);
-        
+
         // First result should be the one with higher calculated relevance
         Assert.AreEqual("API Documentation Guide", resultsList[0].Name);
         Assert.AreEqual("General Tutorial", resultsList[1].Name);

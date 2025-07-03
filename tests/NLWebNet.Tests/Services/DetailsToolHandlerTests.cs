@@ -658,11 +658,11 @@ public class DetailsToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        
+
         // Results should be reordered by relevance, not just base score
         var resultsList = response.Results.ToList();
         Assert.IsTrue(resultsList.Count >= 2);
-        
+
         // ML-related results should be ranked higher due to relevance
         var topResult = resultsList.FirstOrDefault();
         Assert.IsNotNull(topResult);

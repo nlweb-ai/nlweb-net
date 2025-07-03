@@ -183,7 +183,7 @@ public class CompareToolHandlerTests
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
         Assert.AreEqual(1, response.Results.Count); // Only the comparison summary
-        
+
         var resultsList = response.Results.ToList();
         Assert.AreEqual("Comparison: item1 vs item2", resultsList[0].Name);
     }
@@ -621,7 +621,7 @@ public class CompareToolHandlerTests
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
         Assert.IsTrue(response.Results.Count <= 9, "Should limit to 8 comparison results + 1 summary = 9 maximum");
-        
+
         // Should always have the comparison summary as first result
         var resultsList = response.Results.ToList();
         Assert.AreEqual("Comparison: frameworks vs libraries", resultsList[0].Name);
@@ -707,16 +707,16 @@ public class CompareToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        
+
         var resultsList = response.Results.ToList();
-        
+
         // Should have comparison summary + relevant results (not the database one)
         Assert.IsTrue(resultsList.Count >= 2);
         Assert.IsTrue(resultsList.Count <= 5); // Summary + up to 4 relevant results
-        
+
         // Should filter out irrelevant results (database)
         Assert.IsFalse(resultsList.Any(r => r.Name?.Contains("Database") == true));
-        
+
         // Should include relevant results
         Assert.IsTrue(resultsList.Any(r => r.Name?.ToLowerInvariant().Contains("react") == true));
         Assert.IsTrue(resultsList.Any(r => r.Name?.ToLowerInvariant().Contains("angular") == true));
@@ -753,7 +753,7 @@ public class CompareToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.ProcessedQuery);
-        
+
         // Should extract the main technologies being compared
         Assert.IsTrue(response.ProcessedQuery.Contains("node.js") || response.ProcessedQuery.Contains("nodejs"));
         Assert.IsTrue(response.ProcessedQuery.Contains("php"));

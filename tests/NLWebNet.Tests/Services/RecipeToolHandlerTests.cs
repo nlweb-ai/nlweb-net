@@ -500,7 +500,7 @@ public class RecipeToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsTrue(response.Results.Count >= 1);
-        
+
         var headerResult = response.Results.FirstOrDefault(r => r.Name.Contains("Recipe Guide"));
         Assert.IsNotNull(headerResult, "Should include Recipe Guide header");
         Assert.IsTrue(headerResult.Description?.Contains("special cooking technique") == true);
@@ -532,11 +532,11 @@ public class RecipeToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsTrue(response.Results.Count > 1); // Header + filtered results
-        
+
         // Should include relevant results but filter out unrelated ones
         var relevantResults = response.Results.Where(r => !r.Name.Contains("Recipe Guide")).ToList();
         Assert.IsTrue(relevantResults.Count > 0);
-        
+
         // Results should be recipe-relevant
         Assert.IsTrue(relevantResults.Any(r => r.Name.Contains("Storage") || r.Name.Contains("Food")));
     }
@@ -554,11 +554,11 @@ public class RecipeToolHandlerTests
 
         // Generate 15 results to test the limit of 8
         var manyResults = Enumerable.Range(1, 15)
-            .Select(i => new NLWebResult 
-            { 
-                Name = $"Recipe Result {i}", 
-                Description = $"Cooking guide part {i}", 
-                Score = 0.9 - (i * 0.01) 
+            .Select(i => new NLWebResult
+            {
+                Name = $"Recipe Result {i}",
+                Description = $"Cooking guide part {i}",
+                Score = 0.9 - (i * 0.01)
             })
             .ToArray();
 
@@ -569,10 +569,10 @@ public class RecipeToolHandlerTests
 
         // Assert
         Assert.IsNotNull(response);
-        
+
         // Should have header + max 8 recipe results = 9 total
         Assert.IsTrue(response.Results.Count <= 9);
-        
+
         var recipeResults = response.Results.Where(r => !r.Name.Contains("Recipe Guide")).ToList();
         Assert.IsTrue(recipeResults.Count <= 8, "Should limit recipe results to 8");
     }

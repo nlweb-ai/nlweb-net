@@ -223,7 +223,7 @@ public class BaseToolHandlerTests
         Assert.AreEqual(0, response.ProcessingTimeMs);
         Assert.IsTrue(response.Timestamp <= DateTimeOffset.UtcNow);
         Assert.IsTrue(response.Timestamp > DateTimeOffset.UtcNow.AddMinutes(-1));
-        
+
         // Should have one error result
         Assert.AreEqual(1, response.Results.Count);
         Assert.AreEqual("Tool Error", response.Results[0].Name);
@@ -370,7 +370,7 @@ public class BaseToolHandlerTests
 
         // Assert
         Assert.IsNotNull(response);
-        
+
         // Verify that logging occurred - check if logger was called
         // Note: TestLogger implementation may vary, so we'll verify response structure instead
         Assert.IsFalse(string.IsNullOrEmpty(response.Error));
@@ -385,7 +385,7 @@ public class BaseToolHandlerTests
         Assert.IsNotNull(_baseToolHandler.TestOptions);
         Assert.IsNotNull(_baseToolHandler.TestQueryProcessor);
         Assert.IsNotNull(_baseToolHandler.TestResultGenerator);
-        
+
         // Verify they match the injected instances
         Assert.AreSame(_options.Value, _baseToolHandler.TestOptions);
         Assert.AreSame(_queryProcessor, _baseToolHandler.TestQueryProcessor);
@@ -498,7 +498,7 @@ public class TestableBaseToolHandler : BaseToolHandler
     public override async Task<NLWebResponse> ExecuteAsync(NLWebRequest request, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        
+
         var results = new List<NLWebResult>
         {
             CreateToolResult("Test Result", "Test execution result", "", "Test", 1.0)

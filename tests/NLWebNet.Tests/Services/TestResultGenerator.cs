@@ -52,9 +52,9 @@ public class TestResultGenerator : IResultGenerator
         {
             cancellationToken.ThrowIfCancellationRequested();
         }
-        
+
         var chunks = StreamingChunks ?? new List<string> { "Streaming", " response", " for", $" '{query}'" };
-        
+
         foreach (var chunk in chunks)
         {
             yield return chunk;
