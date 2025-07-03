@@ -495,7 +495,7 @@ public class TestableBaseToolHandler : BaseToolHandler
 
     public override string ToolType => "testable";
 
-    public override async Task<NLWebResponse> ExecuteAsync(NLWebRequest request, CancellationToken cancellationToken = default)
+    public override Task<NLWebResponse> ExecuteAsync(NLWebRequest request, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -506,7 +506,7 @@ public class TestableBaseToolHandler : BaseToolHandler
 
         var response = CreateSuccessResponse(request, results, 10);
         response.Summary = "Test execution completed";
-        return response;
+        return Task.FromResult(response);
     }
 
     // Expose protected methods for testing
