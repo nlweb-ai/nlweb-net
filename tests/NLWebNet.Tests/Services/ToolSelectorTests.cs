@@ -124,7 +124,7 @@ public class ToolSelectorTests
         var result = await _toolSelector.SelectToolAsync(request);
 
         // Assert
-        Assert.AreEqual("search", result);
+        Assert.AreEqual(ToolSelector.ToolConstants.SearchTool, result);
     }
 
     [TestMethod]
@@ -141,7 +141,7 @@ public class ToolSelectorTests
         var result = await _toolSelector.SelectToolAsync(request);
 
         // Assert
-        Assert.AreEqual("compare", result);
+        Assert.AreEqual(ToolSelector.ToolConstants.CompareTool, result);
     }
 
     [TestMethod]
@@ -158,7 +158,7 @@ public class ToolSelectorTests
         var result = await _toolSelector.SelectToolAsync(request);
 
         // Assert
-        Assert.AreEqual("details", result);
+        Assert.AreEqual(ToolSelector.ToolConstants.DetailsTool, result);
     }
 
     [TestMethod]
@@ -175,7 +175,7 @@ public class ToolSelectorTests
         var result = await _toolSelector.SelectToolAsync(request);
 
         // Assert
-        Assert.AreEqual("ensemble", result);
+        Assert.AreEqual(ToolSelector.ToolConstants.EnsembleTool, result);
     }
 
     [TestMethod]
@@ -192,6 +192,6 @@ public class ToolSelectorTests
         var result = await _toolSelector.SelectToolAsync(request);
 
         // Assert
-        Assert.AreEqual("search", result);
+        Assert.AreEqual(ToolSelector.ToolConstants.SearchTool, result);
     }
 }
