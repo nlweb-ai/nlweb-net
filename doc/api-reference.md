@@ -41,11 +41,14 @@ The primary endpoint for natural language queries following the NLWeb protocol s
 
 #### GET Request
 
+
 ```http
 GET /ask?query=find%20recent%20updates&mode=list&streaming=false
+
 ```
 
 #### POST Request
+
 
 ```http
 POST /ask
@@ -58,11 +61,13 @@ Content-Type: application/json
   "streaming": true,
   "query_id": "custom-query-123"
 }
+
 ```
 
 ### Response Format
 
 #### Standard Response (streaming=false)
+
 
 ```json
 {
@@ -82,11 +87,13 @@ Content-Type: application/json
   "site": null,
   "generated_at": "2025-06-22T10:30:00Z"
 }
+
 ```
 
 #### Streaming Response (streaming=true)
 
 Content-Type: `text/event-stream`
+
 
 ```text
 data: {"type":"query_id","data":"550e8400-e29b-41d4-a716-446655440000"}
@@ -98,6 +105,7 @@ data: {"type":"result","data":{"url":"https://example.com/updates","title":"Rece
 data: {"type":"summary","data":"Based on the search results, recent updates include..."}
 
 data: {"type":"complete","data":null}
+
 ```
 
 ### Query Modes
@@ -105,6 +113,7 @@ data: {"type":"complete","data":null}
 #### List Mode (`mode: "list"`)
 
 Returns ranked search results without AI-generated summaries.
+
 
 ```json
 {
@@ -121,11 +130,13 @@ Returns ranked search results without AI-generated summaries.
   ],
   "summary": null
 }
+
 ```
 
 #### Summarize Mode (`mode: "summarize"`)
 
 Returns search results with an AI-generated summary.
+
 
 ```json
 {
@@ -142,11 +153,13 @@ Returns search results with an AI-generated summary.
   ],
   "summary": "The system architecture consists of three main layers..."
 }
+
 ```
 
 #### Generate Mode (`mode: "generate"`)
 
 Returns a comprehensive AI-generated response using Retrieval-Augmented Generation (RAG).
+
 
 ```json
 {
@@ -163,6 +176,7 @@ Returns a comprehensive AI-generated response using Retrieval-Augmented Generati
   ],
   "summary": "To deploy the application, follow these steps: 1. Ensure prerequisites..."
 }
+
 ```
 
 ## `/mcp` Endpoint
@@ -175,6 +189,7 @@ Model Context Protocol endpoint for enhanced AI integration and tool support.
 
 ### Request Format
 
+
 ```http
 POST /mcp
 Content-Type: application/json
@@ -183,6 +198,7 @@ Content-Type: application/json
   "method": "list_tools",
   "params": {}
 }
+
 ```
 
 ### Supported Methods
@@ -193,14 +209,17 @@ Returns available tools for MCP integration.
 
 **Request:**
 
+
 ```json
 {
   "method": "list_tools",
   "params": {}
 }
+
 ```
 
 **Response:**
+
 
 ```json
 {
@@ -217,6 +236,7 @@ Returns available tools for MCP integration.
     }
   ]
 }
+
 ```
 
 #### `list_prompts`
@@ -225,14 +245,17 @@ Returns available prompt templates.
 
 **Request:**
 
+
 ```json
 {
   "method": "list_prompts",
   "params": {}
 }
+
 ```
 
 **Response:**
+
 
 ```json
 {
@@ -249,6 +272,7 @@ Returns available prompt templates.
     }
   ]
 }
+
 ```
 
 #### `call_tool`
@@ -256,6 +280,7 @@ Returns available prompt templates.
 Execute a specific tool with parameters.
 
 **Request:**
+
 
 ```json
 {
@@ -267,9 +292,11 @@ Execute a specific tool with parameters.
     }
   }
 }
+
 ```
 
 **Response:**
+
 
 ```json
 {
@@ -280,6 +307,7 @@ Execute a specific tool with parameters.
     }
   ]
 }
+
 ```
 
 #### `get_prompt`
@@ -287,6 +315,7 @@ Execute a specific tool with parameters.
 Retrieve a specific prompt template.
 
 **Request:**
+
 
 ```json
 {
@@ -298,9 +327,11 @@ Retrieve a specific prompt template.
     }
   }
 }
+
 ```
 
 **Response:**
+
 
 ```json
 {
@@ -315,11 +346,13 @@ Retrieve a specific prompt template.
     }
   ]
 }
+
 ```
 
 ## Error Responses
 
 ### Standard Error Format
+
 
 ```json
 {
@@ -329,6 +362,7 @@ Retrieve a specific prompt template.
   "detail": "The query parameter is required.",
   "instance": "/ask"
 }
+
 ```
 
 ### Common Error Codes
@@ -347,6 +381,7 @@ Retrieve a specific prompt template.
 
 #### Missing Required Parameter
 
+
 ```json
 {
   "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
@@ -355,9 +390,11 @@ Retrieve a specific prompt template.
   "detail": "The 'query' parameter is required.",
   "instance": "/ask"
 }
+
 ```
 
 #### Invalid Query Mode
+
 
 ```json
 {
@@ -367,9 +404,11 @@ Retrieve a specific prompt template.
   "detail": "Invalid mode 'invalid'. Supported modes: list, summarize, generate.",
   "instance": "/ask"
 }
+
 ```
 
 #### AI Service Unavailable
+
 
 ```json
 {
@@ -379,6 +418,7 @@ Retrieve a specific prompt template.
   "detail": "AI service is currently unavailable. Please try again later.",
   "instance": "/ask"
 }
+
 ```
 
 ## OpenAPI Specification
@@ -399,10 +439,12 @@ Default rate limits (when enabled):
 
 Rate limit headers:
 
+
 ```http
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 95
 X-RateLimit-Reset: 1640995200
+
 ```
 
 ## Authentication
@@ -445,6 +487,7 @@ Future client libraries may include:
 
 ### .NET Client
 
+
 ```csharp
 using NLWebNet;
 
@@ -458,12 +501,12 @@ app.MapNLWebNet();
 public class MyService
 {
     private readonly INLWebService _nlweb;
-    
+
     public MyService(INLWebService nlweb)
     {
         _nlweb = nlweb;
     }
-    
+
     public async Task<NLWebResponse> SearchAsync(string query)
     {
         var request = new NLWebRequest { Query = query };
@@ -471,23 +514,30 @@ public class MyService
         return response;
     }
 }
+
 ```
 
 ### cURL Examples
 
+
 ```bash
+
 # Simple GET request
+
 curl "http://localhost:5037/ask?query=hello&mode=list"
 
 # POST with JSON
+
 curl -X POST "http://localhost:5037/ask" \
   -H "Content-Type: application/json" \
   -d '{"query": "find documentation", "mode": "summarize"}'
 
 # MCP tool listing
+
 curl -X POST "http://localhost:5037/mcp" \
   -H "Content-Type: application/json" \
   -d '{"method": "list_tools", "params": {}}'
+
 ```
 
 ---

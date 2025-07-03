@@ -13,9 +13,21 @@ Welcome to the NLWebNet documentation directory. This contains comprehensive gui
 ### 🔧 Development & Testing
 
 - **[Development Guide](development-guide.md)** - Complete developer guidance for contributing to NLWebNet
-- **[TODO & Implementation Status](todo.md)** - Current project status, completed features, and future roadmap
+- **[Current Tasks](todo.md)** - Active tasks and immediate priorities for the project
+- **[Design Decisions](design-decisions.md)** - Design decisions, open questions, and architecture principles
 - **[Package Validation](package-validation.md)** - Guide for validating the NuGet package functionality
 - **[Sample Requests](sample-requests.http)** - HTTP request samples for testing the API endpoints
+
+### 🏗️ Advanced Features
+
+- **[Advanced Tool System Guide](advanced-tool-system-guide.md)** - Complete guide to the tool selection framework
+- **[Multi-Backend Configuration](multi-backend-configuration.md)** - Guide for configuring multiple data backends
+- **[Configuration Format Updates](configuration-format-updates.md)** - YAML and XML configuration support
+
+### 📋 Planning & Analysis
+
+- **[NLWeb June 2025 Analysis](nlweb-june-2025-analysis.md)** - Analysis of upcoming protocol changes
+- **[GitHub Issues Plan](github-issues-plan.md)** - Planned GitHub issues for protocol updates
 
 ### 📊 Monitoring & Operations
 
@@ -30,21 +42,22 @@ Welcome to the NLWebNet documentation directory. This contains comprehensive gui
 ### For New Users
 
 1. Start with the main [README.md](../README.md) for project overview
-2. Follow the [Demo Setup Guide](demo-setup-guide.md) to get the demo running
-3. Use the [Manual Testing Guide](manual-testing-guide.md) to test API functionality
-4. Reference the [API Reference](api-reference.md) for detailed endpoint documentation
+1. Follow the [Demo Setup Guide](demo-setup-guide.md) to get the demo running
+1. Use the [Manual Testing Guide](manual-testing-guide.md) to test API functionality
+1. Reference the [API Reference](api-reference.md) for detailed endpoint documentation
 
 ### For Developers
 
 1. Review the [Development Guide](development-guide.md) for comprehensive coding guidelines
-2. Check the [TODO & Implementation Status](todo.md) for current project state
-3. Use [Package Validation](package-validation.md) for testing the library
-4. Reference [Sample Requests](sample-requests.http) for API development
+1. Check the [Current Tasks](todo.md) for active project priorities
+1. Review [Design Decisions](design-decisions.md) for architecture principles and open questions
+1. Use [Package Validation](package-validation.md) for testing the library
+1. Reference [Sample Requests](sample-requests.http) for API development
 
 ### For DevOps/Deployment
 
 1. Follow the [Deployment Guide](deployment/README.md) for production deployments
-2. Configure monitoring with [Monitoring Demo](monitoring-demo.md)
+1. Configure monitoring with [Monitoring Demo](monitoring-demo.md)
 
 ## 📖 External Documentation
 
@@ -72,8 +85,8 @@ Welcome to the NLWebNet documentation directory. This contains comprehensive gui
 Found an issue or want to improve the documentation?
 
 1. Check existing [issues](https://github.com/jongalloway/NLWebNet/issues) for documentation bugs
-2. Submit pull requests with documentation improvements
-3. Follow the project's alpha/experimental messaging guidelines
+1. Submit pull requests with documentation improvements
+1. Follow the project's alpha/experimental messaging guidelines
 
 ## 📋 Document Conventions
 

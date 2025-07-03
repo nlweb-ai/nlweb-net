@@ -16,7 +16,7 @@ A .NET implementation of the [NLWeb protocol](https://github.com/microsoft/NLWeb
 > **Use cases:**
 >
 > - 🧪 Protocol evaluation and experimentation
-> - 📚 Learning and understanding NLWeb concepts  
+> - 📚 Learning and understanding NLWeb concepts
 > - 🔬 Research and development prototyping
 > - 🎯 Testing integration patterns with AI services
 >
@@ -32,14 +32,15 @@ A .NET implementation of the [NLWeb protocol](https://github.com/microsoft/NLWeb
 NLWeb is a protocol for creating conversational interfaces to web content and data. It enables natural language querying with three main modes:
 
 - **List**: Returns ranked search results
-- **Summarize**: Provides AI-generated summaries with supporting results  
+- **Summarize**: Provides AI-generated summaries with supporting results
 - **Generate**: Full RAG (Retrieval-Augmented Generation) responses
 
 This implementation follows the [official NLWeb specification](https://github.com/microsoft/NLWeb) and includes Model Context Protocol (MCP) support for enhanced AI integration.
 
 ## 🏗️ Repository Structure
 
-```
+
+```text
 NLWebNet/
 ├── src/NLWebNet/              # 📦 Core library (published NuGet package)
 │   ├── Models/                # Request/response data models
@@ -49,8 +50,8 @@ NLWebNet/
 │   ├── Extensions/            # DI and middleware extensions
 │   └── Middleware/            # Request processing middleware
 ├── samples/                   # 🎯 Sample applications and usage examples
-│   ├── Demo/                  # 🎮 .NET 9 Blazor Web App demo application  
-│   └── AspireHost/            # 🏗️ .NET Aspire orchestration host  
+│   ├── Demo/                  # 🎮 .NET 9 Blazor Web App demo application
+│   └── AspireHost/            # 🏗️ .NET Aspire orchestration host
 ├── doc/                       # � Documentation and setup guides
 │   ├── demo-setup-guide.md    # 🔧 Complete AI integration setup guide
 │   ├── manual-testing-guide.md # 🧪 API testing instructions
@@ -61,9 +62,11 @@ NLWebNet/
 ├── k8s/                       # ⚙️ Kubernetes manifests
 ├── deploy/                    # 🚀 Azure deployment templates
 └── scripts/                   # �️ Build and deployment scripts
+
 ```
 
 ## 🔄 NLWeb Protocol Flow
+
 
 ```mermaid
 sequenceDiagram
@@ -71,13 +74,13 @@ sequenceDiagram
     participant NLWebNet
     participant DataBackend
     participant LLM as AI Service
-    
+
     Client->>NLWebNet: POST /ask
     Note over Client,NLWebNet: query, mode, site, streaming, etc.
-    
+
     NLWebNet->>NLWebNet: Generate query_id (if not provided)
     NLWebNet->>NLWebNet: Process/decontextualize query
-    
+
     alt mode = "list"
         NLWebNet->>DataBackend: Search query
         DataBackend-->>NLWebNet: Ranked results
@@ -92,9 +95,10 @@ sequenceDiagram
         NLWebNet->>LLM: Generate RAG response
         LLM-->>NLWebNet: Generated response
     end
-    
+
     NLWebNet-->>Client: JSON response with results
     Note over Client,NLWebNet: query_id, results[], summary?, etc.
+
 ```
 
 ## 🎯 API Endpoints
@@ -127,6 +131,7 @@ MCP-compatible interface with additional methods:
 
 ## 🏛️ Architecture Overview
 
+
 ```mermaid
 graph TB
     subgraph "NLWebNet Library"
@@ -141,12 +146,12 @@ graph TB
         BLAZOR[.NET 9 Blazor Web App UI]
         DEMO[Modern Blazor Components]
     end
-    
+
     subgraph "External Services"
         AI[AI/LLM Service<br>Azure OpenAI, etc.]
         DATA[Data Backend<br>Search Index, DB, etc.]
     end
-    
+
     CLIENT[HTTP Clients<br>Web, Mobile, etc.] --> API
     BLAZOR --> API
     API --> MW
@@ -154,16 +159,17 @@ graph TB
     SVC --> MCP
     SVC --> AI
     SVC --> DATA
-    
+
     DEMO --> BLAZOR
-    
+
     classDef library fill:#e1f5fe
     classDef demo fill:#f3e5f5
     classDef external fill:#fff3e0
-    
+
     class API,MW,SVC,MCP,MODELS library
     class BLAZOR,DEMO demo
     class AI,DATA external
+
 ```
 
 ## 🚀 Quick Start
@@ -173,6 +179,7 @@ graph TB
 ### Using the Library in Your Project
 
 1. Add the NLWebNet library to your ASP.NET Core project:
+
 
 ```csharp
 // Program.cs
@@ -189,6 +196,7 @@ builder.Services.AddNLWebNet(options =>
 // Later in the pipeline configuration
 app.UseNLWebNet();     // Add NLWebNet middleware (optional)
 app.MapNLWebNet();     // Map NLWebNet minimal API endpoints
+
 ```
 
 ### Configuration Format Support
@@ -197,16 +205,21 @@ NLWebNet supports multiple configuration formats for enhanced flexibility:
 
 #### YAML Configuration
 
+
 ```csharp
 // Enable YAML configuration support
 builder.Configuration.AddNLWebConfigurationFormats(builder.Environment);
 builder.Services.AddNLWebConfigurationFormats(builder.Configuration);
+
 ```
 
 Example YAML configuration (`config_retrieval.yaml`):
 
+
 ```yaml
+
 # Multi-backend configuration
+
 write_endpoint: primary_backend
 endpoints:
   primary_backend:
@@ -215,15 +228,18 @@ endpoints:
     priority: 1
 
 # NLWeb settings
+
 nlweb:
   default_mode: List
   enable_streaming: true
   tool_selection_enabled: true
+
 ```
 
 #### XML Tool Definitions
 
 Define tools for the tool selection framework:
+
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -240,6 +256,7 @@ Define tools for the tool selection framework:
     </TriggerPatterns>
   </Tool>
 </ToolDefinitions>
+
 ```
 
 #### Backward Compatibility
@@ -255,29 +272,37 @@ All existing JSON configuration continues to work unchanged. See the [Configurat
 
 1. **Clone the repository**
 
+
    ```bash
    git clone https://github.com/jongalloway/NLWebNet.git
    cd NLWebNet
+
    ```
 
-2. **Build the solution**
+1. **Build the solution**
+
 
    ```bash
    dotnet build
+
    ```
 
-3. **Run the demo application**
+1. **Run the demo application**
+
 
    ```bash
    cd samples/Demo
    dotnet run
+
    ```
 
-4. **Open your browser**
+1. **Open your browser**
+
    - Demo UI: `http://localhost:5037`
    - OpenAPI Spec: `http://localhost:5037/openapi/v1.json`
 
-5. **Test the demo features**
+1. **Test the demo features**
+
    - **Home Page**: Overview and navigation to demo features
    - **Interactive Demo** (`/nlweb`): UI for testing NLWeb queries with enhanced data source visualization
      - **Smart Data Source Management**: Automatic routing between RSS feeds (.NET content), Schema.org static data (science fiction), and mock placeholders
@@ -298,17 +323,22 @@ All existing JSON configuration continues to work unchanged. See the [Configurat
 
 Install the NuGet package:
 
+
 ```bash
 dotnet add package NLWebNet
+
 ```
 
 Or via Package Manager Console:
 
+
 ```powershell
 Install-Package NLWebNet
+
 ```
 
 Configure in your ASP.NET Core application:
+
 
 ```csharp
 // Program.cs
@@ -321,6 +351,7 @@ builder.Services.AddNLWebNet(options =>
 });
 
 app.MapNLWebNet();
+
 ```
 
 ### Testing NLWeb Features
@@ -340,7 +371,7 @@ The demo application at `http://localhost:5037` provides testing of core NLWeb p
 **Query Modes Supported:**
 
 - **List Mode**: Returns ranked search results with relevance scoring
-- **Summarize Mode**: AI-generated summaries with supporting results  
+- **Summarize Mode**: AI-generated summaries with supporting results
 - **Generate Mode**: Full RAG responses with context-aware answers
 - **Streaming**: Real-time response delivery with Server-Sent Events
 
@@ -353,23 +384,30 @@ The demo application at `http://localhost:5037` provides testing of core NLWeb p
 
 **Example API Usage:**
 
+
 ```bash
+
 # List mode query
+
 curl -X GET "http://localhost:5037/ask?query=find+recent+updates&mode=list"
 
 # POST request with full parameters
+
 curl -X POST "http://localhost:5037/ask" \
   -H "Content-Type: application/json" \
   -d '{"query": "find recent updates", "mode": "list", "site": "docs", "streaming": false}'
 
-# Streaming summarize query  
+# Streaming summarize query
+
 curl -X POST "http://localhost:5037/ask" \
   -H "Content-Type: application/json" \
   -d '{"query": "what are the main features?", "mode": "summarize", "streaming": true}'
 
 # MCP tool listing
+
 curl -X POST "http://localhost:5037/mcp" \
   -H "Content-Type: application/json" \  -d '{"method": "list_tools"}'
+
 ```
 
 ## 🔧 Real AI Integration
@@ -379,17 +417,19 @@ The demo application works with mock responses by default, but can be configured
 ### Quick Setup
 
 1. **Choose Your AI Provider**: Azure OpenAI (recommended) or OpenAI API
-2. **Install Provider Package**:
+1. **Install Provider Package**:
+
 
    ```bash
    cd samples/Demo
    dotnet add package Microsoft.Extensions.AI.AzureAIInference  # For Azure OpenAI
    # OR
    dotnet add package Microsoft.Extensions.AI.OpenAI           # For OpenAI API
+
    ```
 
-3. **Configure API Keys**: Update `samples/Demo/appsettings.json` or use user secrets
-4. **Add Service Registration**: Update `Program.cs` with AI service registration
+1. **Configure API Keys**: Update `samples/Demo/appsettings.json` or use user secrets
+1. **Add Service Registration**: Update `Program.cs` with AI service registration
 
 ### Complete Setup Guide
 
@@ -413,6 +453,7 @@ NLWebNet uses standard ASP.NET Core configuration patterns for managing settings
 
 Configure basic NLWebNet settings in your `appsettings.json`:
 
+
 ```json
 {
   "NLWebNet": {
@@ -428,6 +469,7 @@ Configure basic NLWebNet settings in your `appsettings.json`:
     }
   }
 }
+
 ```
 
 ### Secret Configuration (User Secrets)
@@ -436,24 +478,30 @@ For sensitive data like API keys, use [ASP.NET Core User Secrets](https://learn.
 
 1. **Initialize user secrets** for your project:
 
+
    ```bash
    dotnet user-secrets init
+
    ```
 
-2. **Set AI service credentials** (example for Azure OpenAI):
+1. **Set AI service credentials** (example for Azure OpenAI):
+
 
    ```bash
    dotnet user-secrets set "AzureOpenAI:ApiKey" "your-api-key-here"
    dotnet user-secrets set "AzureOpenAI:Endpoint" "https://your-resource.openai.azure.com/"
    dotnet user-secrets set "AzureOpenAI:DeploymentName" "gpt-4"
+
    ```
 
-3. **Set data backend credentials** (example for Azure Search):
+1. **Set data backend credentials** (example for Azure Search):
+
 
    ```bash
    dotnet user-secrets set "AzureSearch:ApiKey" "your-search-api-key"
    dotnet user-secrets set "AzureSearch:ServiceName" "your-search-service"
    dotnet user-secrets set "AzureSearch:IndexName" "your-index-name"
+
    ```
 
 ### Production Configuration
@@ -466,16 +514,19 @@ For production deployments, use:
 
 Example environment variables for production:
 
+
 ```bash
 NLWebNet__DefaultMode=List
 NLWebNet__EnableStreaming=true
 AzureOpenAI__ApiKey=your-production-api-key
 AzureSearch__ApiKey=your-production-search-key
+
 ```
 
 ### Configuration in Code
 
 Access configuration in your application:
+
 
 ```csharp
 // Program.cs
@@ -494,6 +545,7 @@ builder.Services.Configure<AzureOpenAIOptions>(
 // Configure data backend
 builder.Services.Configure<AzureSearchOptions>(
     builder.Configuration.GetSection("AzureSearch"));
+
 ```
 
 ## 🚀 Deployment
@@ -502,36 +554,51 @@ NLWebNet supports multiple deployment options for different environments:
 
 ### 🐳 Docker Deployment
 
+
 ```bash
+
 # Quick start with Docker Compose
+
 git clone https://github.com/jongalloway/NLWebNet.git
 cd NLWebNet
 cd deployment/docker && docker-compose up --build
+
 ```
 
 ### ☁️ Azure Cloud Deployment
 
+
 ```bash
+
 # Deploy to Azure Container Apps
+
 ./deployment/scripts/deploy/deploy-azure.sh -g myResourceGroup -t container-apps
 
 # Deploy to Azure App Service
+
 ./deployment/scripts/deploy/deploy-azure.sh -g myResourceGroup -t app-service
+
 ```
 
 ### ⚙️ Kubernetes Deployment
 
+
 ```bash
+
 # Deploy to any Kubernetes cluster
+
 kubectl apply -f deployment/kubernetes/manifests/
+
 ```
 
 ### 📦 Container Registry
 
 Pre-built images available soon. For now, build locally:
 
+
 ```bash
 ./deployment/scripts/deploy/build-docker.sh -t latest
+
 ```
 
 📖 **[Complete Deployment Guide](doc/deployment/README.md)** - Comprehensive instructions for all deployment scenarios.
@@ -544,16 +611,19 @@ This is an **alpha implementation** of the NLWeb protocol, provided as an **expe
 
 **✅ Current Implementation Status:**
 
-- [x] **Core Library**: Basic NLWeb protocol implementation with Minimal API endpoints
-- [x] **Data Models**: Essential request/response models with validation and JSON serialization
-- [x] **Business Logic**: Service layer with Microsoft.Extensions.AI integration
-- [x] **MCP Integration**: Basic Model Context Protocol support with tools and prompts
-- [x] **Demo Application**: .NET 9 Blazor Web App with interactive components for testing
-- [x] **AI Integration**: Setup guides for Azure OpenAI and OpenAI API (experimental)
-- [x] **Testing**: Unit tests and manual testing guides (basic coverage)
-- [x] **Configuration**: CORS, AI services, and multi-environment support
-- [x] **Documentation**: API documentation and setup guides (evolving)
-- [x] **CI/CD**: Basic automated build, test, and validation pipeline
+- [x] **Core Library**: Complete NLWeb protocol implementation with Minimal API endpoints
+- [x] **Advanced Features**: Multi-backend support, tool selection framework, YAML/XML configuration
+- [x] **Data Models**: Comprehensive request/response models with validation and JSON serialization
+- [x] **Business Logic**: Full service layer with Microsoft.Extensions.AI integration
+- [x] **MCP Integration**: Complete Model Context Protocol support with tools and prompts
+- [x] **Tool System**: Advanced tool handlers (Search, Details, Compare, Ensemble, Recipe)
+- [x] **Demo Application**: .NET 9 Blazor Web App with comprehensive interactive components
+- [x] **AI Integration**: Support for Azure OpenAI, OpenAI API, and GitHub Models
+- [x] **Testing**: Comprehensive test suite (264 tests) with integration and performance testing
+- [x] **Configuration**: Full YAML/XML/JSON support, multi-environment, multi-backend configuration
+- [x] **Documentation**: Complete API documentation, guides, and examples
+- [x] **CI/CD**: Production-grade automated build, test, validation, and publishing pipeline
+- [x] **Deployment**: Docker, Kubernetes, Azure deployment with infrastructure automation
 - [x] **NuGet Package**: Alpha prerelease at [nuget.org/packages/NLWebNet](https://www.nuget.org/packages/NLWebNet/)
 
 **🎯 Suitable For:**
@@ -577,9 +647,9 @@ This is an **alpha implementation** of the NLWeb protocol, provided as an **expe
 
 This project follows the [NLWeb specification](https://github.com/microsoft/NLWeb). Contributions are welcome!
 
-1. Review the [implementation plan](doc/todo.md)
-2. Check [open issues](https://github.com/jongalloway/NLWebNet/issues)
-3. Submit pull requests with tests
+1. Review the [current tasks](doc/todo.md) and [design decisions](doc/design-decisions.md)
+1. Check [open issues](https://github.com/jongalloway/NLWebNet/issues)
+1. Submit pull requests with tests
 
 ## 📖 Related Resources
 
@@ -595,16 +665,19 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## 🏷️ Version
 
-[![NuGet Version](https://img.shields.io/nuget/v/NLWebNet.svg)](https://www.nuget.org/packages/NLWebNet/) - Alpha experimental release
+[![NuGet Version](https://img.shields.io/nuget/v/NLWebNet.svg)](https://www.nuget.org/packages/NLWebNet/) - Alpha release with comprehensive features
 
-Basic NLWeb protocol implementation with AI integration support for testing and evaluation purposes.
+Complete NLWeb protocol implementation with advanced features, AI integration, and production-ready infrastructure for testing and evaluation purposes.
 
-**Key Features (Alpha Quality):**
+**Key Features (Production Alpha Quality):**
 
-- ✅ Basic NLWeb protocol implementation (/ask, /mcp endpoints)
-- ✅ AI integration support (Azure OpenAI, OpenAI API) - experimental
-- ✅ .NET 9 Blazor demo application for testing
-- ✅ Model Context Protocol (MCP) support - basic implementation
+- ✅ Complete NLWeb protocol implementation (/ask, /mcp endpoints)
+- ✅ Advanced tool system with intelligent query routing
+- ✅ Multi-backend retrieval architecture with concurrent querying
+- ✅ Full AI integration support (Azure OpenAI, OpenAI API, GitHub Models)
+- ✅ .NET 9 Blazor demo application with comprehensive testing interface
+- ✅ Complete Model Context Protocol (MCP) support
 - ✅ Streaming responses with Server-Sent Events
-- ✅ Documentation and setup guides (evolving)
-- ✅ Alpha NuGet package with working extension methods
+- ✅ YAML/XML/JSON configuration support
+- ✅ Comprehensive documentation and deployment guides
+- ✅ Production-ready NuGet package with full extension methods

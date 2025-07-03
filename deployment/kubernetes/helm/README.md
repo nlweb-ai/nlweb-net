@@ -9,24 +9,30 @@ This Helm chart deploys NLWebNet to a Kubernetes cluster.
 
 ## Installing the Chart
 
+
 ```bash
+
 # Add the chart repository (when available)
 # helm repo add nlwebnet https://charts.nlwebnet.io
 # helm repo update
 
 # Install from local files
+
 cd helm
 helm install nlwebnet ./nlwebnet
 
 # Install with custom values
+
 helm install nlwebnet ./nlwebnet -f my-values.yaml
 
 # Install with inline values
+
 helm install nlwebnet ./nlwebnet \
   --set image.repository=myregistry.azurecr.io/nlwebnet-demo \
   --set image.tag=v1.0.0 \
   --set ingress.enabled=true \
   --set ingress.hosts[0].host=nlwebnet.example.com
+
 ```
 
 ## Configuration
@@ -56,29 +62,38 @@ helm install nlwebnet ./nlwebnet \
 
 Create secrets separately for security:
 
+
 ```bash
+
 # Create secrets manually
+
 kubectl create secret generic nlwebnet-secrets \
   --from-literal=azure-openai-api-key="your-azure-openai-key" \
   --from-literal=azure-search-api-key="your-azure-search-key" \
   --from-literal=openai-api-key="your-openai-key"
 
 # Use existing secrets
+
 helm install nlwebnet ./nlwebnet \
   --set secrets.useExisting=true \
   --set secrets.existingSecretName=nlwebnet-secrets
+
 ```
 
 ### Ingress Configuration
 
+
 ```bash
+
 # Enable ingress with NGINX
+
 helm install nlwebnet ./nlwebnet \
   --set ingress.enabled=true \
   --set ingress.className=nginx \
   --set ingress.hosts[0].host=nlwebnet.example.com \
   --set ingress.hosts[0].paths[0].path=/ \
   --set ingress.hosts[0].paths[0].pathType=Prefix
+
 ```
 
 ### Auto-scaling Configuration
@@ -95,8 +110,11 @@ helm install nlwebnet ./nlwebnet \
 
 ### Development Environment
 
+
 ```yaml
+
 # dev-values.yaml
+
 app:
   environment: Development
   nlwebnet:
@@ -106,9 +124,13 @@ app:
 ingress:
   enabled: true
   hosts:
+
     - host: nlwebnet-dev.local
+
       paths:
+
         - path: /
+
           pathType: Prefix
 
 autoscaling:
@@ -123,16 +145,22 @@ resources:
   limits:
     cpu: 200m
     memory: 256Mi
+
 ```
+
 
 ```bash
 helm install nlwebnet-dev ./nlwebnet -f dev-values.yaml
+
 ```
 
 ### Production Environment
 
+
 ```yaml
+
 # prod-values.yaml
+
 app:
   environment: Production
   azureOpenAI:
@@ -149,13 +177,20 @@ ingress:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
   hosts:
+
     - host: nlwebnet.example.com
+
       paths:
+
         - path: /
+
           pathType: Prefix
   tls:
+
     - secretName: nlwebnet-tls
+
       hosts:
+
         - nlwebnet.example.com
 
 secrets:
@@ -174,54 +209,73 @@ resources:
   limits:
     cpu: 500m
     memory: 512Mi
+
 ```
+
 
 ```bash
 helm install nlwebnet-prod ./nlwebnet -f prod-values.yaml
+
 ```
 
 ## Uninstalling the Chart
 
+
 ```bash
 helm uninstall nlwebnet
+
 ```
 
 ## Upgrading the Chart
 
+
 ```bash
+
 # Upgrade with new values
+
 helm upgrade nlwebnet ./nlwebnet -f new-values.yaml
 
 # Upgrade to new chart version
+
 helm upgrade nlwebnet ./nlwebnet --version 0.2.0
+
 ```
 
 ## Health Checks
 
 The chart includes health checks that monitor:
+
 - Application health at `/health`
 - Detailed component health at `/health/detailed`
 
 ## Monitoring
 
 Integration with monitoring systems:
+
 - Prometheus metrics (when enabled)
 - Application Insights (for Azure deployments)
 - OpenTelemetry support
 
 ## Troubleshooting
 
+
 ```bash
+
 # Check pod status
+
 kubectl get pods -l app.kubernetes.io/name=nlwebnet
 
 # View pod logs
+
 kubectl logs -l app.kubernetes.io/name=nlwebnet
 
 # Check service
+
 kubectl get svc nlwebnet
 
 # Test health endpoint
+
 kubectl port-forward svc/nlwebnet 8080:80
 curl http://localhost:8080/health
+
 ```

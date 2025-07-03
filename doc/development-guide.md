@@ -44,9 +44,11 @@ This document provides comprehensive guidance for developers working with the NL
 
 ### 3. Service Layer Architecture
 
+
 ```text
 Endpoints → Services → Data Backends
         ↘ MCP Integration
+
 ```
 
 Key interfaces:
@@ -92,6 +94,7 @@ The project uses **Minimal APIs exclusively** for a modern, lightweight approach
 
 ### File Organization
 
+
 ```text
 src/NLWebNet/
 ├── Models/          # Request/response DTOs
@@ -100,6 +103,7 @@ src/NLWebNet/
 ├── Extensions/      # DI and middleware extensions
 ├── MCP/            # Model Context Protocol integration
 └── Middleware/     # Custom middleware components
+
 ```
 
 ## NLWeb Protocol Implementation
@@ -114,10 +118,10 @@ src/NLWebNet/
 ### Request/Response Flow
 
 1. Validate incoming `NLWebRequest`
-2. Process query through `IQueryProcessor`
-3. Retrieve data via `IDataBackend`
-4. Generate response using `IResultGenerator`
-5. Return `NLWebResponse` with results
+1. Process query through `IQueryProcessor`
+1. Retrieve data via `IDataBackend`
+1. Generate response using `IResultGenerator`
+1. Return `NLWebResponse` with results
 
 ### MCP Integration
 
@@ -192,25 +196,25 @@ src/NLWebNet/
 ### When Adding New Features
 
 1. **Start with interfaces** - Define contracts before implementations
-2. **Add configuration options** to `NLWebOptions` if needed
-3. **Include unit tests** - Maintain the 100% pass rate standard
-4. **Update documentation** - XML docs and README as appropriate
-5. **Consider MCP integration** - How does this fit with MCP protocol?
+1. **Add configuration options** to `NLWebOptions` if needed
+1. **Include unit tests** - Maintain the 100% pass rate standard
+1. **Update documentation** - XML docs and README as appropriate
+1. **Consider MCP integration** - How does this fit with MCP protocol?
 
 ### When Modifying Endpoints
 
 1. **Use Minimal APIs** - All endpoints use the modern `Endpoints/` classes with TypedResults
-2. **Maintain protocol compliance** - Follow NLWeb specification
-3. **Add OpenAPI documentation** - Use `.WithSummary()` and `.WithDescription()`
-4. **Include error responses** - Proper status codes and problem details
-5. **Test with sample requests** - Update manual testing guides
+1. **Maintain protocol compliance** - Follow NLWeb specification
+1. **Add OpenAPI documentation** - Use `.WithSummary()` and `.WithDescription()`
+1. **Include error responses** - Proper status codes and problem details
+1. **Test with sample requests** - Update manual testing guides
 
 ### When Adding Dependencies
 
 1. **Prefer Microsoft.Extensions.*** - Use standard .NET abstractions
-2. **Check for existing alternatives** - Avoid duplicate functionality
-3. **Update project files** - Include in main library and test projects
-4. **Validate package size** - Keep library lightweight
+1. **Check for existing alternatives** - Avoid duplicate functionality
+1. **Update project files** - Include in main library and test projects
+1. **Validate package size** - Keep library lightweight
 
 ## Limitations and Current Implementation Status
 
