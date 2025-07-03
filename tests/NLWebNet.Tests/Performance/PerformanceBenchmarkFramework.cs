@@ -13,20 +13,20 @@ namespace NLWebNet.Tests.Performance;
 [TestClass]
 public class PerformanceBenchmarkFramework
 {
-    private IServiceProvider _serviceProvider = null!;
+// Removed unused _serviceProvider field declaration
 
     [TestInitialize]
     public void Initialize()
     {
         var services = new ServiceCollection();
         services.AddLogging(builder => builder.AddConsole());
-        _serviceProvider = services.BuildServiceProvider();
+        // Removed _serviceProvider initialization
     }
 
     [TestCleanup]
     public void Cleanup()
     {
-        (_serviceProvider as IDisposable)?.Dispose();
+        // Removed _serviceProvider disposal
     }
 
     /// <summary>
