@@ -137,7 +137,7 @@ jobs:
         name: build-artifacts-Release
         path: |
           src/NLWebNet/bin/Release/
-          demo/bin/Release/
+          samples/Demo/bin/Release/
         retention-days: 7
 
   auto-format:
