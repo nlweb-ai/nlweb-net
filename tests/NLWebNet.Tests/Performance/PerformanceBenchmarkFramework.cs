@@ -13,22 +13,6 @@ namespace NLWebNet.Tests.Performance;
 [TestClass]
 public class PerformanceBenchmarkFramework
 {
-    // Removed unused _serviceProvider field declaration
-
-    [TestInitialize]
-    public void Initialize()
-    {
-        var services = new ServiceCollection();
-        services.AddLogging(builder => builder.AddConsole());
-        // Removed _serviceProvider initialization
-    }
-
-    [TestCleanup]
-    public void Cleanup()
-    {
-        // Removed _serviceProvider disposal
-    }
-
     /// <summary>
     /// Runs comprehensive performance benchmarks for all scenarios
     /// </summary>
