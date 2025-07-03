@@ -13,7 +13,7 @@ namespace NLWebNet.Tests.Performance;
 [TestClass]
 public class PerformanceBenchmarkFramework
 {
-// Removed unused _serviceProvider field declaration
+    // Removed unused _serviceProvider field declaration
 
     [TestInitialize]
     public void Initialize()
