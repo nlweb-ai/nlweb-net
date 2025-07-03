@@ -4,6 +4,7 @@ This example demonstrates how to configure and use the multi-backend retrieval a
 
 ## Single Backend (Default/Legacy)
 
+
 ```csharp
 // Traditional single backend setup - still works
 services.AddNLWebNet<MockDataBackend>(options =>
@@ -11,9 +12,11 @@ services.AddNLWebNet<MockDataBackend>(options =>
     options.DefaultMode = QueryMode.List;
     options.MaxResultsPerQuery = 20;
 });
+
 ```
 
 ## Multi-Backend Configuration
+
 
 ```csharp
 // New multi-backend setup
@@ -32,9 +35,11 @@ services.AddNLWebNetMultiBackend(
         multiBackendOptions.BackendTimeoutSeconds = 30;
         multiBackendOptions.WriteEndpoint = "primary_backend";
     });
+
 ```
 
 ## Configuration via appsettings.json
+
 
 ```json
 {
@@ -68,9 +73,11 @@ services.AddNLWebNetMultiBackend(
     }
   }
 }
+
 ```
 
 ## Usage Example
+
 
 ```csharp
 public class ExampleController : ControllerBase
@@ -114,26 +121,31 @@ public class ExampleController : ControllerBase
         return Ok(capabilities);
     }
 }
+
 ```
 
 ## Key Features
 
 ### Parallel Querying
+
 - Queries execute simultaneously across all enabled backends
 - Configurable concurrency limits and timeouts
 - Graceful handling of backend failures
 
 ### Result Deduplication
+
 - Automatic deduplication based on URL
 - Higher scoring results from different backends take precedence
 - Can be disabled for scenarios requiring all results
 
 ### Write Endpoint
+
 - Designate one backend as the primary write endpoint
 - Other backends remain read-only for queries
 - Useful for hybrid architectures
 
 ### Backward Compatibility
+
 - Existing single-backend configurations continue to work
 - No breaking changes to existing APIs
 - Gradual migration path available
@@ -141,7 +153,7 @@ public class ExampleController : ControllerBase
 ## Migration from Single Backend
 
 1. Replace `AddNLWebNet<T>()` with `AddNLWebNetMultiBackend()`
-2. Set `MultiBackend.Enabled = false` initially to maintain existing behavior
-3. Configure additional backends in the `Endpoints` section
-4. Enable multi-backend mode by setting `MultiBackend.Enabled = true`
-5. Test and adjust concurrency and timeout settings as needed
+1. Set `MultiBackend.Enabled = false` initially to maintain existing behavior
+1. Configure additional backends in the `Endpoints` section
+1. Enable multi-backend mode by setting `MultiBackend.Enabled = true`
+1. Test and adjust concurrency and timeout settings as needed

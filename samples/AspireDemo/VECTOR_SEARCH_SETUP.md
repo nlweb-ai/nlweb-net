@@ -7,27 +7,30 @@ This application now supports **real semantic embeddings** using GitHub Models f
 To enable real semantic vector search with GitHub Models:
 
 1. Get a GitHub personal access token with model access from <https://github.com/settings/tokens>
+
    - Ensure you have access to GitHub Models in your account
 
-2. Set the environment variable:
+1. Set the environment variable:
+
 
    ```bash
    # Windows PowerShell
    $env:GITHUB_TOKEN="your-github-token-here"
-   
+
    # Windows Command Prompt
    set GITHUB_TOKEN=your-github-token-here
-   
+
    # Linux/Mac
    export GITHUB_TOKEN="your-github-token-here"
+
    ```
 
-3. Restart the application
+1. Restart the application
 
 When a GitHub token is available, the application will:
 
 - Use `text-embedding-3-small` model for generating semantic embeddings
-- Provide high-quality vector search results  
+- Provide high-quality vector search results
 - Enable proper semantic similarity matching
 - Work seamlessly with the existing `/samples/Demo` app pattern
 
@@ -37,20 +40,22 @@ If you prefer OpenAI over GitHub Models:
 
 1. Get an OpenAI API key from <https://platform.openai.com/>
 
-2. Set the environment variable:
+1. Set the environment variable:
+
 
    ```bash
    # Windows PowerShell
    $env:OPENAI_API_KEY="your-openai-api-key-here"
-   
+
    # Windows Command Prompt
    set OPENAI_API_KEY=your-openai-api-key-here
-   
+
    # Linux/Mac
    export OPENAI_API_KEY="your-openai-api-key-here"
+
    ```
 
-3. Restart the application
+1. Restart the application
 
 When an OpenAI API key is available, the application will:
 
@@ -71,8 +76,9 @@ If no GitHub token or OpenAI API key is provided, the application falls back to:
 Once configured with OpenAI embeddings:
 
 1. Clear existing data: `DELETE https://localhost:7220/vector/clear`
-2. Ingest demo feeds: `POST https://localhost:7220/rss/ingest-demo`
-3. Search with semantic queries:
+1. Ingest demo feeds: `POST https://localhost:7220/rss/ingest-demo`
+1. Search with semantic queries:
+
    - `GET https://localhost:7220/api/search?query=copilot&limit=5`
    - `GET https://localhost:7220/api/search?query=.NET%2010&limit=5`
    - `GET https://localhost:7220/api/search?query=artificial%20intelligence&limit=5`

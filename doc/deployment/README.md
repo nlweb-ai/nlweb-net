@@ -23,17 +23,23 @@ This guide provides comprehensive instructions for deploying NLWebNet across var
 
 ### Local Development
 
+
 ```bash
+
 # Clone the repository
+
 git clone https://github.com/jongalloway/NLWebNet.git
 cd NLWebNet
 
 # Run with Docker Compose
+
 cd deployment/docker && docker-compose up --build
 
 # Or run locally (requires .NET 9)
+
 cd samples/Demo
 dotnet run
+
 ```
 
 Access the application at `http://localhost:8080`
@@ -41,55 +47,74 @@ Access the application at `http://localhost:8080`
 ## Docker Deployment
 
 NLWebNet supports two container build approaches:
+
 1. **Traditional Dockerfile** (recommended for CI/CD and complex scenarios)
-2. **.NET SDK Container Build** (modern, simplified approach for development)
+1. **.NET SDK Container Build** (modern, simplified approach for development)
 
 ### Building the Container
 
 Use the provided build script for easy Docker image creation:
 
+
 ```bash
+
 # Build with default settings
+
 ./deployment/scripts/deploy/build-docker.sh
 
 # Build with specific tag
+
 ./deployment/scripts/deploy/build-docker.sh -t v1.0.0
 
 # Build and push to registry
+
 ./deployment/scripts/deploy/build-docker.sh -t v1.0.0 -r myregistry.azurecr.io -p
+
 ```
 
 ### Manual Docker Build
 
+
 ```bash
+
 # Build the image (traditional Dockerfile approach)
+
 docker build -f deployment/docker/Dockerfile -t nlwebnet-demo:latest .
 
 # Run the container
+
 docker run -p 8080:8080 \
   -e ASPNETCORE_ENVIRONMENT=Production \
   -e NLWebNet__DefaultMode=List \
   -e NLWebNet__EnableStreaming=true \
   nlwebnet-demo:latest
+
 ```
 
 ### .NET SDK Container Build (Modern Approach)
 
 .NET 9 SDK includes built-in container support that eliminates the need for a traditional Dockerfile:
 
+
 ```bash
+
 # Navigate to the demo project
+
 cd samples/Demo
 
 # Build and publish as container
+
 dotnet publish -c Release -p:PublishProfile=DefaultContainer
 
 # The container image will be available as 'nlwebnet-demo:latest'
 # Run the container
+
 docker run -p 8080:8080 nlwebnet-demo:latest
+
 ```
 
 **Benefits of .NET SDK Container Build:**
+
 - No Dockerfile required
 - Optimized .NET base images
 - Automatic security updates
@@ -98,27 +123,35 @@ docker run -p 8080:8080 nlwebnet-demo:latest
 
 **Configuration:**
 Container settings can be customized in the project file:
+
 ```xml
 <PropertyGroup>
   <ContainerImageName>nlwebnet-demo</ContainerImageName>
   <ContainerImageTag>latest</ContainerImageTag>
   <ContainerPort>8080</ContainerPort>
 </PropertyGroup>
+
 ```
 
 ### Docker Compose
 
 For local development with dependencies:
 
+
 ```bash
+
 # Start all services
+
 cd deployment/docker && docker-compose up -d
 
 # View logs
+
 docker-compose logs -f nlwebnet-demo
 
 # Stop all services
+
 docker-compose down
+
 ```
 
 ### Environment Variables
@@ -140,129 +173,174 @@ Key environment variables for Docker deployment:
 
 ### Quick Deploy
 
+
 ```bash
+
 # Deploy all resources
+
 kubectl apply -f deployment/kubernetes/manifests/
 
 # Check deployment status
+
 kubectl get pods -l app=nlwebnet-demo
 kubectl get services
 kubectl get ingress
+
 ```
 
 ### Step-by-Step Deployment
 
 1. **Create namespace** (optional):
+
    ```bash
    kubectl create namespace nlwebnet
    kubectl config set-context --current --namespace=nlwebnet
+
    ```
 
-2. **Deploy configuration**:
+1. **Deploy configuration**:
+
    ```bash
    # Update secrets with your API keys
    kubectl create secret generic nlwebnet-secrets \
      --from-literal=azure-openai-api-key="your-key" \
      --from-literal=azure-search-api-key="your-key"
-   
+
    # Apply configuration
    kubectl apply -f deployment/kubernetes/manifests/configmap.yaml
+
    ```
 
-3. **Deploy application**:
+1. **Deploy application**:
+
    ```bash
    kubectl apply -f deployment/kubernetes/manifests/deployment.yaml
    kubectl apply -f deployment/kubernetes/manifests/service.yaml
    kubectl apply -f deployment/kubernetes/manifests/ingress.yaml
+
    ```
 
-4. **Verify deployment**:
+1. **Verify deployment**:
+
    ```bash
    kubectl get pods
    kubectl get services
    kubectl logs -l app=nlwebnet-demo
+
    ```
 
 ### Scaling
 
+
 ```bash
+
 # Manual scaling
+
 kubectl scale deployment nlwebnet-demo --replicas=5
 
 # Auto-scaling (HPA already configured)
+
 kubectl get hpa
+
 ```
 
 ### Access the Application
 
+
 ```bash
+
 # Port forward for testing
+
 kubectl port-forward service/nlwebnet-demo-service 8080:80
 
 # Or via LoadBalancer
+
 kubectl get service nlwebnet-demo-loadbalancer
+
 ```
 
 ## Azure Deployment
 
 ### Prerequisites
 
+
 ```bash
+
 # Install Azure CLI
+
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 # Login to Azure
+
 az login
 
 # Set subscription (if needed)
+
 az account set --subscription "your-subscription-id"
+
 ```
 
 ### Container Apps Deployment
 
+
 ```bash
+
 # Deploy using script
+
 ./deployment/scripts/deploy/deploy-azure.sh -g myResourceGroup -t container-apps
 
 # Or manual deployment
+
 az deployment group create \
   --resource-group myResourceGroup \
   --template-file deployment/azure/container-apps.bicep \
   --parameters @deployment/azure/container-apps.parameters.json
+
 ```
 
 ### App Service Deployment
 
+
 ```bash
+
 # Deploy to App Service
+
 ./deployment/scripts/deploy/deploy-azure.sh -g myResourceGroup -t app-service -e prod
 
 # Manual deployment
+
 az deployment group create \
   --resource-group myResourceGroup \
   --template-file deployment/azure/app-service.bicep \
   --parameters appName=nlwebnet environment=prod
+
 ```
 
 ### Azure Kubernetes Service (AKS)
 
 1. **Create AKS cluster**:
+
    ```bash
    az aks create \
      --resource-group myResourceGroup \
      --name nlwebnet-aks \
      --node-count 3 \
      --enable-addons http_application_routing
+
    ```
 
-2. **Get credentials**:
+1. **Get credentials**:
+
    ```bash
    az aks get-credentials --resource-group myResourceGroup --name nlwebnet-aks
+
    ```
 
-3. **Deploy application**:
+1. **Deploy application**:
+
    ```bash
    kubectl apply -f deployment/kubernetes/manifests/
+
    ```
 
 ## Production Considerations
@@ -306,12 +384,17 @@ az deployment group create \
 
 ### Example Health Check
 
+
 ```bash
+
 # Basic health check
+
 curl http://localhost:8080/health
 
 # Detailed health check
+
 curl http://localhost:8080/health/detailed
+
 ```
 
 ### Monitoring Integration
@@ -325,49 +408,66 @@ curl http://localhost:8080/health/detailed
 ### Common Issues
 
 1. **Container won't start**:
+
    ```bash
    # Check logs
    docker logs nlwebnet-demo
    kubectl logs -l app=nlwebnet-demo
+
    ```
 
-2. **Health check failing**:
+1. **Health check failing**:
+
    ```bash
    # Test health endpoint
    curl -v http://localhost:8080/health
+
    ```
 
-3. **Performance issues**:
+1. **Performance issues**:
+
    ```bash
    # Check resource usage
    kubectl top pods
    kubectl describe pod <pod-name>
+
    ```
 
 ### Debug Commands
 
+
 ```bash
+
 # Docker debugging
+
 docker exec -it nlwebnet-demo /bin/bash
 
 # Kubernetes debugging
+
 kubectl exec -it <pod-name> -- /bin/bash
 kubectl describe pod <pod-name>
 kubectl get events --sort-by=.metadata.creationTimestamp
+
 ```
 
 ### Logs
 
+
 ```bash
+
 # Docker logs
+
 cd deployment/docker && docker-compose logs -f nlwebnet-demo
 
 # Kubernetes logs
+
 kubectl logs -f -l app=nlwebnet-demo
 kubectl logs -f deployment/nlwebnet-demo
 
 # Azure Container Apps logs
+
 az containerapp logs show --name nlwebnet-dev --resource-group myResourceGroup
+
 ```
 
 ## Support
@@ -375,10 +475,10 @@ az containerapp logs show --name nlwebnet-dev --resource-group myResourceGroup
 For deployment issues:
 
 1. Check the [GitHub Issues](https://github.com/jongalloway/NLWebNet/issues)
-2. Review the application logs
-3. Verify configuration settings
-4. Test health endpoints
-5. Check resource quotas and limits
+1. Review the application logs
+1. Verify configuration settings
+1. Test health endpoints
+1. Check resource quotas and limits
 
 ---
 

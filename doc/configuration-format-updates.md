@@ -16,6 +16,7 @@ NLWebNet now supports multiple configuration formats while maintaining full back
 
 To enable YAML configuration support in your application:
 
+
 ```csharp
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,14 +25,18 @@ builder.Configuration.AddNLWebConfigurationFormats(builder.Environment);
 
 // Register configuration format services
 builder.Services.AddNLWebConfigurationFormats(builder.Configuration);
+
 ```
 
 ### YAML Configuration Format
 
 The new YAML format supports the multi-backend configuration structure introduced in June 2025:
 
+
 ```yaml
+
 # config_retrieval.yaml
+
 write_endpoint: primary_backend
 endpoints:
   primary_backend:
@@ -60,12 +65,14 @@ endpoints:
       index_name: "nlweb-backup-index"
 
 # Multi-backend settings
+
 enable_parallel_querying: true
 enable_result_deduplication: true
 max_concurrent_queries: 3
 backend_timeout_seconds: 30
 
 # General NLWeb settings
+
 nlweb:
   default_mode: "List"
   enable_streaming: true
@@ -74,6 +81,7 @@ nlweb:
   enable_caching: true
   cache_expiration_minutes: 60
   tool_selection_enabled: true
+
 ```
 
 ### Auto-Detection
@@ -88,12 +96,14 @@ The configuration system automatically looks for these YAML files:
 
 You can also manually load YAML configuration:
 
+
 ```csharp
 builder.Configuration.AddYamlFile("my-config.yaml", optional: true, reloadOnChange: true);
 
 // Or from a stream
 using var stream = File.OpenRead("config.yaml");
 builder.Configuration.AddYamlStream(stream);
+
 ```
 
 ## XML Tool Definitions
@@ -102,6 +112,7 @@ builder.Configuration.AddYamlStream(stream);
 
 The `IToolDefinitionLoader` service provides XML-based tool definition support:
 
+
 ```csharp
 // Register the service (included in AddNLWebConfigurationFormats)
 builder.Services.AddSingleton<IToolDefinitionLoader, ToolDefinitionLoader>();
@@ -109,9 +120,11 @@ builder.Services.AddSingleton<IToolDefinitionLoader, ToolDefinitionLoader>();
 // Use the service
 var toolLoader = serviceProvider.GetRequiredService<IToolDefinitionLoader>();
 var toolDefinitions = await toolLoader.LoadFromFileAsync("tool_definitions.xml");
+
 ```
 
 ### XML Tool Definition Format
+
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -138,11 +151,13 @@ var toolDefinitions = await toolLoader.LoadFromFileAsync("tool_definitions.xml")
     </SupportedBackends>
   </Tool>
 </ToolDefinitions>
+
 ```
 
 ### Tool Types
 
 Supported tool types:
+
 - `search` - Enhanced search capabilities
 - `details` - Retrieve specific information about items
 - `compare` - Side-by-side comparison of items
@@ -153,6 +168,7 @@ Supported tool types:
 ### Existing JSON Configuration
 
 All existing JSON configuration continues to work unchanged:
+
 
 ```json
 {
@@ -171,13 +187,14 @@ All existing JSON configuration continues to work unchanged:
     }
   }
 }
+
 ```
 
 ### Migration Path
 
 1. **Phase 1**: Add YAML support alongside existing JSON
-2. **Phase 2**: Gradually migrate configuration to YAML format
-3. **Phase 3**: Optionally remove JSON configuration files (JSON support remains)
+1. **Phase 2**: Gradually migrate configuration to YAML format
+1. **Phase 3**: Optionally remove JSON configuration files (JSON support remains)
 
 No code changes are required to existing applications - the new formats are additive.
 
@@ -186,6 +203,7 @@ No code changes are required to existing applications - the new formats are addi
 ### ConfigurationFormatOptions
 
 Control configuration format behavior:
+
 
 ```csharp
 builder.Services.Configure<NLWebOptions>(options =>
@@ -196,11 +214,13 @@ builder.Services.Configure<NLWebOptions>(options =>
     options.ConfigurationFormat.YamlConfigPath = "custom-config.yaml";
     options.ConfigurationFormat.XmlToolDefinitionsPath = "tools.xml";
 });
+
 ```
 
 ## Examples
 
 See the demo application for complete examples:
+
 - `/samples/Demo/config_retrieval.yaml` - Multi-backend YAML configuration
 - `/samples/Demo/tool_definitions.xml` - XML tool definitions
 - `/samples/Demo/Program.cs` - Integration example
@@ -208,12 +228,14 @@ See the demo application for complete examples:
 ## Dependencies
 
 The new configuration format support adds these dependencies:
+
 - `YamlDotNet` (16.2.1) - YAML parsing
 - `Microsoft.Extensions.Configuration.Xml` (9.0.6) - XML configuration support
 
 ## Testing
 
 Comprehensive tests cover:
+
 - YAML parsing and configuration binding
 - XML tool definition loading and validation
 - Service registration and dependency injection

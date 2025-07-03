@@ -42,22 +42,22 @@ Welcome to the NLWebNet documentation directory. This contains comprehensive gui
 ### For New Users
 
 1. Start with the main [README.md](../README.md) for project overview
-2. Follow the [Demo Setup Guide](demo-setup-guide.md) to get the demo running
-3. Use the [Manual Testing Guide](manual-testing-guide.md) to test API functionality
-4. Reference the [API Reference](api-reference.md) for detailed endpoint documentation
+1. Follow the [Demo Setup Guide](demo-setup-guide.md) to get the demo running
+1. Use the [Manual Testing Guide](manual-testing-guide.md) to test API functionality
+1. Reference the [API Reference](api-reference.md) for detailed endpoint documentation
 
 ### For Developers
 
 1. Review the [Development Guide](development-guide.md) for comprehensive coding guidelines
-2. Check the [Current Tasks](todo.md) for active project priorities
-3. Review [Design Decisions](design-decisions.md) for architecture principles and open questions
-4. Use [Package Validation](package-validation.md) for testing the library
-5. Reference [Sample Requests](sample-requests.http) for API development
+1. Check the [Current Tasks](todo.md) for active project priorities
+1. Review [Design Decisions](design-decisions.md) for architecture principles and open questions
+1. Use [Package Validation](package-validation.md) for testing the library
+1. Reference [Sample Requests](sample-requests.http) for API development
 
 ### For DevOps/Deployment
 
 1. Follow the [Deployment Guide](deployment/README.md) for production deployments
-2. Configure monitoring with [Monitoring Demo](monitoring-demo.md)
+1. Configure monitoring with [Monitoring Demo](monitoring-demo.md)
 
 ## 📖 External Documentation
 
@@ -85,8 +85,8 @@ Welcome to the NLWebNet documentation directory. This contains comprehensive gui
 Found an issue or want to improve the documentation?
 
 1. Check existing [issues](https://github.com/jongalloway/NLWebNet/issues) for documentation bugs
-2. Submit pull requests with documentation improvements
-3. Follow the project's alpha/experimental messaging guidelines
+1. Submit pull requests with documentation improvements
+1. Follow the project's alpha/experimental messaging guidelines
 
 ## 📋 Document Conventions
 

@@ -14,20 +14,21 @@ This repository uses GitHub Actions for continuous integration and deployment.
 **Jobs:**
 
 1. **Build** (Matrix: Debug, Release)
+
    - Restores NuGet packages
    - Builds the entire solution
    - Runs any existing tests
    - Uploads build artifacts (Release only)
+1. **Code Quality**
 
-2. **Code Quality**
    - Runs code analysis with warnings as errors
    - Validates code formatting with `dotnet format`
+1. **Security Scan**
 
-3. **Security Scan**
    - Scans for vulnerable NuGet packages
    - Fails the build if vulnerabilities are found
+1. **Package Validation** (main branch only)
 
-4. **Package Validation** (main branch only)
    - Creates NuGet packages
    - Validates package integrity
    - Uploads package artifacts
@@ -37,19 +38,25 @@ This repository uses GitHub Actions for continuous integration and deployment.
 To test the build process locally, run:
 
 ```bash
+
 # Restore dependencies
+
 dotnet restore
 
 # Build solution
+
 dotnet build --configuration Release
 
 # Check formatting
+
 dotnet format --verify-no-changes
 
 # Create packages
+
 dotnet pack src/NLWebNet --configuration Release --output ./packages
 
 # Check for vulnerable packages
+
 dotnet list package --vulnerable --include-transitive
 ```
 

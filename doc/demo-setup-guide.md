@@ -40,7 +40,7 @@ The demo uses an **Enhanced Mock Data Backend** that intelligently routes querie
 The demo UI features prominent Bootstrap cards at the top of results showing:
 
 - **🔵 RSS Feeds**: Live .NET blog content (blue primary theme)
-- **🟢 Schema.org Static Data**: Science fiction content (info blue theme)  
+- **🟢 Schema.org Static Data**: Science fiction content (info blue theme)
 - **🟡 Mock Data**: Placeholder content (warning yellow theme)
 
 Each indicator shows the count of results from that source and is highlighted when active.
@@ -82,19 +82,20 @@ This design helps users understand what content is available and demonstrates cl
 ### Step 1: Get Azure OpenAI Credentials
 
 1. **Create an Azure OpenAI Resource**:
+
    - Go to [Azure Portal](https://portal.azure.com)
    - Create a new "Azure OpenAI" resource
    - Choose a region that supports GPT-4 (e.g., East US, West Europe)
    - Note the endpoint URL (e.g., `https://your-resource.openai.azure.com/`)
+1. **Deploy a Model**:
 
-2. **Deploy a Model**:
    - In Azure OpenAI Studio, go to "Deployments"
    - Create a new deployment with:
      - Model: `gpt-4` or `gpt-4-turbo`
      - Deployment name: `gpt-4` (or customize)
    - Note the deployment name
+1. **Get API Key**:
 
-3. **Get API Key**:
    - In Azure Portal, go to your OpenAI resource
    - Navigate to "Keys and Endpoint"
    - Copy one of the API keys
@@ -103,6 +104,7 @@ This design helps users understand what content is available and demonstrates cl
 
 1. **Update Configuration**:
    Open `samples/Demo/appsettings.json` and update the Azure OpenAI section:
+
 
    ```json
    {
@@ -113,6 +115,7 @@ This design helps users understand what content is available and demonstrates cl
        "ApiKey": "your-api-key-here"
      }   }
 
+
    ```
 
    > **Security Note**: Never commit API keys to source control. Consider using:
@@ -120,8 +123,8 @@ This design helps users understand what content is available and demonstrates cl
    > - Environment variables: `export AZUREOPENAI__APIKEY="your-key"`
    > - User secrets: `dotnet user-secrets set "AzureOpenAI:ApiKey" "your-key"`
    > - Azure Key Vault for production deployments
+1. **Optional: Configure Azure Search** (for enhanced data backend):
 
-3. **Optional: Configure Azure Search** (for enhanced data backend):
 
    ```json
    {
@@ -131,6 +134,7 @@ This design helps users understand what content is available and demonstrates cl
        "ApiKey": "your-search-api-key"
      }
    }
+
    ```
 
 ## Option 2: OpenAI API Setup
@@ -138,16 +142,18 @@ This design helps users understand what content is available and demonstrates cl
 ### Step 1: Get OpenAI API Key
 
 1. **Create OpenAI Account**:
+
    - Go to [OpenAI Platform](https://platform.openai.com)
    - Create an account and verify your phone number
    - Add billing information (required for API access)
+1. **Generate API Key**:
 
-2. **Generate API Key**:
    - Go to "API Keys" section
    - Create a new secret key
    - Copy the key (it won't be shown again)
 
 ### Step 2: Configure the Demo App for OpenAI
+
 
   ```json
    {
@@ -157,6 +163,7 @@ This design helps users understand what content is available and demonstrates cl
        "BaseUrl": "<https://api.openai.com/v1>"
      }
    }
+
    ```
 
    > **Security Note**: Never commit API keys to source control. Consider using:
@@ -170,14 +177,14 @@ This design helps users understand what content is available and demonstrates cl
 If you want to test the demo immediately without setting up AI services:
 
 1. **Skip AI Configuration**: The demo works out-of-the-box with mock responses
-2. **Run Immediately**: `cd samples/Demo && dotnet run`
-3. **Test Protocol**: All endpoints work with template-based responses
-4. **Add AI Later**: Follow Options 1 or 2 above when ready for real AI integration
+1. **Run Immediately**: `cd samples/Demo && dotnet run`
+1. **Test Protocol**: All endpoints work with template-based responses
+1. **Add AI Later**: Follow Options 1 or 2 above when ready for real AI integration
 
 This mode is perfect for:
 
 - Understanding the NLWeb protocol structure
-- Testing the UI and streaming functionality  
+- Testing the UI and streaming functionality
 - Development and integration testing
 - Demonstrations without API costs
 
@@ -187,16 +194,20 @@ Since NLWebNet uses `Microsoft.Extensions.AI`, you need to install the appropria
 
 1. **For Azure OpenAI**, install the Azure OpenAI package:
 
+
    ```powershell
    cd samples/Demo
    dotnet add package Microsoft.Extensions.AI.AzureAIInference
+
    ```
 
-2. **For OpenAI API**, install the OpenAI package:
+1. **For OpenAI API**, install the OpenAI package:
+
 
    ```powershell
    cd samples/Demo
    dotnet add package Microsoft.Extensions.AI.OpenAI
+
    ```
 
 ## Step 4: Update Service Registration
@@ -205,21 +216,25 @@ Since NLWebNet uses `Microsoft.Extensions.AI`, you need to install the appropria
 
    **For Azure OpenAI**, add this after the NLWebNet service registration:
 
+
    ```csharp
    // Add Azure OpenAI client
    builder.Services.AddAzureOpenAIClient(builder.Configuration.GetSection("AzureOpenAI"));
+
    ```
 
    **For OpenAI API**, add this instead:
 
+
    ```csharp
-   // Add OpenAI client  
+   // Add OpenAI client
    builder.Services.AddOpenAIClient(builder.Configuration.GetSection("OpenAI"));
+
    ```
 
    > **Note**: The demo app currently works with mock data. Adding real AI services will enable actual AI-powered responses instead of template-based mock responses.
+1. **Verify the complete Program.cs** includes these sections:
 
-2. **Verify the complete Program.cs** includes these sections:
 
    ```csharp
    // Add NLWebNet services
@@ -232,18 +247,22 @@ Since NLWebNet uses `Microsoft.Extensions.AI`, you need to install the appropria
    // Add your chosen AI service (Azure OpenAI or OpenAI)
    builder.Services.AddAzureOpenAIClient(builder.Configuration.GetSection("AzureOpenAI"));
    // OR: builder.Services.AddOpenAIClient(builder.Configuration.GetSection("OpenAI"));
+
    ```
 
 ## Step 5: Run the Demo Application
 
 1. **Start the Application**:
 
+
    ```bash
    cd samples/Demo
    dotnet run
+
    ```
 
-2. **Verify Startup**:
+1. **Verify Startup**:
+
    - Look for startup logs showing successful service registration
    - Check that no errors appear related to AI service configuration
    - Application should start on `http://localhost:5037`
@@ -255,22 +274,23 @@ Since NLWebNet uses `Microsoft.Extensions.AI`, you need to install the appropria
 ### Basic Query Testing
 
 1. **Navigate to the Demo**:
+
    - Open `http://localhost:5037/nlweb`
    - You should see the NLWebNet Interactive Demo interface
+1. **Test List Mode**:
 
-2. **Test List Mode**:
    - Enter a query: "What is machine learning?"
    - Mode: **List**
    - Click "Submit Query"
    - **Expected**: Search results with relevance scores
+1. **Test Summarize Mode**:
 
-3. **Test Summarize Mode**:
    - Enter a query: "Explain cloud computing benefits"
    - Mode: **Summarize**
    - Click "Submit Query"
    - **Expected**: AI-generated summary + supporting search results
+1. **Test Generate Mode**:
 
-4. **Test Generate Mode**:
    - Enter a query: "How do neural networks work?"
    - Mode: **Generate**
    - Click "Submit Query"
@@ -281,40 +301,42 @@ Since NLWebNet uses `Microsoft.Extensions.AI`, you need to install the appropria
 The demo features sophisticated data source management. Test these scenarios to see the intelligent routing:
 
 1. **Test .NET Content Routing**:
+
    - Enter queries: ".NET 9 features", "ASP.NET updates", "C# release notes"
    - **Expected**: Results show RSS badges and come from devblogs.microsoft.com
    - **Visual**: Top data source card shows "Live RSS Feeds" as active (blue highlight)
    - **Note**: HTML tags are automatically stripped from RSS content for clean display
+1. **Test Science Fiction Content Routing**:
 
-2. **Test Science Fiction Content Routing**:
    - Enter queries: "space movies", "Mars exploration", "AI stories", "exoplanets"
    - **Expected**: Results show Schema.org badges with sci-fi themed content
    - **Visual**: Top data source card shows "Schema.org Static Data" as active (info blue highlight)
    - **Content**: Movies like Blade Runner 2049, spacecraft like Millennium Falcon, etc.
+1. **Test Mock Data Mode** (AI not configured):
 
-3. **Test Mock Data Mode** (AI not configured):
    - If no AI is configured, any query returns mock placeholder data
    - **Expected**: Results show Mock badges with placeholder content
    - **Visual**: Top data source card shows "Mock Data" as active (warning yellow highlight)
+1. **Verify Data Source Isolation**:
 
-4. **Verify Data Source Isolation**:
    - Check that .NET queries never show sci-fi content
    - Check that general queries never show RSS feed content
    - Each result card shows the correct color-coded badge (RSS/Schema.org/Mock)
+1. **Test User Guidance Prompts**:
 
-5. **Test User Guidance Prompts**:
    - When AI is configured, see helpful example prompts above the query box
    - Examples show what content is available for .NET vs Science Fiction queries
 
 ### Streaming Testing
 
 1. **Go to Streaming Tab**:
+
    - Click the "Streaming" tab in the demo interface
    - Enter a complex query: "Explain the differences between supervised and unsupervised learning"
    - Click "Start Streaming"
    - **Expected**: Real-time streaming response chunks
+1. **Monitor Stream Types**:
 
-2. **Monitor Stream Types**:
    - Look for different chunk types: text, result, summary, error
    - Verify auto-scrolling behavior
    - Test "Stop Stream" and "Clear" functionality
@@ -322,16 +344,18 @@ The demo features sophisticated data source management. Test these scenarios to 
 ### API Endpoint Testing
 
 1. **Go to API Test Tab**:
+
    - Click the "API Test" tab
    - Configure a test request:
      - Endpoint: `/ask`
      - Query: "What are the benefits of microservices architecture?"
      - Mode: `generate`
      - Streaming: `true`
+1. **Execute API Test**:
 
-2. **Execute API Test**:
    - Click "Send Request"
    - **Expected**: JSON response with proper NLWeb protocol structure:
+
 
      ```json
      {
@@ -350,25 +374,30 @@ The demo features sophisticated data source management. Test these scenarios to 
          }
        ]
      }
+
      ```
 
 ### MCP (Model Context Protocol) Testing
 
 1. **Test MCP Tools**:
+
    - Navigate to "API Test" tab
    - Select endpoint: `/mcp`
    - Test `list_tools` method:
+
 
      ```json
      {
        "method": "list_tools"
      }
+
      ```
 
    - **Expected**: List of available tools (`nlweb_search`, `nlweb_query_history`)
+1. **Test Tool Calling**:
 
-2. **Test Tool Calling**:
    - Test `call_tool` method:
+
 
      ```json
      {
@@ -381,6 +410,7 @@ The demo features sophisticated data source management. Test these scenarios to 
          }
        }
      }
+
      ```
 
    - **Expected**: Tool execution results in MCP format
@@ -390,16 +420,17 @@ The demo features sophisticated data source management. Test these scenarios to 
 ### Success Indicators
 
 1. **AI-Generated Content**:
+
    - Responses should be contextual and relevant (not template-based)
    - Content should vary between queries
    - Summaries should be coherent and well-structured
+1. **Streaming Behavior**:
 
-2. **Streaming Behavior**:
    - Real-time token streaming (not pre-built chunks)
    - Progressive response building
    - Natural language flow
+1. **Query Processing**:
 
-3. **Query Processing**:
    - Decontextualization working with previous queries
    - Context-aware responses when using conversation history
    - Proper handling of different query modes
@@ -409,34 +440,35 @@ The demo features sophisticated data source management. Test these scenarios to 
 **Common Issues**:
 
 1. **"AI service not configured" errors**:
+
    - Verify API keys are correct in `appsettings.json`
    - Check endpoint URLs (especially for Azure OpenAI)
    - Ensure AI service packages are installed (`Microsoft.Extensions.AI.AzureAIInference` or `Microsoft.Extensions.AI.OpenAI`)
    - Verify service registration is added to `Program.cs`
+1. **Mock responses instead of AI responses**:
 
-2. **Mock responses instead of AI responses**:
    - This is expected behavior if AI services aren't configured
    - Install the appropriate AI package (Step 3)
    - Add service registration to Program.cs (Step 4)
    - Check logs for AI service initialization
    - Verify configuration section names match (`AzureOpenAI` or `OpenAI`)
+1. **Package installation errors**:
 
-3. **Package installation errors**:
    - Ensure you're using .NET 9 SDK
    - Try clearing NuGet cache: `dotnet nuget locals all --clear`
    - Verify internet connectivity for package downloads
+1. **Streaming not working**:
 
-4. **Streaming not working**:
    - Check browser developer tools for SSE connection
    - Verify Content-Type headers   - Test with different browsers
    - Ensure AI service supports streaming (most do)
+1. **Configuration section errors**:
 
-5. **Configuration section errors**:
    - Verify JSON structure in `appsettings.json`
    - Check for trailing commas or syntax errors
    - Ensure section names match exactly (`AzureOpenAI` vs `OpenAI`)
+1. **Model-specific issues**:
 
-6. **Model-specific issues**:
    - Verify your deployed model supports chat completions
    - Some models may have different response formats
    - Check model availability in your region (Azure OpenAI)
@@ -445,6 +477,7 @@ The demo features sophisticated data source management. Test these scenarios to 
 **Debug Logging**:
 
 Enable detailed logging in `appsettings.json`:
+
 
 ```json
 {
@@ -456,6 +489,7 @@ Enable detailed logging in `appsettings.json`:
     }
   }
 }
+
 ```
 
 ## Step 8: Advanced Testing Scenarios
@@ -466,6 +500,7 @@ You can customize the AI models used by updating your configuration:
 
 **Azure OpenAI Alternative Models**:
 
+
 ```json
 {
   "AzureOpenAI": {
@@ -475,9 +510,11 @@ You can customize the AI models used by updating your configuration:
     "ApiKey": "your-api-key-here"
   }
 }
+
 ```
 
 **OpenAI Alternative Models**:
+
 
 ```json
 {
@@ -487,9 +524,11 @@ You can customize the AI models used by updating your configuration:
     "BaseUrl": "https://api.openai.com/v1"
   }
 }
+
 ```
 
 **Custom Configuration Options**:
+
 
 ```json
 {
@@ -500,28 +539,31 @@ You can customize the AI models used by updating your configuration:
     "MaxResultsPerQuery": 20            // Adjust result count
   }
 }
+
 ```
 
 ### Context and Conversation Testing
 
 1. **Multi-turn Conversations**:
+
    - Enter initial query: "What is Docker?"
    - Add to "Previous Queries": "What is Docker?"
    - Enter follow-up: "How is it different from virtual machines?"
    - **Expected**: Context-aware response referencing previous query
+1. **Site Filtering**:
 
-2. **Site Filtering**:
    - Use "Site" field to filter results: "microsoft.com"
    - **Expected**: Results should be filtered to specified domain (if backend supports it)
 
 ### Performance Testing
 
 1. **Load Testing**:
+
    - Submit multiple simultaneous queries
    - Test streaming with long responses
    - Verify timeout handling (default 30 seconds)
+1. **Error Handling**:
 
-2. **Error Handling**:
    - Submit invalid queries
    - Test with malformed JSON (in API Test tab)
    - Verify graceful error responses
@@ -592,39 +634,39 @@ When deploying the demo to production environments:
 
 ## Frequently Asked Questions
 
-### Q: Can I use other AI providers besides Azure OpenAI and OpenAI?
+### Q: Can I use other AI providers besides Azure OpenAI and OpenAI
 
 A: Yes! NLWebNet uses Microsoft.Extensions.AI, which supports multiple providers. You can add packages like `Microsoft.Extensions.AI.Anthropic` or implement custom `IChatClient` providers for other services.
 
-### Q: Why am I getting template responses instead of AI responses?
+### Q: Why am I getting template responses instead of AI responses
 
 A: This means the AI services aren't properly configured. Check:
 
 1. AI service packages are installed
-2. Service registration is added to Program.cs  
-3. Configuration keys are correct
-4. API keys are valid and have sufficient quota
+1. Service registration is added to Program.cs
+1. Configuration keys are correct
+1. API keys are valid and have sufficient quota
 
-### Q: Can I run this in a container?
+### Q: Can I run this in a container
 
 A: Yes! The demo includes container support. Use `dotnet publish` with container tools or the included Dockerfile. Remember to handle secrets securely in containerized environments.
 
-### Q: How do I customize the search backend?
+### Q: How do I customize the search backend
 
 A: Implement the `IDataBackend` interface and register it in DI. The current implementation uses a mock backend for demonstration purposes.
 
-### Q: What's the difference between the three query modes?
+### Q: What's the difference between the three query modes
 
 A:
 
 - **List**: Returns search results only (no AI processing)
-- **Summarize**: AI generates a summary plus supporting search results  
+- **Summarize**: AI generates a summary plus supporting search results
 - **Generate**: AI generates a full response with minimal search context
 
-### Q: How do I add custom rate limiting?
+### Q: How do I add custom rate limiting
 
 A: Implement `IRateLimitingService` or configure the included `InMemoryRateLimitingService` through NLWebOptions.
 
-### Q: Is this production-ready?
+### Q: Is this production-ready
 
 A: This is an alpha release for evaluation. For production use, review security, monitoring, error handling, and performance characteristics for your specific requirements.
