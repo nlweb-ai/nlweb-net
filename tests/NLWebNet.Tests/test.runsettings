@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <!-- Configure parallel execution -->
+  <RunConfiguration>
+    <!-- Enable parallel execution at method level -->
+    <MaxCpuCount>0</MaxCpuCount>
+    <!-- Use all available cores (0 = auto-detect) -->
+    <TargetPlatform>x64</TargetPlatform>
+    <!-- Disable data collection for faster execution -->
+    <DisableAppDomain>true</DisableAppDomain>
+    <!-- Disable parallelization if tests share state -->
+    <!-- <DisableParallelization>false</DisableParallelization> -->
+  </RunConfiguration>
+
+  <!-- MSTest configuration for parallel execution -->
+  <MSTest>
+    <!-- Enable parallel execution at class level -->
+    <Parallelize>
+      <Workers>0</Workers>
+      <!-- 0 = auto-detect based on CPU cores -->
+      <Scope>MethodLevel</Scope>
+      <!-- Options: ClassLevel, MethodLevel -->
+    </Parallelize>
+    <!-- Disable deployment items for faster startup -->
+    <DeploymentEnabled>false</DeploymentEnabled>
+    <!-- Disable test timeout for faster execution -->
+    <TestTimeout>0</TestTimeout>
+  </MSTest>
+
+  <!-- Data collection settings -->
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <!-- Only collect code coverage if needed -->
+      <DataCollector friendlyName="Code Coverage" uri="datacollector://Microsoft/CodeCoverage/2.0" assemblyQualifiedName="Microsoft.VisualStudio.Coverage.DynamicCoverageDataCollector, Microsoft.VisualStudio.TraceCollector, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+        <Configuration>
+          <CodeCoverage>
+            <!-- Disable for faster execution, enable only when needed -->
+            <ModulePaths>
+              <Exclude>
+                <ModulePath>.*Tests.*</ModulePath>
+              </Exclude>
+            </ModulePaths>
+          </CodeCoverage>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
