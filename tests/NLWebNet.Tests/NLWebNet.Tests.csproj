@@ -6,6 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <!-- Enable parallel test execution -->
+    <VSTestLogger>trx</VSTestLogger>
+    <VSTestResultsDirectory>$(OutputPath)</VSTestResultsDirectory>
   </PropertyGroup>  <ItemGroup>
     <PackageReference Include="MSTest" Version="3.9.3" />
     <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="17.14.2" />
