@@ -23,45 +23,42 @@ $totalIssues = 0
 foreach ($file in $markdownFiles) {
     Write-Host "`nProcessing: $($file.Name)" -ForegroundColor Yellow
     
-    $content = Get-Content -Path $file.FullName -Raw
-    $originalContent = $content
+    $lines = Get-Content -Path $file.FullName
+    $originalLines = $lines
     $fileIssues = 0
     
     # Fix 1: Remove trailing spaces (MD009)
-    $beforeTrailing = $content
-    $content = $content -split "`n" | ForEach-Object { $_.TrimEnd() } | Join-String -Separator "`n"
-    if ($content -ne $beforeTrailing) {
+    $lines = $lines | ForEach-Object { $_.TrimEnd() }
+    if ($lines -ne $originalLines) {
         $fileIssues++
         Write-Host "  Fixed trailing spaces" -ForegroundColor Green
     }
     
     # Fix 2: Ensure consistent list formatting (use dashes for unordered lists)
-    $beforeLists = $content
-    $content = $content -replace '^(\s*)\*(\s+)', '$1-$2' -replace '^(\s*)\+(\s+)', '$1-$2'
-    if ($content -ne $beforeLists) {
+    $lines = $lines | ForEach-Object { $_ -replace '^(\s*)\*(\s+)', '$1-$2' -replace '^(\s*)\+(\s+)', '$1-$2' }
+    if ($lines -ne $originalLines) {
         $fileIssues++
         Write-Host "  Fixed list formatting" -ForegroundColor Green
     }
     
     # Fix 3: Remove multiple consecutive blank lines (MD012)
-    $beforeBlankLines = $content
-    $content = $content -replace '(\r?\n){3,}', "`n`n"
-    if ($content -ne $beforeBlankLines) {
+    $lines = $lines -join "`n" -replace '(\r?\n){3,}', "`n`n" -split "`n"
+    if ($lines -ne $originalLines) {
         $fileIssues++
         Write-Host "  Fixed multiple blank lines" -ForegroundColor Green
     }
     
     # Fix 4: Ensure file ends with newline (MD047)
-    if (-not $content.EndsWith("`n")) {
-        $content += "`n"
+    if (-not $lines[-1].EndsWith("`n")) {
+        $lines += ""
         $fileIssues++
         Write-Host "  Added final newline" -ForegroundColor Green
     }
     
     # Write the fixed content
-    if ($content -ne $originalContent) {
+    if ($lines -ne $originalLines) {
         if (-not $DryRun) {
-            Set-Content -Path $file.FullName -Value $content -NoNewline
+            Set-Content -Path $file.FullName -Value $lines
             Write-Host "  Saved $fileIssues fixes" -ForegroundColor Cyan
         } else {
             Write-Host "  Would save $fileIssues fixes (dry run)" -ForegroundColor Yellow
