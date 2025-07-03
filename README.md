@@ -42,6 +42,10 @@ This implementation follows the [official NLWeb specification](https://github.co
 
 ```text
 NLWebNet/
+├── .github/                   # 🔧 GitHub workflows, dependabot, and automation
+│   ├── workflows/             # CI/CD pipeline definitions
+│   ├── dependabot.yml         # Dependency update automation
+│   └── custom-instructions.md # Development guidelines
 ├── src/NLWebNet/              # 📦 Core library (published NuGet package)
 │   ├── Models/                # Request/response data models
 │   ├── Services/              # Business logic interfaces and implementations
@@ -51,17 +55,29 @@ NLWebNet/
 │   └── Middleware/            # Request processing middleware
 ├── samples/                   # 🎯 Sample applications and usage examples
 │   ├── Demo/                  # 🎮 .NET 9 Blazor Web App demo application
+│   ├── AspireDemo/            # 🏗️ .NET Aspire sample application
 │   └── AspireHost/            # 🏗️ .NET Aspire orchestration host
-├── doc/                       # � Documentation and setup guides
+├── deployment/                # 🚀 Deployment configurations and scripts
+│   ├── azure/                 # Azure-specific deployment templates
+│   ├── docker/                # Docker and container configurations
+│   ├── kubernetes/            # Kubernetes manifests and Helm charts
+│   └── scripts/               # Deployment automation scripts
+├── doc/                       # 📚 Documentation and setup guides
 │   ├── demo-setup-guide.md    # 🔧 Complete AI integration setup guide
 │   ├── manual-testing-guide.md # 🧪 API testing instructions
 │   └── todo.md                # 📋 Implementation status and roadmap
 ├── tests/                     # 🧪 Unit and integration tests
-│   └── NLWebNet.Tests/        # 📋 MSTest test project (39 tests)
-├── helm/                      # ⚙️ Helm charts for Kubernetes
-├── k8s/                       # ⚙️ Kubernetes manifests
-├── deploy/                    # 🚀 Azure deployment templates
-└── scripts/                   # �️ Build and deployment scripts
+│   └── NLWebNet.Tests/        # 📋 MSTest test project (264 tests)
+├── scripts/                   # 🛠️ Build and utility scripts
+│   └── markdown-tools/        # Markdown linting and formatting tools
+├── .dockerignore              # Docker ignore patterns
+├── .gitignore                 # Git ignore patterns
+├── .markdownlint.json         # Markdown linting configuration
+├── CHANGELOG.md               # Version history and release notes
+├── LICENSE                    # MIT license
+├── NLWebNet.sln               # Visual Studio solution file
+├── NuGet.Config               # NuGet package source configuration
+└── README.md                  # This file
 
 ```
 
