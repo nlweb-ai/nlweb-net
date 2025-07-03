@@ -19,9 +19,9 @@ public static class TestDataManager
             Description = "Simple search query testing basic functionality",
             Query = "millennium falcon",
             ExpectedMode = QueryMode.List,
-            ExpectedTools = new[] { "Search" },
+            ExpectedTools = new[] { TestConstants.Tools.Search },
             MinExpectedResults = 1,
-            TestCategories = new[] { "BasicSearch", "EndToEnd" }
+            TestCategories = new[] { TestConstants.Categories.BasicSearch, TestConstants.Categories.EndToEnd }
         };
 
         yield return new TestScenario
@@ -30,9 +30,9 @@ public static class TestDataManager
             Description = "Query for technical documentation or API information",
             Query = "API documentation for web services",
             ExpectedMode = QueryMode.List,
-            ExpectedTools = new[] { "Search", "Details" },
+            ExpectedTools = new[] { TestConstants.Tools.Search, TestConstants.Tools.Details },
             MinExpectedResults = 1,
-            TestCategories = new[] { "Technical", "EndToEnd" }
+            TestCategories = new[] { TestConstants.Categories.Technical, TestConstants.Categories.EndToEnd }
         };
 
         yield return new TestScenario
@@ -41,9 +41,9 @@ public static class TestDataManager
             Description = "Comparative query that should trigger compare tool",
             Query = "compare .NET Core vs .NET Framework",
             ExpectedMode = QueryMode.List,
-            ExpectedTools = new[] { "Compare", "Search" },
+            ExpectedTools = new[] { TestConstants.Tools.Compare, TestConstants.Tools.Search },
             MinExpectedResults = 1,
-            TestCategories = new[] { "Compare", "ToolSelection" }
+            TestCategories = new[] { TestConstants.Categories.Compare, TestConstants.Categories.ToolSelection }
         };
 
         yield return new TestScenario
@@ -52,9 +52,9 @@ public static class TestDataManager
             Description = "Specific detail query for detailed information",
             Query = "detailed specifications for Enterprise NX-01",
             ExpectedMode = QueryMode.List,
-            ExpectedTools = new[] { "Details", "Search" },
+            ExpectedTools = new[] { TestConstants.Tools.Details, TestConstants.Tools.Search },
             MinExpectedResults = 1,
-            TestCategories = new[] { "Details", "ToolSelection" }
+            TestCategories = new[] { TestConstants.Categories.Details, TestConstants.Categories.ToolSelection }
         };
 
         yield return new TestScenario
@@ -63,9 +63,9 @@ public static class TestDataManager
             Description = "Complex query requiring ensemble of tools",
             Query = "comprehensive analysis of space exploration technologies",
             ExpectedMode = QueryMode.List,
-            ExpectedTools = new[] { "Ensemble", "Search", "Compare" },
+            ExpectedTools = new[] { TestConstants.Tools.Ensemble, TestConstants.Tools.Search, TestConstants.Tools.Compare },
             MinExpectedResults = 2,
-            TestCategories = new[] { "Ensemble", "Complex" }
+            TestCategories = new[] { TestConstants.Categories.Ensemble, TestConstants.Categories.Complex }
         };
 
         yield return new TestScenario
@@ -76,7 +76,7 @@ public static class TestDataManager
             ExpectedMode = QueryMode.List,
             ExpectedTools = Array.Empty<string>(),
             MinExpectedResults = 0,
-            TestCategories = new[] { "EdgeCase", "Validation" }
+            TestCategories = new[] { TestConstants.Categories.EdgeCase, TestConstants.Categories.Validation }
         };
 
         yield return new TestScenario
@@ -86,9 +86,9 @@ public static class TestDataManager
             Query = "Dune movie",
             Site = "scifi-cinema.com",
             ExpectedMode = QueryMode.List,
-            ExpectedTools = new[] { "Search" },
+            ExpectedTools = new[] { TestConstants.Tools.Search },
             MinExpectedResults = 1,
-            TestCategories = new[] { "SiteFiltering", "EndToEnd" }
+            TestCategories = new[] { TestConstants.Categories.SiteFiltering, TestConstants.Categories.EndToEnd }
         };
     }
 

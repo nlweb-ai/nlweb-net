@@ -46,7 +46,7 @@ public class ToolSelectionAccuracyTests
     public async Task ToolSelection_CompareQueries_SelectCompareToolCorrectly()
     {
         var compareScenarios = TestDataManager.GetTestScenarios()
-            .Where(s => s.TestCategories.Contains("Compare"));
+            .Where(s => s.TestCategories.Contains(TestConstants.Categories.Compare));
 
         foreach (var scenario in compareScenarios)
         {
@@ -57,10 +57,10 @@ public class ToolSelectionAccuracyTests
 
             Console.WriteLine($"Selected tool: {selectedTool ?? "None"}");
 
-            if (scenario.ExpectedTools.Contains("Compare"))
+            if (scenario.ExpectedTools.Contains(TestConstants.Tools.Compare))
             {
                 // For compare scenarios, the tool selector should select the "compare" tool
-                Assert.AreEqual("compare", selectedTool?.ToLowerInvariant(),
+                Assert.AreEqual(ToolSelector.ToolConstants.CompareTool, selectedTool?.ToLowerInvariant(),
                     $"Expected 'compare' tool to be selected for compare query: '{scenario.Query}'");
                 Console.WriteLine($"✓ Compare tool correctly selected for: {scenario.Query}");
             }
@@ -80,7 +80,7 @@ public class ToolSelectionAccuracyTests
     public async Task ToolSelection_DetailQueries_SelectDetailsToolCorrectly()
     {
         var detailScenarios = TestDataManager.GetTestScenarios()
-            .Where(s => s.TestCategories.Contains("Details"));
+            .Where(s => s.TestCategories.Contains(TestConstants.Categories.Details));
 
         foreach (var scenario in detailScenarios)
         {
@@ -91,7 +91,7 @@ public class ToolSelectionAccuracyTests
 
             Console.WriteLine($"Selected tool: {selectedTool ?? "None"}");
 
-            if (scenario.ExpectedTools.Contains("Details"))
+            if (scenario.ExpectedTools.Contains(TestConstants.Tools.Details))
             {
                 // Check if the query actually contains details keywords that the tool selector recognizes
                 var queryLower = scenario.Query.ToLowerInvariant();
@@ -100,14 +100,14 @@ public class ToolSelectionAccuracyTests
 
                 if (shouldSelectDetails)
                 {
-                    Assert.AreEqual("details", selectedTool?.ToLowerInvariant(),
+                    Assert.AreEqual(ToolSelector.ToolConstants.DetailsTool, selectedTool?.ToLowerInvariant(),
                         $"Expected 'details' tool to be selected for details query: '{scenario.Query}'");
                     Console.WriteLine($"✓ Details tool correctly selected for: {scenario.Query}");
                 }
                 else
                 {
                     // Query doesn't contain details keywords, so it defaults to search
-                    Assert.AreEqual("search", selectedTool?.ToLowerInvariant(),
+                    Assert.AreEqual(ToolSelector.ToolConstants.SearchTool, selectedTool?.ToLowerInvariant(),
                         $"Expected 'search' tool (default) for query without details keywords: '{scenario.Query}'");
                     Console.WriteLine($"✓ Search tool (default) correctly selected for: {scenario.Query}");
                 }
@@ -128,7 +128,7 @@ public class ToolSelectionAccuracyTests
     public async Task ToolSelection_EnsembleQueries_SelectToolsCorrectly()
     {
         var ensembleScenarios = TestDataManager.GetTestScenarios()
-            .Where(s => s.TestCategories.Contains("Ensemble"));
+            .Where(s => s.TestCategories.Contains(TestConstants.Categories.Ensemble));
 
         foreach (var scenario in ensembleScenarios)
         {
@@ -140,7 +140,7 @@ public class ToolSelectionAccuracyTests
             Console.WriteLine($"Selected tool: {selectedTool ?? "None"}");
 
             // Ensemble queries should be handled appropriately
-            if (scenario.ExpectedTools.Contains("Ensemble"))
+            if (scenario.ExpectedTools.Contains(TestConstants.Tools.Ensemble))
             {
                 // Check if the query actually contains ensemble keywords that the tool selector recognizes
                 var queryLower = scenario.Query.ToLowerInvariant();
@@ -149,14 +149,14 @@ public class ToolSelectionAccuracyTests
 
                 if (shouldSelectEnsemble)
                 {
-                    Assert.AreEqual("ensemble", selectedTool?.ToLowerInvariant(),
+                    Assert.AreEqual(ToolSelector.ToolConstants.EnsembleTool, selectedTool?.ToLowerInvariant(),
                         $"Expected 'ensemble' tool to be selected for ensemble query: '{scenario.Query}'");
                     Console.WriteLine($"✓ Ensemble tool correctly selected for: {scenario.Query}");
                 }
                 else
                 {
                     // Query doesn't contain ensemble keywords, so it defaults to search
-                    Assert.AreEqual("search", selectedTool?.ToLowerInvariant(),
+                    Assert.AreEqual(ToolSelector.ToolConstants.SearchTool, selectedTool?.ToLowerInvariant(),
                         $"Expected 'search' tool (default) for query without ensemble keywords: '{scenario.Query}'");
                     Console.WriteLine($"✓ Search tool (default) correctly selected for: {scenario.Query}");
                 }
@@ -177,7 +177,7 @@ public class ToolSelectionAccuracyTests
     public async Task ToolSelection_BasicSearchQueries_HandleAppropriately()
     {
         var basicSearchScenarios = TestDataManager.GetTestScenarios()
-            .Where(s => s.TestCategories.Contains("BasicSearch"));
+            .Where(s => s.TestCategories.Contains(TestConstants.Categories.BasicSearch));
 
         foreach (var scenario in basicSearchScenarios)
         {
@@ -190,10 +190,10 @@ public class ToolSelectionAccuracyTests
 
             // Basic search may or may not require specific tool selection
             // The important thing is that the selector doesn't crash and returns a valid response
-            if (scenario.ExpectedTools.Contains("Search"))
+            if (scenario.ExpectedTools.Contains(TestConstants.Tools.Search))
             {
                 // For basic search scenarios, the tool selector should select the "search" tool or null
-                Assert.IsTrue(selectedTool?.ToLowerInvariant() == "search" || selectedTool == null,
+                Assert.IsTrue(selectedTool?.ToLowerInvariant() == ToolSelector.ToolConstants.SearchTool || selectedTool == null,
                     $"Expected 'search' tool or null to be selected for basic search query: '{scenario.Query}', but got: {selectedTool}");
                 Console.WriteLine($"✓ Basic search tool selection validated: {selectedTool ?? "null"} for '{scenario.Query}'");
             }
@@ -212,7 +212,7 @@ public class ToolSelectionAccuracyTests
     public async Task ToolSelection_EdgeCases_HandleGracefully()
     {
         var edgeCaseScenarios = TestDataManager.GetTestScenarios()
-            .Where(s => s.TestCategories.Contains("EdgeCase"));
+            .Where(s => s.TestCategories.Contains(TestConstants.Categories.EdgeCase));
 
         foreach (var scenario in edgeCaseScenarios)
         {

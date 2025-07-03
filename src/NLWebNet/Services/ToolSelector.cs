@@ -15,7 +15,7 @@ public class ToolSelector : IToolSelector
     /// <summary>
     /// Constants for tool names and associated keywords
     /// </summary>
-    private static class ToolConstants
+    public static class ToolConstants
     {
         // Tool names
         public const string SearchTool = "search";

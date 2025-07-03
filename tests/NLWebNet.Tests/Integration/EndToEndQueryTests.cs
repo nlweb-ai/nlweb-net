@@ -45,7 +45,7 @@ public class EndToEndQueryTests
     public async Task EndToEnd_BasicSearchScenarios_AllPass()
     {
         var basicSearchScenarios = TestDataManager.GetTestScenarios()
-            .Where(s => s.TestCategories.Contains("BasicSearch"));
+            .Where(s => s.TestCategories.Contains(TestConstants.Categories.BasicSearch));
 
         foreach (var scenario in basicSearchScenarios)
         {
@@ -78,7 +78,7 @@ public class EndToEndQueryTests
     public async Task EndToEnd_EdgeCaseScenarios_HandleCorrectly()
     {
         var edgeCaseScenarios = TestDataManager.GetTestScenarios()
-            .Where(s => s.TestCategories.Contains("EdgeCase"));
+            .Where(s => s.TestCategories.Contains(TestConstants.Categories.EdgeCase));
 
         foreach (var scenario in edgeCaseScenarios)
         {
@@ -104,7 +104,7 @@ public class EndToEndQueryTests
     public async Task EndToEnd_SiteFilteringScenarios_FilterCorrectly()
     {
         var siteFilteringScenarios = TestDataManager.GetTestScenarios()
-            .Where(s => s.TestCategories.Contains("SiteFiltering"));
+            .Where(s => s.TestCategories.Contains(TestConstants.Categories.SiteFiltering));
 
         foreach (var scenario in siteFilteringScenarios)
         {
@@ -141,7 +141,7 @@ public class EndToEndQueryTests
     public async Task EndToEnd_TechnicalQueries_ReturnRelevantResults()
     {
         var technicalScenarios = TestDataManager.GetTestScenarios()
-            .Where(s => s.TestCategories.Contains("Technical"));
+            .Where(s => s.TestCategories.Contains(TestConstants.Categories.Technical));
 
         foreach (var scenario in technicalScenarios)
         {
