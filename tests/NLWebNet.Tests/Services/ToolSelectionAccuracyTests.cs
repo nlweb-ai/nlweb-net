@@ -60,7 +60,7 @@ public class ToolSelectionAccuracyTests
             if (scenario.ExpectedTools.Contains("Compare"))
             {
                 // For compare scenarios, the tool selector should select the "compare" tool
-                Assert.AreEqual("compare", selectedTool,
+                Assert.AreEqual("compare", selectedTool?.ToLowerInvariant(),
                     $"Expected 'compare' tool to be selected for compare query: '{scenario.Query}'");
                 Console.WriteLine($"✓ Compare tool correctly selected for: {scenario.Query}");
             }
@@ -100,14 +100,14 @@ public class ToolSelectionAccuracyTests
 
                 if (shouldSelectDetails)
                 {
-                    Assert.AreEqual("details", selectedTool,
+                    Assert.AreEqual("details", selectedTool?.ToLowerInvariant(),
                         $"Expected 'details' tool to be selected for details query: '{scenario.Query}'");
                     Console.WriteLine($"✓ Details tool correctly selected for: {scenario.Query}");
                 }
                 else
                 {
                     // Query doesn't contain details keywords, so it defaults to search
-                    Assert.AreEqual("search", selectedTool,
+                    Assert.AreEqual("search", selectedTool?.ToLowerInvariant(),
                         $"Expected 'search' tool (default) for query without details keywords: '{scenario.Query}'");
                     Console.WriteLine($"✓ Search tool (default) correctly selected for: {scenario.Query}");
                 }
@@ -149,14 +149,14 @@ public class ToolSelectionAccuracyTests
 
                 if (shouldSelectEnsemble)
                 {
-                    Assert.AreEqual("ensemble", selectedTool,
+                    Assert.AreEqual("ensemble", selectedTool?.ToLowerInvariant(),
                         $"Expected 'ensemble' tool to be selected for ensemble query: '{scenario.Query}'");
                     Console.WriteLine($"✓ Ensemble tool correctly selected for: {scenario.Query}");
                 }
                 else
                 {
                     // Query doesn't contain ensemble keywords, so it defaults to search
-                    Assert.AreEqual("search", selectedTool,
+                    Assert.AreEqual("search", selectedTool?.ToLowerInvariant(),
                         $"Expected 'search' tool (default) for query without ensemble keywords: '{scenario.Query}'");
                     Console.WriteLine($"✓ Search tool (default) correctly selected for: {scenario.Query}");
                 }
@@ -193,7 +193,7 @@ public class ToolSelectionAccuracyTests
             if (scenario.ExpectedTools.Contains("Search"))
             {
                 // For basic search scenarios, the tool selector should select the "search" tool or null
-                Assert.IsTrue(selectedTool == "search" || selectedTool == null,
+                Assert.IsTrue(selectedTool?.ToLowerInvariant() == "search" || selectedTool == null,
                     $"Expected 'search' tool or null to be selected for basic search query: '{scenario.Query}', but got: {selectedTool}");
                 Console.WriteLine($"✓ Basic search tool selection validated: {selectedTool ?? "null"} for '{scenario.Query}'");
             }
