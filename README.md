@@ -1,6 +1,6 @@
 # NLWebNet
 
-[![.NET Build and Test](https://github.com/jongalloway/NLWebNet/actions/workflows/build.yml/badge.svg)](https://github.com/jongalloway/NLWebNet/actions/workflows/build.yml)
+[![.NET Build and Test](https://github.com/nlweb-ai/nlweb-net/actions/workflows/build.yml/badge.svg)](https://github.com/jongalloway/NLWebNet/actions/workflows/build.yml)
 [![NuGet Version](https://img.shields.io/nuget/v/NLWebNet.svg)](https://www.nuget.org/packages/NLWebNet/)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/NLWebNet.svg)](https://www.nuget.org/packages/NLWebNet/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
