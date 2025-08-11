@@ -42,8 +42,8 @@
 		<PackageReference Include="Microsoft.Extensions.Configuration.Xml" Version="9.0.7" />
 		
 		<!-- Health Checks and Monitoring -->
-		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.7" />
-		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="9.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.8" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="9.0.8" />
 		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="9.0.7" />
 		
 		<!-- OpenTelemetry Integration -->
