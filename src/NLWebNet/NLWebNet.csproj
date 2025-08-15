@@ -39,7 +39,7 @@
 		
 		<!-- Configuration Format Support -->
 		<PackageReference Include="YamlDotNet" Version="16.3.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Xml" Version="9.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Xml" Version="9.0.8" />
 		
 		<!-- Health Checks and Monitoring -->
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.7" />
