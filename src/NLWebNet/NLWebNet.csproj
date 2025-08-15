@@ -57,7 +57,7 @@
 		<PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.7.0-rc.1" />
 		
 		<!-- .NET Aspire Integration -->
-		<PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="9.4.0" />
+		<PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="9.4.1" />
 
 		<!-- Source Link for GitHub -->
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
