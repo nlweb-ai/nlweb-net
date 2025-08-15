@@ -33,8 +33,8 @@
 		<PackageReference Include="Microsoft.Extensions.AI" Version="9.7.1" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.8" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.7" />
-		<PackageReference Include="Microsoft.Extensions.Options" Version="9.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.8" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="9.0.8" />
 		<PackageReference Include="ModelContextProtocol" Version="0.3.0-preview.3" />
 		
 		<!-- Configuration Format Support -->
@@ -42,8 +42,8 @@
 		<PackageReference Include="Microsoft.Extensions.Configuration.Xml" Version="9.0.8" />
 		
 		<!-- Health Checks and Monitoring -->
-		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.7" />
-		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="9.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.8" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="9.0.8" />
 		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="9.0.7" />
 		
 		<!-- OpenTelemetry Integration -->
