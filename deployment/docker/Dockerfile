@@ -11,9 +11,9 @@ ENV DOTNET_CLI_TELEMETRY_OPTOUT=true
 ENV NUGET_XMLDOC_MODE=skip
 # Configure .NET to handle SSL issues in Docker environment
 ENV DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
-ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+ENV NUGET_CERT_REVOCATION_MODE=offline
 
-# Install ca-certificates and update certificate store
+# Update package lists and install certificates
 RUN apt-get update && \
     apt-get install -y ca-certificates && \
     update-ca-certificates && \
@@ -27,9 +27,10 @@ COPY ["src/NLWebNet/NLWebNet.csproj", "src/NLWebNet/"]
 COPY ["samples/Demo/NLWebNet.Demo.csproj", "samples/Demo/"]
 COPY ["tests/NLWebNet.Tests/NLWebNet.Tests.csproj", "tests/NLWebNet.Tests/"]
 
-# Restore dependencies with retry and improved networking
+# Restore dependencies with SSL workarounds
 RUN dotnet restore "samples/Demo/NLWebNet.Demo.csproj" \
-    --verbosity normal \
+    --disable-parallel \
+    --verbosity minimal \
     --force
 
 # Copy source code
