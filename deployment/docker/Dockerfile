@@ -9,6 +9,15 @@ WORKDIR /src
 ENV DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=true
 ENV NUGET_XMLDOC_MODE=skip
+# Configure .NET to handle SSL issues in Docker environment
+ENV DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
+ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+
+# Install ca-certificates and update certificate store
+RUN apt-get update && \
+    apt-get install -y ca-certificates && \
+    update-ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy solution file and project files for dependency resolution
 COPY ["NLWebNet.sln", "./"]
@@ -18,8 +27,10 @@ COPY ["src/NLWebNet/NLWebNet.csproj", "src/NLWebNet/"]
 COPY ["samples/Demo/NLWebNet.Demo.csproj", "samples/Demo/"]
 COPY ["tests/NLWebNet.Tests/NLWebNet.Tests.csproj", "tests/NLWebNet.Tests/"]
 
-# Restore dependencies
-RUN dotnet restore "samples/Demo/NLWebNet.Demo.csproj"
+# Restore dependencies with retry and improved networking
+RUN dotnet restore "samples/Demo/NLWebNet.Demo.csproj" \
+    --verbosity normal \
+    --force
 
 # Copy source code
 COPY . .
