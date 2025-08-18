@@ -213,7 +213,7 @@ src/NLWebNet/
 
 1. **Prefer Microsoft.Extensions.*** - Use standard .NET abstractions
 1. **Check for existing alternatives** - Avoid duplicate functionality
-1. **Update project files** - Include in main library and test projects
+1. **Use Central Package Management** - Add versions to `Directory.Packages.props`, reference packages without versions in project files
 1. **Validate package size** - Keep library lightweight
 
 ## Limitations and Current Implementation Status

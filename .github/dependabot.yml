@@ -1,17 +1,18 @@
 # Dependabot configuration for NLWebNet repository
 # Configures weekly dependency scanning and update recommendations
+# Updated for Central Package Management (CPM)
 
 version: 2
 updates:
-  # Monitor NuGet packages for the main library
+  # Monitor NuGet packages centrally via Directory.Packages.props
   - package-ecosystem: "nuget"
-    directory: "/src/NLWebNet"
+    directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "09:00"
       timezone: "UTC"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 10
     target-branch: "main"
     commit-message:
       prefix: "deps"
@@ -19,46 +20,6 @@ updates:
     labels:
       - "dependencies"
       - "nuget"
-    reviewers:
-      - "jongalloway"
-
-  # Monitor NuGet packages for the demo application
-  - package-ecosystem: "nuget"
-    directory: "/demo"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "UTC"
-    open-pull-requests-limit: 3
-    target-branch: "main"
-    commit-message:
-      prefix: "deps(demo)"
-      include: "scope"
-    labels:
-      - "dependencies"
-      - "nuget"
-      - "demo"
-    reviewers:
-      - "jongalloway"
-
-  # Monitor NuGet packages for test projects
-  - package-ecosystem: "nuget"
-    directory: "/tests"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "UTC"
-    open-pull-requests-limit: 3
-    target-branch: "main"
-    commit-message:
-      prefix: "deps(tests)"
-      include: "scope"
-    labels:
-      - "dependencies"
-      - "nuget"
-      - "tests"
     reviewers:
       - "jongalloway"
 
