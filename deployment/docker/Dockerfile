@@ -12,6 +12,8 @@ ENV NUGET_XMLDOC_MODE=skip
 
 # Copy solution file and project files for dependency resolution
 COPY ["NLWebNet.sln", "./"]
+COPY ["Directory.Packages.props", "./"]
+COPY ["NuGet.Config", "./"]
 COPY ["src/NLWebNet/NLWebNet.csproj", "src/NLWebNet/"]
 COPY ["samples/Demo/NLWebNet.Demo.csproj", "samples/Demo/"]
 COPY ["tests/NLWebNet.Tests/NLWebNet.Tests.csproj", "tests/NLWebNet.Tests/"]
