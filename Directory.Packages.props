@@ -58,7 +58,7 @@
     
     <!-- AI and Vector Dependencies -->
     <PackageVersion Include="Microsoft.Extensions.AI.OpenAI" Version="9.6.0-preview.1.25310.2" />
-    <PackageVersion Include="Microsoft.Extensions.VectorData.Abstractions" Version="9.6.0" />
+    <PackageVersion Include="Microsoft.Extensions.VectorData.Abstractions" Version="9.8.0" />
     <PackageVersion Include="Microsoft.SemanticKernel.Connectors.Qdrant" Version="1.57.0-preview" />
     
     <!-- HTTP Resilience (for AspireDemo ServiceDefaults) -->
