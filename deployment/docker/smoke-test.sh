@@ -2,7 +2,7 @@
 # Smoke test script for NLWebNet Docker container
 # Tests basic functionality and health endpoints
 
-set -e
+set -euo pipefail
 
 CONTAINER_NAME="nlwebnet-test-$(date +%s)"
 CONTAINER_PORT="8080"
@@ -25,7 +25,7 @@ trap cleanup EXIT
 
 # Start the container
 echo "🚀 Starting container..."
-if ! docker run -d --name "$CONTAINER_NAME" -p "$HOST_PORT:$CONTAINER_PORT" "$IMAGE_NAME"; then
+if ! docker run -d --name "$CONTAINER_NAME" -p "$HOST_PORT:$CONTAINER_PORT" --memory=512m --cpus=1 "$IMAGE_NAME"; then
     echo "❌ Failed to start container"
     exit 1
 fi
@@ -57,11 +57,11 @@ sleep 5
 
 # Test basic health endpoint
 echo "🔍 Testing health endpoint..."
-if curl -f -s "http://localhost:$HOST_PORT/health" >/dev/null; then
+if curl --max-time 10 -f -s "http://localhost:$HOST_PORT/health" >/dev/null; then
     echo "✅ Health endpoint responds successfully"
     
     # Get and display health response
-    health_response=$(curl -s "http://localhost:$HOST_PORT/health")
+    health_response=$(curl --max-time 10 -s "http://localhost:$HOST_PORT/health")
     echo "📊 Health response: $health_response"
 else
     echo "❌ Health endpoint failed"
@@ -72,9 +72,9 @@ fi
 
 # Test if detailed health endpoint exists
 echo "🔍 Testing detailed health endpoint..."
-if curl -f -s "http://localhost:$HOST_PORT/health/detailed" >/dev/null; then
+if curl --max-time 10 -f -s "http://localhost:$HOST_PORT/health/detailed" >/dev/null; then
     echo "✅ Detailed health endpoint responds successfully"
-    detailed_health=$(curl -s "http://localhost:$HOST_PORT/health/detailed")
+    detailed_health=$(curl --max-time 10 -s "http://localhost:$HOST_PORT/health/detailed")
     echo "📊 Detailed health response: $detailed_health"
 else
     echo "⚠️ Detailed health endpoint not available or failed (this may be expected)"
@@ -82,7 +82,7 @@ fi
 
 # Test basic root endpoint
 echo "🔍 Testing root endpoint..."
-if curl -f -s "http://localhost:$HOST_PORT/" >/dev/null; then
+if curl --max-time 10 -f -s "http://localhost:$HOST_PORT/" >/dev/null; then
     echo "✅ Root endpoint responds successfully"
 else
     echo "⚠️ Root endpoint failed (this may be expected for API-only services)"
@@ -90,9 +90,9 @@ fi
 
 # Test if NLWebNet API endpoints are available
 echo "🔍 Testing NLWebNet API endpoints..."
-if curl -f -s "http://localhost:$HOST_PORT/api/nlweb" >/dev/null 2>&1; then
+if curl --max-time 10 -f -s "http://localhost:$HOST_PORT/api/nlweb" >/dev/null 2>&1; then
     echo "✅ NLWebNet API endpoint responds"
-elif curl -f -s "http://localhost:$HOST_PORT/nlweb" >/dev/null 2>&1; then
+elif curl --max-time 10 -f -s "http://localhost:$HOST_PORT/nlweb" >/dev/null 2>&1; then
     echo "✅ NLWebNet endpoint responds"
 else
     echo "⚠️ NLWebNet API endpoints may not be available or configured differently"

@@ -2,7 +2,7 @@
 # Build script for Docker container in environments with SSL issues
 # This script prepares a build-ready environment and builds the Docker image
 
-set -e
+set -euo pipefail
 
 echo "🔧 Building NLWebNet Docker image with SSL workarounds..."
 
@@ -19,31 +19,11 @@ dotnet restore
 # Build the Docker image with appropriate strategy based on environment
 echo "🐳 Building Docker image..."
 
-# Try the standard approach first
+# Build the Docker image
 if docker build -f deployment/docker/Dockerfile . -t nlwebnet-demo:latest; then
-    echo "✅ Docker build successful with standard approach"
-elif [ -f "deployment/docker/Dockerfile.pre-built" ]; then
-    echo "⚠️ Standard build failed, trying pre-built approach..."
-    # Use the pre-built approach if available
-    cp deployment/docker/.dockerignore-prebuilt .dockerignore.backup
-    mv .dockerignore .dockerignore.original
-    cp deployment/docker/.dockerignore-prebuilt .dockerignore
-    
-    if docker build -f deployment/docker/Dockerfile.pre-built . -t nlwebnet-demo:latest; then
-        echo "✅ Docker build successful with pre-built approach"
-    else
-        echo "❌ Both build approaches failed"
-        # Restore original .dockerignore
-        mv .dockerignore.original .dockerignore
-        rm -f .dockerignore.backup
-        exit 1
-    fi
-    
-    # Restore original .dockerignore
-    mv .dockerignore.original .dockerignore
-    rm -f .dockerignore.backup
+    echo "✅ Docker build successful"
 else
-    echo "❌ Docker build failed and no fallback available"
+    echo "❌ Docker build failed"
     exit 1
 fi
 

@@ -438,8 +438,8 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### Usage" >> $GITHUB_STEP_SUMMARY
         echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-        echo "docker pull ghcr.io/${{ github.repository }}/demo:latest" >> $GITHUB_STEP_SUMMARY
-        echo "docker run -p 8080:8080 ghcr.io/${{ github.repository }}/demo:latest" >> $GITHUB_STEP_SUMMARY
+        echo "docker pull ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+        echo "docker run -p 8080:8080 ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
         echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
   # Alternative: .NET SDK Container Build (modern approach)
