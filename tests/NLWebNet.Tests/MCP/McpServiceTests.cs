@@ -301,26 +301,23 @@ public class McpServiceTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public async Task CallToolAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await _mcpService.CallToolAsync(null!);
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _mcpService.CallToolAsync(null!));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public async Task GetPromptAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await _mcpService.GetPromptAsync(null!);
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _mcpService.GetPromptAsync(null!));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public async Task ProcessNLWebQueryAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await _mcpService.ProcessNLWebQueryAsync(null!);
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _mcpService.ProcessNLWebQueryAsync(null!));
     }
 }

@@ -115,7 +115,7 @@ public class ToolExecutorTests
         };
 
         // Act & Assert
-        await Assert.ThrowsExceptionAsync<InvalidOperationException>(
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(
             () => _toolExecutor.ExecuteToolAsync(request, "nonexistent-tool"));
     }
 }
