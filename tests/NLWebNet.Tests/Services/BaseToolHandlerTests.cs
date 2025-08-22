@@ -347,8 +347,8 @@ public class BaseToolHandlerTests
         cts.Cancel();
 
         // Act & Assert
-    await Assert.ThrowsExactlyAsync<OperationCanceledException>(
-            () => _baseToolHandler.ExecuteAsync(request, cts.Token));
+        await Assert.ThrowsExactlyAsync<OperationCanceledException>(
+                () => _baseToolHandler.ExecuteAsync(request, cts.Token));
     }
 
     [TestMethod]

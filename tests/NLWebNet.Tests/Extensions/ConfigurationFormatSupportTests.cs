@@ -125,7 +125,7 @@ nlweb:
         var loader = new ToolDefinitionLoader(logger);
 
         // Act & Assert
-    var exception = Assert.ThrowsExactly<InvalidOperationException>(() => loader.LoadFromXml(xml));
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(() => loader.LoadFromXml(xml));
         Assert.IsTrue(exception.Message.Contains("Tool definitions validation failed"));
         Assert.IsTrue(exception.Message.Contains("Tool ID cannot be empty"));
     }
