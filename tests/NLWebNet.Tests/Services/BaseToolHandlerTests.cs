@@ -43,7 +43,7 @@ public class BaseToolHandlerTests
     public void Constructor_WithNullLogger_ThrowsArgumentNullException()
     {
         // Act & Assert
-        Assert.ThrowsException<ArgumentNullException>(() =>
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
             new TestableBaseToolHandler(null!, _options, _queryProcessor, _resultGenerator));
     }
 
@@ -51,7 +51,7 @@ public class BaseToolHandlerTests
     public void Constructor_WithNullOptions_ThrowsArgumentNullException()
     {
         // Act & Assert
-        Assert.ThrowsException<ArgumentNullException>(() =>
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
             new TestableBaseToolHandler(_logger, null!, _queryProcessor, _resultGenerator));
     }
 
@@ -59,7 +59,7 @@ public class BaseToolHandlerTests
     public void Constructor_WithNullQueryProcessor_ThrowsArgumentNullException()
     {
         // Act & Assert
-        Assert.ThrowsException<ArgumentNullException>(() =>
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
             new TestableBaseToolHandler(_logger, _options, null!, _resultGenerator));
     }
 
@@ -67,7 +67,7 @@ public class BaseToolHandlerTests
     public void Constructor_WithNullResultGenerator_ThrowsArgumentNullException()
     {
         // Act & Assert
-        Assert.ThrowsException<ArgumentNullException>(() =>
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
             new TestableBaseToolHandler(_logger, _options, _queryProcessor, null!));
     }
 
@@ -347,7 +347,7 @@ public class BaseToolHandlerTests
         cts.Cancel();
 
         // Act & Assert
-        await Assert.ThrowsExceptionAsync<OperationCanceledException>(
+    await Assert.ThrowsExactlyAsync<OperationCanceledException>(
             () => _baseToolHandler.ExecuteAsync(request, cts.Token));
     }
 
