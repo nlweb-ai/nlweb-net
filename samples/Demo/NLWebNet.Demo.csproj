@@ -21,6 +21,7 @@
   
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Xml" VersionOverride="9.0.9" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" VersionOverride="9.0.9" />
   <PackageReference Include="Microsoft.Extensions.Options" VersionOverride="9.0.9" />
     <PackageReference Include="System.ServiceModel.Syndication" />
