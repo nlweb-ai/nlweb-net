@@ -24,6 +24,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Xml" VersionOverride="9.0.9" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" VersionOverride="9.0.9" />
   <PackageReference Include="Microsoft.Extensions.Options" VersionOverride="9.0.9" />
+  <PackageReference Include="System.Diagnostics.DiagnosticSource" VersionOverride="9.0.9" />
     <PackageReference Include="System.ServiceModel.Syndication" />
   </ItemGroup>
 
