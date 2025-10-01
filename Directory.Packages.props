@@ -14,7 +14,7 @@
     <PackageVersion Include="YamlDotNet" Version="16.3.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Xml" Version="9.0.9" />
     <!-- Health Checks and Monitoring -->
-    <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.8" />
+    <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.9" />
     <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="9.0.9" />
     <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="9.0.8" />
     <!-- OpenTelemetry Integration (using latest 1.12.0 for main library) -->
@@ -27,16 +27,16 @@
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.7.0-rc.1" />
     <!-- .NET Aspire Integration -->
-    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.4.2" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.5.0" />
     <!-- Build Tools -->
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
     <!-- Testing Dependencies -->
     <PackageVersion Include="MSTest" Version="3.10.4" />
-    <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="17.14.2" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.0.4" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.9" />
     <PackageVersion Include="NSubstitute" Version="5.3.0" />
     <!-- Sample Application Dependencies -->
-    <PackageVersion Include="System.ServiceModel.Syndication" Version="9.0.8" />
+    <PackageVersion Include="System.ServiceModel.Syndication" Version="9.0.9" />
     <!-- Aspire Dependencies -->
     <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.3.1" />
     <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="9.3.1" />
