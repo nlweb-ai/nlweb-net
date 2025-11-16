@@ -34,19 +34,10 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.AI" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-		<PackageReference Include="Microsoft.Extensions.Options" />
 		<PackageReference Include="ModelContextProtocol" />
 		
 		<!-- Configuration Format Support -->
 		<PackageReference Include="YamlDotNet" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Xml" />
-		
-		<!-- Health Checks and Monitoring -->
-		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
-		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" />
-		<PackageReference Include="System.Diagnostics.DiagnosticSource" />
 		
 		<!-- OpenTelemetry Integration -->
 		<PackageReference Include="OpenTelemetry" />
