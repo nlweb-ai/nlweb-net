@@ -1,8 +1,8 @@
 # Multi-stage Dockerfile for NLWebNet Demo Application
-# Based on .NET 9 runtime and optimized for production deployment
+# Based on .NET 10 runtime and optimized for production deployment
 
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Set essential environment variables for .NET in containerized environments
@@ -33,7 +33,7 @@ FROM build AS publish
 RUN dotnet publish "NLWebNet.Demo.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 
 # Install curl for health checks and create a non-root user for security
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* \

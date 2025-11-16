@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>		<!-- Package Metadata -->		<PackageId>NLWebNet</PackageId>
 		<Title>NLWebNet - .NET NLWeb Protocol Library</Title>
@@ -14,7 +14,7 @@
 		<PackageProjectUrl>https://github.com/jongalloway/NLWebNet</PackageProjectUrl>		<RepositoryUrl>https://github.com/jongalloway/NLWebNet</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile Condition="Exists('$(MSBuildThisFileDirectory)..\..\README.md') Or Exists('$(MSBuildThisFileDirectory)README.md')">README.md</PackageReadmeFile>
-		<PackageTags>nlweb;ai;conversation;minimal-api;mcp;streaming;rag;search;llm;dotnet9;alpha;prerelease</PackageTags>
+		<PackageTags>nlweb;ai;conversation;minimal-api;mcp;streaming;rag;search;llm;dotnet10;alpha;prerelease</PackageTags>
 		<PackageReleaseNotes>Alpha release 0.1.0-alpha.3: Enhanced NuGet package metadata with copyright notice, repository type, and improved package title for better Package Manager display. Complete NLWeb protocol implementation with Minimal API endpoints (/ask, /mcp), Model Context Protocol integration, streaming support, and comprehensive testing. This is a proof-of-concept prerelease for testing and evaluation purposes only - not recommended for production use.</PackageReleaseNotes>
 		<!-- Symbol and Deterministic Build Configuration -->
 		<IncludeSymbols>true</IncludeSymbols>
@@ -34,19 +34,10 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.AI" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-		<PackageReference Include="Microsoft.Extensions.Options" />
 		<PackageReference Include="ModelContextProtocol" />
 		
 		<!-- Configuration Format Support -->
 		<PackageReference Include="YamlDotNet" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Xml" />
-		
-		<!-- Health Checks and Monitoring -->
-		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
-		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" />
-		<PackageReference Include="System.Diagnostics.DiagnosticSource" />
 		
 		<!-- OpenTelemetry Integration -->
 		<PackageReference Include="OpenTelemetry" />

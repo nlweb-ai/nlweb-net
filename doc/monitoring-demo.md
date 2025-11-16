@@ -65,7 +65,7 @@ Returns detailed status of all services:
 
 ### Metrics Collection
 
-The library automatically collects comprehensive metrics using .NET 9 built-in metrics:
+The library automatically collects comprehensive metrics using .NET 10 built-in metrics:
 
 #### Request Metrics
 

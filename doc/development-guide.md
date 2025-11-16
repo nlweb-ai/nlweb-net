@@ -18,7 +18,7 @@ This document provides comprehensive guidance for developers working with the NL
 
 ## Technology Stack
 
-- **.NET 9.0** - Latest .NET version with modern features
+- **.NET 10.0** - Latest .NET version with modern features
 - **ASP.NET Core** - Web framework with Minimal APIs
 - **Blazor Web App** - For the demo application
 - **Microsoft.Extensions.AI** - AI service abstractions
@@ -33,7 +33,7 @@ This document provides comprehensive guidance for developers working with the NL
 - **Primary approach**: Uses **Minimal APIs** for modern, lightweight endpoints
 - Endpoints are organized in static classes: `AskEndpoints`, `McpEndpoints`
 - Extension methods provide clean endpoint mapping: `app.MapNLWebNet()`
-- Modern .NET 9 features including TypedResults for improved type safety
+- Modern .NET 10 features including TypedResults for improved type safety
 
 ### 2. Dependency Injection
 
@@ -72,7 +72,7 @@ The project uses **Minimal APIs exclusively** for a modern, lightweight approach
 
 - **Current**: Uses `Endpoints/` classes with static mapping methods and TypedResults
 - **Extension methods**: Clean API surface via `MapNLWebNet()` for minimal APIs
-- **Best practices**: .NET 9 features including TypedResults for type safety
+- **Best practices**: .NET 10 features including TypedResults for type safety
 
 ## Code Conventions
 
@@ -235,7 +235,7 @@ src/NLWebNet/
 
 ### Deployment Considerations
 
-- **Requires .NET 9.0** - Latest framework dependency for modern features
+- **Requires .NET 10.0** - Latest framework dependency for modern features
 - **Early prerelease status** - Not yet ready for production deployment
 - **Production-quality code** - Library being developed with production standards
 - **Demo app simplicity** - Reference implementation kept simple for clarity
