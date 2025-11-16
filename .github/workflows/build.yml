@@ -132,7 +132,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: build-artifacts-Release
         path: |
@@ -303,7 +303,7 @@ jobs:
       run: dotnet pack src/NLWebNet --configuration Release --no-build --output ./packages -p:PackageVersion=${{ steps.version.outputs.version }}
 
     - name: Upload package artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: nuget-packages
         path: ./packages/*.nupkg
