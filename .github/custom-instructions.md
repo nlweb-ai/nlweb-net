@@ -18,7 +18,7 @@ This document provides guidance for AI assistants working with the NLWebNet code
 
 ## Technology Stack
 
-- **.NET 9.0** - Latest .NET version with modern features
+- **.NET 10.0** - Latest .NET version with modern features
 - **ASP.NET Core** - Web framework with Minimal APIs
 - **Blazor Web App** - For the demo application
 - **Microsoft.Extensions.AI** - AI service abstractions
@@ -240,7 +240,7 @@ src/NLWebNet/
 
 ### Deployment Considerations
 
-- **Requires .NET 9.0** - Latest framework dependency for modern features
+- **Requires .NET 10.0** - Latest framework dependency for modern features
 - **Early prerelease status** - Not yet ready for production deployment
 - **Production-quality code** - Library being developed with production standards
 - **Demo app simplicity** - Reference implementation kept simple for clarity

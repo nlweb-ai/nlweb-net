@@ -18,7 +18,7 @@ The NLWeb June 2025 release introduces significant architectural changes and new
 - ✅ Basic Model Context Protocol (MCP) integration
 - ✅ Single data backend interface (`IDataBackend`)
 - ✅ Microsoft.Extensions.AI integration
-- ✅ .NET 9 Blazor demo application
+- ✅ .NET 10 Blazor demo application
 - ✅ Mock data backend for testing
 
 ## Required Updates

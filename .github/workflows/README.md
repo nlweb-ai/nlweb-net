@@ -62,7 +62,7 @@ dotnet list package --vulnerable --include-transitive
 
 ## Requirements
 
-- .NET 9.0 SDK or later
+- .NET 10.0 SDK or later
 - The workflow uses Ubuntu runners for better performance and cost efficiency
 - Tests are run using the built-in MSTest framework
 

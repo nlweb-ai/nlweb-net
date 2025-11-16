@@ -16,7 +16,7 @@ This guide provides comprehensive instructions for deploying NLWebNet across var
 
 ### Prerequisites
 
-- **.NET 9 SDK** (for building from source)
+- **.NET 10 SDK** (for building from source)
 - **Docker** (for containerized deployment)
 - **Azure CLI** (for Azure deployments)
 - **kubectl** (for Kubernetes deployments)
@@ -35,7 +35,7 @@ cd NLWebNet
 
 cd deployment/docker && docker-compose up --build
 
-# Or run locally (requires .NET 9)
+# Or run locally (requires .NET 10)
 
 cd samples/Demo
 dotnet run
@@ -93,7 +93,7 @@ docker run -p 8080:8080 \
 
 ### .NET SDK Container Build (Modern Approach)
 
-.NET 9 SDK includes built-in container support that eliminates the need for a traditional Dockerfile:
+.NET 10 SDK includes built-in container support that eliminates the need for a traditional Dockerfile:
 
 
 ```bash

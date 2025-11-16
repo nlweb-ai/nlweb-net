@@ -4,7 +4,7 @@
 [![NuGet Version](https://img.shields.io/nuget/v/NLWebNet.svg)](https://www.nuget.org/packages/NLWebNet/)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/NLWebNet.svg)](https://www.nuget.org/packages/NLWebNet/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![.NET 9](https://img.shields.io/badge/.NET-9.0-blue.svg)](https://dotnet.microsoft.com/download/dotnet/9.0)
+[![.NET 10](https://img.shields.io/badge/.NET-10.0-blue.svg)](https://dotnet.microsoft.com/download/dotnet/10.0)
 [![MSTest](https://img.shields.io/badge/Testing-MSTest-purple.svg)](https://github.com/microsoft/testfx)
 
 A .NET implementation of the [NLWeb protocol](https://github.com/microsoft/NLWeb) for building natural language web interfaces. This project provides both a reusable library and a demo application showcasing the NLWeb standard.
@@ -54,7 +54,7 @@ NLWebNet/
 │   ├── Extensions/            # DI and middleware extensions
 │   └── Middleware/            # Request processing middleware
 ├── samples/                   # 🎯 Sample applications and usage examples
-│   ├── Demo/                  # 🎮 .NET 9 Blazor Web App demo application
+│   ├── Demo/                  # 🎮 .NET 10 Blazor Web App demo application
 │   ├── AspireDemo/            # 🏗️ .NET Aspire sample application
 │   └── AspireHost/            # 🏗️ .NET Aspire orchestration host
 ├── deployment/                # 🚀 Deployment configurations and scripts
@@ -159,7 +159,7 @@ graph TB
         MODELS[Data Models]
     end
       subgraph "Demo Application"
-        BLAZOR[.NET 9 Blazor Web App UI]
+        BLAZOR[.NET 10 Blazor Web App UI]
         DEMO[Modern Blazor Components]
     end
 
@@ -281,7 +281,7 @@ All existing JSON configuration continues to work unchanged. See the [Configurat
 
 ### Prerequisites
 
-- .NET 9.0 SDK
+- .NET 10.0 SDK
 - Visual Studio 2022 or VS Code
 
 ### Running the Demo
@@ -324,7 +324,7 @@ All existing JSON configuration continues to work unchanged. See the [Configurat
      - **Smart Data Source Management**: Automatic routing between RSS feeds (.NET content), Schema.org static data (science fiction), and mock placeholders
      - **Visual Data Source Indicators**: Top-level Bootstrap cards showing which sources are active
      - **User Guidance Prompts**: Contextual examples of what content is available to search
-     - **Query input with natural language questions**: Try ".NET 9 features" for RSS data or "space movies" for sci-fi content
+     - **Query input with natural language questions**: Try ".NET 10 features" for RSS data or "space movies" for sci-fi content
      - **Mode selection**: List, Summarize, Generate modes with streaming support
      - **Color-coded result badges**: Each result shows its source (RSS/Schema.org/Mock) with visual indicators
      - **HTML tag removal**: Clean display of RSS feed content
@@ -633,7 +633,7 @@ This is an **alpha implementation** of the NLWeb protocol, provided as an **expe
 - [x] **Business Logic**: Full service layer with Microsoft.Extensions.AI integration
 - [x] **MCP Integration**: Complete Model Context Protocol support with tools and prompts
 - [x] **Tool System**: Advanced tool handlers (Search, Details, Compare, Ensemble, Recipe)
-- [x] **Demo Application**: .NET 9 Blazor Web App with comprehensive interactive components
+- [x] **Demo Application**: .NET 10 Blazor Web App with comprehensive interactive components
 - [x] **AI Integration**: Support for Azure OpenAI, OpenAI API, and GitHub Models
 - [x] **Testing**: Comprehensive test suite (264 tests) with integration and performance testing
 - [x] **Configuration**: Full YAML/XML/JSON support, multi-environment, multi-backend configuration
@@ -691,7 +691,7 @@ Complete NLWeb protocol implementation with advanced features, AI integration, a
 - ✅ Advanced tool system with intelligent query routing
 - ✅ Multi-backend retrieval architecture with concurrent querying
 - ✅ Full AI integration support (Azure OpenAI, OpenAI API, GitHub Models)
-- ✅ .NET 9 Blazor demo application with comprehensive testing interface
+- ✅ .NET 10 Blazor demo application with comprehensive testing interface
 - ✅ Complete Model Context Protocol (MCP) support
 - ✅ Streaming responses with Server-Sent Events
 - ✅ YAML/XML/JSON configuration support

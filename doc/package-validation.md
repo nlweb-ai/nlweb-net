@@ -46,7 +46,7 @@ If you prefer to run validation steps manually, here's the complete checklist:
   - `NLWebNet.Extensions.ServiceCollectionExtensions`
   - `NLWebNet.Extensions.ApplicationBuilderExtensions`
 - [ ] **Metadata Files**: Check for README.md, license, and nuspec
-- [ ] **Framework Targeting**: Confirm targets .NET 9.0
+- [ ] **Framework Targeting**: Confirm targets .NET 10.0
 - [ ] **Dependencies**: Verify all package references are included
 
 ### 4. API Surface Validation ✅

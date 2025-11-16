@@ -63,14 +63,14 @@ Every search result includes color-coded badges showing its data source:
 
 When AI is configured, the demo shows helpful prompts with examples:
 
-- **".NET Content"**: Try ".NET 9", "ASP.NET updates", "C# features"
+- **".NET Content"**: Try ".NET 10", "ASP.NET updates", "C# features"
 - **"Science Fiction"**: Try "space movies", "Mars exploration", "AI stories"
 
 This design helps users understand what content is available and demonstrates clean data source separation for NLWeb protocol implementation.
 
 ## Prerequisites
 
-- .NET 9 SDK installed
+- .NET 10 SDK installed
 - Git repository cloned locally
 - Access to one of the following LLM services:
   - Azure OpenAI (recommended)
@@ -302,7 +302,7 @@ The demo features sophisticated data source management. Test these scenarios to 
 
 1. **Test .NET Content Routing**:
 
-   - Enter queries: ".NET 9 features", "ASP.NET updates", "C# release notes"
+   - Enter queries: ".NET 10 features", "ASP.NET updates", "C# release notes"
    - **Expected**: Results show RSS badges and come from devblogs.microsoft.com
    - **Visual**: Top data source card shows "Live RSS Feeds" as active (blue highlight)
    - **Note**: HTML tags are automatically stripped from RSS content for clean display
@@ -454,7 +454,7 @@ The demo features sophisticated data source management. Test these scenarios to 
    - Verify configuration section names match (`AzureOpenAI` or `OpenAI`)
 1. **Package installation errors**:
 
-   - Ensure you're using .NET 9 SDK
+   - Ensure you're using .NET 10 SDK
    - Try clearing NuGet cache: `dotnet nuget locals all --clear`
    - Verify internet connectivity for package downloads
 1. **Streaming not working**:
