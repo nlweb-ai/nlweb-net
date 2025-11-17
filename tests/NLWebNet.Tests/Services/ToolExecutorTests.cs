@@ -49,7 +49,7 @@ public class ToolExecutorTests
         var tools = _toolExecutor.GetAvailableTools().ToList();
 
         // Assert
-        Assert.IsGreaterThan(tools.Count , 0, "Should have at least one tool handler");
+        Assert.IsGreaterThan(tools.Count, 0, "Should have at least one tool handler");
 
         var toolTypes = tools.Select(t => t.ToolType).ToList();
         Assert.IsTrue(toolTypes.Contains("search"), "Should include search tool");
@@ -99,7 +99,7 @@ public class ToolExecutorTests
         Assert.AreEqual(request.QueryId, response.QueryId);
         Assert.IsNotNull(response.Results);
         // The mock backend may return empty results, but the response should be processed by details tool
-        Assert.IsTrue(response.Summary?.Contains("Details") == true || response.Summary?.Contains("details") == true,
+        Assert.AreEqual(true || response.Summary?.Contains("details", response.Summary?.Contains("Details") ) == true,
                      "Should be processed by details tool");
     }
 

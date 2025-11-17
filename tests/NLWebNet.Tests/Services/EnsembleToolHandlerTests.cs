@@ -82,17 +82,19 @@ public class EnsembleToolHandlerTests
         Assert.AreEqual(request.Query, response.Query);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.IsGreaterThan(response.Results.Count , = 2); // Should have overview + option results
+        Assert.IsGreaterThanOrEqualTo(response.Results.Count, 2); // Should have overview + option results
         Assert.IsNotNull(response.ProcessedQuery);
         Assert.Contains("recommendations suggestions set", response.ProcessedQuery);
         Assert.Contains("Ensemble recommendations created", response.Summary);
-        Assert.IsGreaterThan(response.ProcessingTimeMs , = 0);
+        Assert.IsGreaterThanOrEqualTo(response.ProcessingTimeMs, 0);
 
         // Verify ensemble structure
         var resultsList = response.Results.ToList();
         Assert.Contains("Curated Ensemble", resultsList.Any(r => r.Name));
-        Assert.IsTrue(resultsList.Any(r => r.Site == "Ensemble"));
-        Assert.IsTrue(resultsList.Any(r => r.Name?.StartsWith("[Option") == true));
+        var hasMatchingItem = resultsList.Any(r => r.Site == "Ensemble");
+        Assert.IsTrue(hasMatchingItem);
+        var hasMatchingItem = resultsList.Any(r => r.Name?.StartsWith("[Option") == true);
+        Assert.IsTrue(hasMatchingItem);
     }
 
     [TestMethod]

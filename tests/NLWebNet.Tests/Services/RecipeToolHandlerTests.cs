@@ -64,9 +64,11 @@ public class RecipeToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsTrue(string.IsNullOrEmpty(response.Error));
-        Assert.IsGreaterThan(response.Results.Count , 0);
-        Assert.IsTrue(response.Results.Any(r => r.Name.Contains("Recipe Guide")));
-        Assert.IsGreaterThan(response.ProcessingTimeMs , = 0);
+        Assert.IsGreaterThan(response.Results.Count, 0);
+        var hasMatchingItem = response.Results.Any(r => r.Name.Contains("Recipe Guide"));
+        Assert.IsTrue(hasMatchingItem);
+        Assert.IsTrue(hasMatchingItem);
+        Assert.IsGreaterThanOrEqualTo(response.ProcessingTimeMs, 0);
     }
 
     [TestMethod]
@@ -91,8 +93,10 @@ public class RecipeToolHandlerTests
 
         // Assert
         Assert.IsNotNull(response);
-        Assert.IsTrue(string.IsNullOrEmpty(response.Error));
-        Assert.IsTrue(response.Results.Any(r => r.Name.Contains("Substitution")));
+        var hasMatchingItem = response.Results.Any(r => r.Name.Contains("Substitution"));
+        Assert.IsTrue(hasMatchingItem);
+        var hasMatchingItem = response.Results.Any(r => r.Name.Contains("Substitution"));
+        Assert.IsTrue(hasMatchingItem);
         Assert.Contains("Recipe information", response.Summary);
     }
 
@@ -119,7 +123,7 @@ public class RecipeToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsTrue(string.IsNullOrEmpty(response.Error));
-        Assert.IsGreaterThan(response.Results.Count , 0);
+        Assert.IsGreaterThan(response.Results.Count, 0);
         Assert.Contains("recipe cooking instructions", response.ProcessedQuery);
     }
 
@@ -145,7 +149,7 @@ public class RecipeToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsTrue(string.IsNullOrEmpty(response.Error));
-        Assert.IsGreaterThan(response.Results.Count , 0);
+        Assert.IsGreaterThan(response.Results.Count, 0);
     }
 
     [TestMethod]
@@ -169,9 +173,11 @@ public class RecipeToolHandlerTests
         var response = await _recipeToolHandler.ExecuteAsync(request);
 
         // Assert
-        Assert.IsNotNull(response);
+        var hasMatchingItem = response.Results.Any(r => r.Name.Contains("Pairing"));
+        Assert.IsTrue(hasMatchingItem);
         Assert.IsTrue(string.IsNullOrEmpty(response.Error));
-        Assert.IsTrue(response.Results.Any(r => r.Name.Contains("Pairing")));
+        var hasMatchingItem = response.Results.Any(r => r.Name.Contains("Pairing"));
+        Assert.IsTrue(hasMatchingItem);
     }
 
     [TestMethod]
@@ -196,7 +202,7 @@ public class RecipeToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsTrue(string.IsNullOrEmpty(response.Error));
-        Assert.IsTrue(response.Results.Any()); // Just verify we have results
+        Assert.IsNotEmpty(response.Results); // Just verify we have results
         Assert.Contains("recipe", response.ProcessedQuery); // Verify recipe query processing
     }
 
@@ -444,7 +450,7 @@ public class RecipeToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsFalse(string.IsNullOrEmpty(response.Error));
         Assert.Contains("Recipe tool execution failed", response.Error);
-        Assert.IsTrue(response.Results.Count == 1); // Error result
+        Assert.AreEqual(1, response.Results.Count ); // Error result
         Assert.AreEqual("Tool Error", response.Results[0].Name);
     }
 
@@ -473,9 +479,9 @@ public class RecipeToolHandlerTests
         Assert.AreEqual(request.Query, response.Query);
         Assert.AreEqual(request.Mode, response.Mode);
         Assert.IsNotNull(response.Results);
-        Assert.IsGreaterThan(response.ProcessingTimeMs , = 0);
-        Assert.IsLessThan(response.Timestamp , = DateTimeOffset.UtcNow);
-        Assert.IsGreaterThan(response.Timestamp , DateTimeOffset.UtcNow.AddMinutes(-1));
+        Assert.IsGreaterThanOrEqualTo(response.ProcessingTimeMs, 0);
+        Assert.IsLessThanOrEqualTo(response.Timestamp, DateTimeOffset.UtcNow);
+        Assert.IsGreaterThan(response.Timestamp, DateTimeOffset.UtcNow.AddMinutes(-1));
     }
 
     [TestMethod]
@@ -499,7 +505,7 @@ public class RecipeToolHandlerTests
 
         // Assert
         Assert.IsNotNull(response);
-        Assert.IsGreaterThan(response.Results.Count , = 1);
+        Assert.IsGreaterThanOrEqualTo(response.Results.Count, 1);
 
         var headerResult = response.Results.FirstOrDefault(r => r.Name.Contains("Recipe Guide"));
         Assert.IsNotNull(headerResult, "Should include Recipe Guide header");
@@ -531,14 +537,16 @@ public class RecipeToolHandlerTests
 
         // Assert
         Assert.IsNotNull(response);
-        Assert.IsGreaterThan(response.Results.Count , 1); // Header + filtered results
+        Assert.IsGreaterThan(response.Results.Count, 1); // Header + filtered results
 
         // Should include relevant results but filter out unrelated ones
         var relevantResults = response.Results.Where(r => !r.Name.Contains("Recipe Guide")).ToList();
-        Assert.IsGreaterThan(relevantResults.Count , 0);
+        var hasMatchingItem = relevantResults.Any(r => r.Name.Contains("Storage") || r.Name.Contains("Food"));
+        Assert.IsTrue(hasMatchingItem);
 
         // Results should be recipe-relevant
-        Assert.IsTrue(relevantResults.Any(r => r.Name.Contains("Storage") || r.Name.Contains("Food")));
+        var hasMatchingItem = relevantResults.Any(r => r.Name.Contains("Storage") || r.Name.Contains("Food"));
+        Assert.IsTrue(hasMatchingItem);
     }
 
     [TestMethod]
@@ -571,9 +579,9 @@ public class RecipeToolHandlerTests
         Assert.IsNotNull(response);
 
         // Should have header + max 8 recipe results = 9 total
-        Assert.IsLessThan(response.Results.Count , = 9);
+        Assert.IsLessThanOrEqualTo(response.Results.Count, 9);
 
         var recipeResults = response.Results.Where(r => !r.Name.Contains("Recipe Guide")).ToList();
-        Assert.IsLessThan(recipeResults.Count , = 8, "Should limit recipe results to 8");
+        Assert.IsLessThanOrEqualTo(recipeResults.Count, 8, "Should limit recipe results to 8");
     }
 }

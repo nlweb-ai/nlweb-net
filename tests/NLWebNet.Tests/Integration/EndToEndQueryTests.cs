@@ -63,7 +63,7 @@ public class EndToEndQueryTests
             if (scenario.MinExpectedResults > 0)
             {
                 Assert.IsNotNull(response.Results, $"Results should not be null for scenario: {scenario.Name}");
-                Assert.IsTrue(response.Results.Count() >= scenario.MinExpectedResults,
+                Assert.IsGreaterThanOrEqualTo(response.Results.Count(), scenario.MinExpectedResults,
                     $"Should have at least {scenario.MinExpectedResults} results for scenario: {scenario.Name}");
             }
 
@@ -156,7 +156,7 @@ public class EndToEndQueryTests
             if (scenario.MinExpectedResults > 0)
             {
                 Assert.IsNotNull(response.Results, $"Results should not be null for scenario: {scenario.Name}");
-                Assert.IsTrue(response.Results.Count() >= scenario.MinExpectedResults,
+                Assert.IsGreaterThanOrEqualTo(response.Results.Count(), scenario.MinExpectedResults,
                     $"Should have at least {scenario.MinExpectedResults} results for scenario: {scenario.Name}");
 
                 // Verify results have meaningful content
@@ -240,7 +240,7 @@ public class EndToEndQueryTests
             return;
         }
 
-        Assert.IsGreaterThan(responseCount , 0, "Should receive at least one streamed response");
+        Assert.IsGreaterThan(responseCount, 0, "Should receive at least one streamed response");
         Assert.IsNotNull(lastResponse, "Should have received at least one response");
 
         Console.WriteLine($"✓ Streaming test completed with {responseCount} responses");

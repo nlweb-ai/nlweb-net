@@ -53,8 +53,8 @@ public class BackendOperationTests
         var searchResults = await mockBackend.SearchAsync("millennium falcon", null, 10, CancellationToken.None);
         var resultsList = searchResults.ToList();
 
-        Assert.IsGreaterThan(resultsList.Count , 0, "Should return results for 'millennium falcon'");
-        Assert.IsLessThan(resultsList.Count , = 10, "Should respect max results limit");
+        Assert.IsGreaterThan(resultsList.Count, 0, "Should return results for 'millennium falcon'");
+        Assert.IsLessThanOrEqualTo(resultsList.Count, 10, "Should respect max results limit");
 
         foreach (var result in resultsList)
         {
@@ -82,14 +82,14 @@ public class BackendOperationTests
         // Test empty query handling
         var emptyResults = await mockBackend.SearchAsync("", null, 10, CancellationToken.None);
         var emptyList = emptyResults.ToList();
-        Assert.AreEqual(0, emptyList.Count, "Empty query should return no results");
+        Assert.IsEmpty(emptyList, "Empty query should return no results");
 
         Console.WriteLine("✓ Empty query handling validated");
 
         // Test null query handling
         var nullResults = await mockBackend.SearchAsync(null!, null, 10, CancellationToken.None);
         var nullList = nullResults.ToList();
-        Assert.AreEqual(0, nullList.Count, "Null query should return no results");
+        Assert.IsEmpty(nullList, "Null query should return no results");
 
         Console.WriteLine("✓ Null query handling validated");
     }
@@ -106,7 +106,7 @@ public class BackendOperationTests
 
         // Test backend information retrieval
         var backendInfo = backendManager.GetBackendInfo().ToList();
-        Assert.IsGreaterThan(backendInfo.Count , = 1, "Should have at least one backend configured");
+        Assert.IsGreaterThanOrEqualTo(backendInfo.Count, 1, "Should have at least one backend configured");
 
         foreach (var backend in backendInfo)
         {
@@ -159,7 +159,7 @@ public class BackendOperationTests
         var maxResultsQuery = await mockBackend.SearchAsync("space", null, capabilities.MaxResults + 10, CancellationToken.None);
         var maxResultsList = maxResultsQuery.ToList();
 
-        Assert.IsTrue(maxResultsList.Count <= capabilities.MaxResults,
+        Assert.IsLessThanOrEqualTo(maxResultsList.Count , capabilities.MaxResults,
             $"Should not return more than MaxResults ({capabilities.MaxResults}). Got {maxResultsList.Count}");
 
         Console.WriteLine($"✓ Max results limitation respected: {maxResultsList.Count} <= {capabilities.MaxResults}");
@@ -217,7 +217,7 @@ public class BackendOperationTests
         var largeResultsList = largeMaxResults.ToList();
 
         // Should not crash or cause issues
-        Assert.IsGreaterThan(largeResultsList.Count , = 0, "Should handle large max results gracefully");
+        Assert.IsGreaterThanOrEqualTo(largeResultsList.Count, 0, "Should handle large max results gracefully");
         Console.WriteLine($"✓ Large max results handled gracefully: {largeResultsList.Count} results");
 
         // Test with very long query
@@ -226,7 +226,7 @@ public class BackendOperationTests
         var longQueryList = longQueryResults.ToList();
 
         // Should not crash
-        Assert.IsGreaterThan(longQueryList.Count , = 0, "Should handle long queries gracefully");
+        Assert.IsGreaterThanOrEqualTo(longQueryList.Count, 0, "Should handle long queries gracefully");
         Console.WriteLine($"✓ Long query handled gracefully: {longQueryList.Count} results");
     }
 
@@ -258,7 +258,7 @@ public class BackendOperationTests
             var elapsedMs = stopwatch.ElapsedMilliseconds;
 
             // Mock backend should be reasonably fast (< 500ms) in test environment
-            Assert.IsTrue(elapsedMs < 500,
+            Assert.IsLessThan(elapsedMs, 500,
                 $"MockDataBackend should be reasonably fast. Query '{query}' took {elapsedMs}ms");
 
             Console.WriteLine($"✓ Query '{query}' completed in {elapsedMs}ms with {resultsList.Count} results");

@@ -84,7 +84,7 @@ public class QueryProcessorTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.IsGreaterThan(result.Length , 0);
+        Assert.IsGreaterThan(result.Length, 0);
     }
 
     [TestMethod]

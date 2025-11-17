@@ -30,7 +30,7 @@ public class PerformanceBenchmarkFramework
             results.Add(benchmarkResult);
 
             // Assert performance meets expectations
-            Assert.IsTrue(benchmarkResult.AverageResponseTimeMs <= scenario.ExpectedMaxResponseTimeMs,
+            Assert.IsLessThanOrEqualTo(benchmarkResult.AverageResponseTimeMs , scenario.ExpectedMaxResponseTimeMs,
                 $"Average response time ({benchmarkResult.AverageResponseTimeMs:F2}ms) should be <= " +
                 $"{scenario.ExpectedMaxResponseTimeMs}ms for scenario: {scenario.Name}");
 
@@ -64,7 +64,7 @@ public class PerformanceBenchmarkFramework
         var regressionThresholdPercent = 50; // Allow 50% degradation as threshold for test environment
         var maxAllowedMs = baselineMs * (1 + regressionThresholdPercent / 100.0);
 
-        Assert.IsTrue(benchmarkResult.AverageResponseTimeMs <= maxAllowedMs,
+        Assert.IsLessThanOrEqualTo(benchmarkResult.AverageResponseTimeMs , maxAllowedMs,
             $"Performance regression detected. Average response time ({benchmarkResult.AverageResponseTimeMs:F2}ms) " +
             $"exceeds regression threshold ({maxAllowedMs:F2}ms) based on baseline ({baselineMs}ms)");
 
@@ -92,7 +92,7 @@ public class PerformanceBenchmarkFramework
         Console.WriteLine($"Performance impact: {performanceImpactPercent:F2}%");
 
         // Multi-backend should not cause more than 100% performance degradation in test environment
-        Assert.IsTrue(performanceImpactPercent <= 100,
+        Assert.IsLessThanOrEqualTo(performanceImpactPercent , 100,
             $"Multi-backend performance impact ({performanceImpactPercent:F2}%) should be within acceptable limits");
 
         Console.WriteLine("✓ Multi-backend performance impact within acceptable limits");
@@ -152,7 +152,7 @@ public class PerformanceBenchmarkFramework
         Console.WriteLine($"Throughput: {concurrentRequests * 1000.0 / totalTime:F2} requests/second");
 
         // Verify reasonable performance under load
-        Assert.IsTrue(averageResponseTime <= 5000, // 5 second max per request under load
+        Assert.IsLessThanOrEqualTo(averageResponseTime , 5000, // 5 second max per request under load
             $"Average response time under concurrent load ({averageResponseTime:F2}ms) should be reasonable");
 
         Console.WriteLine("✓ Concurrent load handling performance validated");

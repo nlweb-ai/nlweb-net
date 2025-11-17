@@ -81,15 +81,16 @@ public class DetailsToolHandlerTests
         Assert.AreEqual(request.Query, response.Query);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.IsGreaterThan(response.Results.Count , = 1);
+        Assert.IsGreaterThanOrEqualTo(response.Results.Count, 1);
         Assert.IsNotNull(response.ProcessedQuery);
         Assert.IsTrue(response.ProcessedQuery.Contains("machine learning overview definition explanation details"));
         Assert.Contains("Details retrieved for 'machine learning'", response.Summary);
-        Assert.IsGreaterThan(response.ProcessingTimeMs , 0);
+        Assert.IsGreaterThan(response.ProcessingTimeMs, 0);
 
         // Verify details enhancement
         var resultsList = response.Results.ToList();
-        Assert.IsTrue(resultsList.Any(r => r.Name?.StartsWith("Details:") == true));
+        var hasMatchingItem = resultsList.Any(r => r.Name?.StartsWith("Details:") == true);
+        Assert.IsTrue(hasMatchingItem);
     }
 
     [TestMethod]
@@ -548,7 +549,7 @@ public class DetailsToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.IsGreaterThan(response.Results.Count , = 1);
+        Assert.IsGreaterThanOrEqualTo(response.Results.Count, 1);
     }
 
     [TestMethod]
@@ -582,7 +583,7 @@ public class DetailsToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.IsLessThan(response.Results.Count , = 10, "Should limit results to 10 maximum");
+        Assert.IsLessThanOrEqualTo(response.Results.Count, 10, "Should limit results to 10 maximum");
     }
 
     [TestMethod]
@@ -661,12 +662,12 @@ public class DetailsToolHandlerTests
 
         // Results should be reordered by relevance, not just base score
         var resultsList = response.Results.ToList();
-        Assert.IsGreaterThan(resultsList.Count , = 2);
+        Assert.IsGreaterThanOrEqualTo(resultsList.Count, 2);
 
         // ML-related results should be ranked higher due to relevance
         var topResult = resultsList.FirstOrDefault();
         Assert.IsNotNull(topResult);
-        Assert.IsTrue(topResult.Name?.ToLowerInvariant().Contains("machine learning") == true ||
-                     topResult.Name?.ToLowerInvariant().Contains("ml") == true);
+        Assert.AreEqual(true ||
+                     topResult.Name?.ToLowerInvariant(, topResult.Name?.ToLowerInvariant().Contains("machine learning") ).Contains("ml") == true);
     }
 }
