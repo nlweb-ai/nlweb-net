@@ -20,7 +20,7 @@ jobs:
       - name: Install .NET 9 SDK
         shell: bash
         run: |
-          curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 9.0
+          curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 10.0
           echo "PATH=$HOME/.dotnet:$PATH" >> $GITHUB_ENV
 
       - name: Install .NET Aspire workload
