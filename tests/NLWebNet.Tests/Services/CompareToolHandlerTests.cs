@@ -760,9 +760,9 @@ public class CompareToolHandlerTests
         Assert.IsNotNull(response.ProcessedQuery);
 
         // Should extract the main technologies being compared
-        Assert.AreEqual(true || response.Summary?.Contains("nodejs", response.ProcessedQuery.Contains("node.js") || response.ProcessedQuery.Contains("nodejs"));
-        Assert.IsTrue(response.ProcessedQuery.Contains("php"));
-        Assert.IsTrue(response.Summary?.Contains("node.js") ) == true);
-        Assert.Contains("php", response.Summary);
+        var containsNodejs = response.Summary?.Contains("node.js") == true || response.Summary?.Contains("nodejs") == true;
+        Assert.IsTrue(containsNodejs);
+        var containsPhp = response.Summary?.Contains("php") == true;
+        Assert.IsTrue(containsPhp);
     }
 }

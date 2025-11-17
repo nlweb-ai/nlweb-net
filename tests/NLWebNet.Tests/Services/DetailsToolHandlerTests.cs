@@ -667,7 +667,8 @@ public class DetailsToolHandlerTests
         // ML-related results should be ranked higher due to relevance
         var topResult = resultsList.FirstOrDefault();
         Assert.IsNotNull(topResult);
-        Assert.AreEqual(true ||
-                     topResult.Name?.ToLowerInvariant(, topResult.Name?.ToLowerInvariant().Contains("machine learning") ).Contains("ml") == true);
+        var containsMLTerm = topResult.Name?.ToLowerInvariant().Contains("machine learning") == true ||
+                     topResult.Name?.ToLowerInvariant().Contains("ml") == true;
+        Assert.IsTrue(containsMLTerm);
     }
 }
