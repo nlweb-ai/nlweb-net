@@ -44,7 +44,7 @@ public class BackendManagerTests
         // Assert
         Assert.IsNotNull(results);
         var resultList = results.ToList();
-        Assert.IsTrue(resultList.Count > 0, "Should return results from multiple backends");
+        Assert.IsGreaterThan(resultList.Count , 0, "Should return results from multiple backends");
     }
 
     [TestMethod]
@@ -80,7 +80,7 @@ public class BackendManagerTests
         // Assert
         var resultList = results.ToList();
         // Should have results when using a valid query
-        Assert.IsTrue(resultList.Count > 0, "Should return results even without deduplication");
+        Assert.IsGreaterThan(resultList.Count , 0, "Should return results even without deduplication");
     }
 
     [TestMethod]
@@ -115,7 +115,7 @@ public class BackendManagerTests
         // Assert
         Assert.IsNotNull(sites);
         var siteList = sites.ToList();
-        Assert.IsTrue(siteList.Count > 0, "Should return sites from all backends");
+        Assert.IsGreaterThan(siteList.Count , 0, "Should return sites from all backends");
     }
 
     [TestMethod]

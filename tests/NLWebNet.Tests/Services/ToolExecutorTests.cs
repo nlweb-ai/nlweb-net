@@ -49,7 +49,7 @@ public class ToolExecutorTests
         var tools = _toolExecutor.GetAvailableTools().ToList();
 
         // Assert
-        Assert.IsTrue(tools.Count > 0, "Should have at least one tool handler");
+        Assert.IsGreaterThan(tools.Count , 0, "Should have at least one tool handler");
 
         var toolTypes = tools.Select(t => t.ToolType).ToList();
         Assert.IsTrue(toolTypes.Contains("search"), "Should include search tool");

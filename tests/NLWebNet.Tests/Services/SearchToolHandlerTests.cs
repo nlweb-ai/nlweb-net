@@ -82,10 +82,10 @@ public class SearchToolHandlerTests
         Assert.AreEqual(request.Query, response.Query);
         Assert.IsNull(response.Error); // Success means no error
         Assert.IsNotNull(response.Results);
-        Assert.AreEqual(2, response.Results.Count);
+        Assert.HasCount(response.Results, 2);
         Assert.IsNotNull(response.ProcessedQuery);
-        Assert.IsTrue(response.Summary?.Contains("Enhanced search completed") == true);
-        Assert.IsTrue(response.ProcessingTimeMs > 0);
+        Assert.Contains("Enhanced search completed", response.Summary);
+        Assert.IsGreaterThan(response.ProcessingTimeMs , 0);
 
         // Verify results are ordered by relevance
         var resultsList = response.Results.ToList();
@@ -148,8 +148,8 @@ public class SearchToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.AreEqual(0, response.Results.Count);
-        Assert.IsTrue(response.Summary?.Contains("found 0 results") == true);
+        Assert.HasCount(response.Results, 0);
+        Assert.Contains("found 0 results", response.Summary);
     }
 
     [TestMethod]
@@ -378,7 +378,7 @@ public class SearchToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.AreEqual(1, response.Results.Count);
+        Assert.HasCount(response.Results, 1);
     }
 
     [TestMethod]
@@ -422,7 +422,7 @@ public class SearchToolHandlerTests
         Assert.IsNotNull(response.Results);
 
         var resultsList = response.Results.ToList();
-        Assert.AreEqual(2, resultsList.Count);
+        Assert.HasCount(resultsList, 2);
 
         // First result should be the one with higher calculated relevance
         Assert.AreEqual("API Documentation Guide", resultsList[0].Name);
@@ -454,7 +454,7 @@ public class SearchToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsFalse(string.IsNullOrEmpty(response.Error));
-        Assert.IsTrue(response.Error?.Contains("Search tool execution failed") == true);
+        Assert.Contains("Search tool execution failed", response.Error);
     }
 }
 

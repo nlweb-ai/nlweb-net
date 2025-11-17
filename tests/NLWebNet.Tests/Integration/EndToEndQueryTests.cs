@@ -240,7 +240,7 @@ public class EndToEndQueryTests
             return;
         }
 
-        Assert.IsTrue(responseCount > 0, "Should receive at least one streamed response");
+        Assert.IsGreaterThan(responseCount , 0, "Should receive at least one streamed response");
         Assert.IsNotNull(lastResponse, "Should have received at least one response");
 
         Console.WriteLine($"✓ Streaming test completed with {responseCount} responses");

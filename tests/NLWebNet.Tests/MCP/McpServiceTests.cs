@@ -107,8 +107,8 @@ public class McpServiceTests
         Assert.IsFalse(result.IsError);
         Assert.AreEqual(1, result.Content.Count);
         Assert.AreEqual("text", result.Content[0].Type);
-        Assert.IsTrue(result.Content[0].Text?.Contains("test-123") == true);
-        Assert.IsTrue(result.Content[0].Text?.Contains("Test Result") == true);
+        Assert.Contains("test-123", result.Content[0].Text);
+        Assert.Contains("Test Result", result.Content[0].Text);
 
         await _mockNLWebService.Received(1).ProcessRequestAsync(
             Arg.Is<NLWebRequest>(r => r.Query == "test query" && r.Mode == QueryMode.List),
@@ -173,7 +173,7 @@ public class McpServiceTests
         Assert.IsNotNull(result);
         Assert.IsTrue(result.IsError);
         Assert.AreEqual(1, result.Content.Count);
-        Assert.IsTrue(result.Content[0].Text?.Contains("Unknown tool: unknown_tool") == true);
+        Assert.Contains("Unknown tool: unknown_tool", result.Content[0].Text);
     }
 
     [TestMethod]
@@ -193,7 +193,7 @@ public class McpServiceTests
         Assert.IsNotNull(result);
         Assert.IsTrue(result.IsError);
         Assert.AreEqual(1, result.Content.Count);
-        Assert.IsTrue(result.Content[0].Text?.Contains("Query parameter is required") == true);
+        Assert.Contains("Query parameter is required", result.Content[0].Text);
     }
 
     [TestMethod]
@@ -218,8 +218,8 @@ public class McpServiceTests
         Assert.AreEqual("Structured search prompt for NLWeb", result.Description);
         Assert.AreEqual(1, result.Messages.Count);
         Assert.AreEqual("user", result.Messages[0].Role);
-        Assert.IsTrue(result.Messages[0].Content.Text?.Contains("artificial intelligence") == true);
-        Assert.IsTrue(result.Messages[0].Content.Text?.Contains("machine learning applications") == true);
+        Assert.Contains("artificial intelligence", result.Messages[0].Content.Text);
+        Assert.Contains("machine learning applications", result.Messages[0].Content.Text);
     }
 
     [TestMethod]
@@ -245,7 +245,7 @@ public class McpServiceTests
         Assert.AreEqual(2, result.Messages.Count);
         Assert.AreEqual("system", result.Messages[0].Role);
         Assert.AreEqual("user", result.Messages[1].Role);
-        Assert.IsTrue(result.Messages[1].Content.Text?.Contains("test search query") == true);
+        Assert.Contains("test search query", result.Messages[1].Content.Text);
     }
 
     [TestMethod]
@@ -266,7 +266,7 @@ public class McpServiceTests
         Assert.AreEqual("Unknown prompt: unknown_prompt", result.Description);
         Assert.AreEqual(1, result.Messages.Count);
         Assert.AreEqual("system", result.Messages[0].Role);
-        Assert.IsTrue(result.Messages[0].Content.Text?.Contains("Error: Unknown prompt 'unknown_prompt'") == true);
+        Assert.Contains("Error: Unknown prompt 'unknown_prompt'", result.Messages[0].Content.Text);
     }
 
     [TestMethod]

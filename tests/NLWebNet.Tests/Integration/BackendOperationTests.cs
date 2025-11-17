@@ -53,8 +53,8 @@ public class BackendOperationTests
         var searchResults = await mockBackend.SearchAsync("millennium falcon", null, 10, CancellationToken.None);
         var resultsList = searchResults.ToList();
 
-        Assert.IsTrue(resultsList.Count > 0, "Should return results for 'millennium falcon'");
-        Assert.IsTrue(resultsList.Count <= 10, "Should respect max results limit");
+        Assert.IsGreaterThan(resultsList.Count , 0, "Should return results for 'millennium falcon'");
+        Assert.IsLessThan(resultsList.Count , = 10, "Should respect max results limit");
 
         foreach (var result in resultsList)
         {
@@ -106,7 +106,7 @@ public class BackendOperationTests
 
         // Test backend information retrieval
         var backendInfo = backendManager.GetBackendInfo().ToList();
-        Assert.IsTrue(backendInfo.Count >= 1, "Should have at least one backend configured");
+        Assert.IsGreaterThan(backendInfo.Count , = 1, "Should have at least one backend configured");
 
         foreach (var backend in backendInfo)
         {
@@ -217,7 +217,7 @@ public class BackendOperationTests
         var largeResultsList = largeMaxResults.ToList();
 
         // Should not crash or cause issues
-        Assert.IsTrue(largeResultsList.Count >= 0, "Should handle large max results gracefully");
+        Assert.IsGreaterThan(largeResultsList.Count , = 0, "Should handle large max results gracefully");
         Console.WriteLine($"✓ Large max results handled gracefully: {largeResultsList.Count} results");
 
         // Test with very long query
@@ -226,7 +226,7 @@ public class BackendOperationTests
         var longQueryList = longQueryResults.ToList();
 
         // Should not crash
-        Assert.IsTrue(longQueryList.Count >= 0, "Should handle long queries gracefully");
+        Assert.IsGreaterThan(longQueryList.Count , = 0, "Should handle long queries gracefully");
         Console.WriteLine($"✓ Long query handled gracefully: {longQueryList.Count} results");
     }
 

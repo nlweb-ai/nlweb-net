@@ -193,8 +193,8 @@ public class BaseToolHandlerTests
         Assert.AreSame(results, response.Results);
         Assert.IsNull(response.Error);
         Assert.AreEqual(150, response.ProcessingTimeMs);
-        Assert.IsTrue(response.Timestamp <= DateTimeOffset.UtcNow);
-        Assert.IsTrue(response.Timestamp > DateTimeOffset.UtcNow.AddMinutes(-1));
+        Assert.IsLessThan(response.Timestamp , = DateTimeOffset.UtcNow);
+        Assert.IsGreaterThan(response.Timestamp , DateTimeOffset.UtcNow.AddMinutes(-1));
     }
 
     [TestMethod]
@@ -221,11 +221,11 @@ public class BaseToolHandlerTests
         Assert.AreEqual(request.Mode, response.Mode);
         Assert.AreEqual(errorMessage, response.Error);
         Assert.AreEqual(0, response.ProcessingTimeMs);
-        Assert.IsTrue(response.Timestamp <= DateTimeOffset.UtcNow);
-        Assert.IsTrue(response.Timestamp > DateTimeOffset.UtcNow.AddMinutes(-1));
+        Assert.IsLessThan(response.Timestamp , = DateTimeOffset.UtcNow);
+        Assert.IsGreaterThan(response.Timestamp , DateTimeOffset.UtcNow.AddMinutes(-1));
 
         // Should have one error result
-        Assert.AreEqual(1, response.Results.Count);
+        Assert.HasCount(response.Results, 1);
         Assert.AreEqual("Tool Error", response.Results[0].Name);
         Assert.AreEqual(errorMessage, response.Results[0].Description);
         Assert.AreEqual("System", response.Results[0].Site);
@@ -251,7 +251,7 @@ public class BaseToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.AreEqual(errorMessage, response.Error);
-        Assert.AreEqual(1, response.Results.Count);
+        Assert.HasCount(response.Results, 1);
         Assert.AreEqual("Tool Error", response.Results[0].Name);
     }
 
@@ -328,7 +328,7 @@ public class BaseToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsTrue(string.IsNullOrEmpty(response.Error));
-        Assert.IsTrue(response.Results.Count > 0);
+        Assert.IsGreaterThan(response.Results.Count , 0);
         Assert.AreEqual("Test execution completed", response.Summary);
     }
 
@@ -408,8 +408,8 @@ public class BaseToolHandlerTests
 
         // Assert
         Assert.IsNotNull(response);
-        Assert.IsTrue(response.ProcessingTimeMs >= 0);
-        Assert.IsTrue(response.ProcessingTimeMs < 1000); // Should be fast for test
+        Assert.IsGreaterThan(response.ProcessingTimeMs , = 0);
+        Assert.IsLessThan(response.ProcessingTimeMs , 1000); // Should be fast for test
     }
 
     [TestMethod]
@@ -431,7 +431,7 @@ public class BaseToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsNotNull(response.Results);
-        Assert.AreEqual(0, response.Results.Count);
+        Assert.HasCount(response.Results, 0);
         Assert.IsNull(response.Error);
     }
 
