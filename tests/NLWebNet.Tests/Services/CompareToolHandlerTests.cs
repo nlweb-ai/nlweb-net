@@ -81,16 +81,17 @@ public class CompareToolHandlerTests
         Assert.AreEqual(request.Query, response.Query);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.IsTrue(response.Results.Count >= 1);
+        Assert.IsGreaterThanOrEqualTo(response.Results.Count, 1);
         Assert.IsNotNull(response.ProcessedQuery);
         Assert.IsTrue(response.ProcessedQuery.Contains("react vs angular comparison differences"));
-        Assert.IsTrue(response.Summary?.Contains("Comparison completed between 'react' and 'angular'") == true);
-        Assert.IsTrue(response.ProcessingTimeMs > 0);
+        Assert.Contains("Comparison completed between 'react' and 'angular'", response.Summary);
+        Assert.IsGreaterThan(response.ProcessingTimeMs, 0);
 
         // Verify comparison structure - should have summary comparison result
         var resultsList = response.Results.ToList();
-        Assert.IsTrue(resultsList.Any(r => r.Name?.StartsWith("Comparison:") == true));
-        Assert.IsTrue(resultsList.Any(r => r.Site == "Compare"));
+        var hasMatchingItem = resultsList.Any(r => r.Name?.StartsWith("Comparison:") == true);
+        Assert.IsTrue(hasMatchingItem);
+        Assert.Contains("Database", resultsList.Any(r => r.Site == "Compare"));
     }
 
     [TestMethod]
@@ -125,7 +126,7 @@ public class CompareToolHandlerTests
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.ProcessedQuery);
         Assert.IsTrue(response.ProcessedQuery.Contains("python vs java"));
-        Assert.IsTrue(response.Summary?.Contains("'python' and 'java'") == true);
+        Assert.Contains("'python' and 'java'", response.Summary);
     }
 
     [TestMethod]
@@ -158,8 +159,8 @@ public class CompareToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
-        Assert.IsTrue(response.ProcessedQuery?.Contains("sql vs nosql") == true);
-        Assert.IsTrue(response.Summary?.Contains("'sql' and 'nosql'") == true);
+        Assert.Contains("sql vs nosql", response.ProcessedQuery);
+        Assert.Contains("'sql' and 'nosql'", response.Summary);
     }
 
     [TestMethod]
@@ -182,7 +183,7 @@ public class CompareToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.AreEqual(1, response.Results.Count); // Only the comparison summary
+        Assert.HasCount(response.Results, 1); // Only the comparison summary
 
         var resultsList = response.Results.ToList();
         Assert.AreEqual("Comparison: item1 vs item2", resultsList[0].Name);
@@ -205,7 +206,7 @@ public class CompareToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsFalse(string.IsNullOrEmpty(response.Error));
-        Assert.IsTrue(response.Error?.Contains("Could not identify two items to compare") == true);
+        Assert.Contains("Could not identify two items to compare", response.Error);
     }
 
     [TestMethod]
@@ -586,7 +587,7 @@ public class CompareToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.IsTrue(response.Results.Count >= 2); // Summary + at least one result
+        Assert.IsGreaterThanOrEqualTo(response.Results.Count, 2); // Summary + at least one result
     }
 
     [TestMethod]
@@ -620,7 +621,7 @@ public class CompareToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.IsTrue(response.Results.Count <= 9, "Should limit to 8 comparison results + 1 summary = 9 maximum");
+        Assert.IsLessThanOrEqualTo(response.Results.Count, 9, "Should limit to 8 comparison results + 1 summary = 9 maximum");
 
         // Should always have the comparison summary as first result
         var resultsList = response.Results.ToList();
@@ -652,7 +653,7 @@ public class CompareToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsFalse(string.IsNullOrEmpty(response.Error));
-        Assert.IsTrue(response.Error?.Contains("Compare tool execution failed") == true);
+        Assert.Contains("Compare tool execution failed", response.Error);
     }
 
     [TestMethod]
@@ -711,15 +712,19 @@ public class CompareToolHandlerTests
         var resultsList = response.Results.ToList();
 
         // Should have comparison summary + relevant results (not the database one)
-        Assert.IsTrue(resultsList.Count >= 2);
-        Assert.IsTrue(resultsList.Count <= 5); // Summary + up to 4 relevant results
+        Assert.IsGreaterThanOrEqualTo(resultsList.Count, 2);
+        Assert.IsLessThanOrEqualTo(resultsList.Count, 5); // Summary + up to 4 relevant results
 
         // Should filter out irrelevant results (database)
-        Assert.IsFalse(resultsList.Any(r => r.Name?.Contains("Database") == true));
+        Assert.IsFalse(resultsList.Any(r => r.Name));
 
-        // Should include relevant results
-        Assert.IsTrue(resultsList.Any(r => r.Name?.ToLowerInvariant().Contains("react") == true));
-        Assert.IsTrue(resultsList.Any(r => r.Name?.ToLowerInvariant().Contains("angular") == true));
+        var hasMatchingItem = resultsList.Any(r => r.Name?.ToLowerInvariant().Contains("react") == true);
+        var hasMatchingItem = resultsList.Any(r => r.Name?.ToLowerInvariant().Contains("angular") == true);
+        Assert.IsTrue(hasMatchingItem);
+        var hasMatchingItem = resultsList.Any(r => r.Name?.ToLowerInvariant().Contains("react") == true);
+        Assert.IsTrue(hasMatchingItem);
+        var hasMatchingItem = resultsList.Any(r => r.Name?.ToLowerInvariant().Contains("angular") == true);
+        Assert.IsTrue(hasMatchingItem);
     }
 
     [TestMethod]
@@ -755,9 +760,9 @@ public class CompareToolHandlerTests
         Assert.IsNotNull(response.ProcessedQuery);
 
         // Should extract the main technologies being compared
-        Assert.IsTrue(response.ProcessedQuery.Contains("node.js") || response.ProcessedQuery.Contains("nodejs"));
-        Assert.IsTrue(response.ProcessedQuery.Contains("php"));
-        Assert.IsTrue(response.Summary?.Contains("node.js") == true || response.Summary?.Contains("nodejs") == true);
-        Assert.IsTrue(response.Summary?.Contains("php") == true);
+        var containsNodejs = response.Summary?.Contains("node.js") == true || response.Summary?.Contains("nodejs") == true;
+        Assert.IsTrue(containsNodejs);
+        var containsPhp = response.Summary?.Contains("php") == true;
+        Assert.IsTrue(containsPhp);
     }
 }

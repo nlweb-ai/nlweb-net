@@ -193,8 +193,8 @@ public class ToolSelectionAccuracyTests
             if (scenario.ExpectedTools.Contains(TestConstants.Tools.Search))
             {
                 // For basic search scenarios, the tool selector should select the "search" tool or null
-                Assert.IsTrue(selectedTool?.ToLowerInvariant() == ToolSelector.ToolConstants.SearchTool || selectedTool == null,
-                    $"Expected 'search' tool or null to be selected for basic search query: '{scenario.Query}', but got: {selectedTool}");
+                Assert.AreEqual(ToolSelector.ToolConstants.SearchTool || selectedTool == null,
+                    $"Expected 'search' tool or null to be selected for basic search query: '{scenario.Query}', but got: {selectedTool}", selectedTool?.ToLowerInvariant() );
                 Console.WriteLine($"✓ Basic search tool selection validated: {selectedTool ?? "null"} for '{scenario.Query}'");
             }
             else
@@ -305,7 +305,7 @@ public class ToolSelectionAccuracyTests
 
             var elapsedMs = (endTime - startTime).TotalMilliseconds;
 
-            Assert.IsTrue(elapsedMs < maxAllowedTimeMs,
+            Assert.IsLessThan(elapsedMs, maxAllowedTimeMs,
                 $"Tool selection should complete within {maxAllowedTimeMs}ms. " +
                 $"Actual: {elapsedMs:F2}ms for query: {query}");
 

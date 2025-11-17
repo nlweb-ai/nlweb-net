@@ -25,11 +25,8 @@ public static class HealthEndpoints
         app.MapGet("/health", GetBasicHealthAsync)
             .WithName("GetHealth")
             .WithTags("Health")
-            .WithOpenApi(operation => new(operation)
-            {
-                Summary = "Basic health check",
-                Description = "Returns the basic health status of the NLWebNet service"
-            })
+            .WithSummary("Basic health check")
+            .WithDescription("Returns the basic health status of the NLWebNet service")
             .Produces<HealthCheckResponse>(StatusCodes.Status200OK)
             .Produces<HealthCheckResponse>(StatusCodes.Status503ServiceUnavailable);
 
@@ -37,11 +34,8 @@ public static class HealthEndpoints
         app.MapGet("/health/detailed", GetDetailedHealthAsync)
             .WithName("GetDetailedHealth")
             .WithTags("Health")
-            .WithOpenApi(operation => new(operation)
-            {
-                Summary = "Detailed health check",
-                Description = "Returns detailed health status including individual service checks"
-            })
+            .WithSummary("Detailed health check")
+            .WithDescription("Returns detailed health status including individual service checks")
             .Produces<DetailedHealthCheckResponse>(StatusCodes.Status200OK)
             .Produces<DetailedHealthCheckResponse>(StatusCodes.Status503ServiceUnavailable);
 
