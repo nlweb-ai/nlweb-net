@@ -480,8 +480,8 @@ public class RecipeToolHandlerTests
         Assert.IsNotNull(response.Results);
         Assert.IsNotNull(response.ProcessingTimeMs);
         Assert.IsGreaterThanOrEqualTo(0, response.ProcessingTimeMs.Value);
-        Assert.IsLessThanOrEqualTo(response.Timestamp, DateTimeOffset.UtcNow);
-        Assert.IsGreaterThan(response.Timestamp, DateTimeOffset.UtcNow.AddMinutes(-1));
+        Assert.IsLessThanOrEqualTo(DateTimeOffset.UtcNow, response.Timestamp);
+        Assert.IsGreaterThan(DateTimeOffset.UtcNow.AddMinutes(-1), response.Timestamp);
     }
 
     [TestMethod]
