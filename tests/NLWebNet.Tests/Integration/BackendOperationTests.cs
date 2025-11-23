@@ -217,7 +217,7 @@ public class BackendOperationTests
         var largeResultsList = largeMaxResults.ToList();
 
         // Should not crash or cause issues
-        Assert.IsGreaterThanOrEqualTo(largeResultsList.Count, 0, "Should handle large max results gracefully");
+        Assert.IsGreaterThanOrEqualTo(0, largeResultsList.Count, "Should handle large max results gracefully");
         Console.WriteLine($"✓ Large max results handled gracefully: {largeResultsList.Count} results");
 
         // Test with very long query
@@ -226,7 +226,7 @@ public class BackendOperationTests
         var longQueryList = longQueryResults.ToList();
 
         // Should not crash
-        Assert.IsGreaterThanOrEqualTo(longQueryList.Count, 0, "Should handle long queries gracefully");
+        Assert.IsGreaterThanOrEqualTo(0, longQueryList.Count, "Should handle long queries gracefully");
         Console.WriteLine($"✓ Long query handled gracefully: {longQueryList.Count} results");
     }
 

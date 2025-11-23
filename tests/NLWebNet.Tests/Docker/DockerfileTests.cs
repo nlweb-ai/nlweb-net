@@ -33,7 +33,7 @@ public class DockerfileTests
         }
 
         // Verify we found at least the expected project files
-        Assert.IsGreaterThanOrEqualTo(matches.Count, 3,
+        Assert.IsGreaterThanOrEqualTo(3, matches.Count,
             "Expected to find at least 3 project file references in Dockerfile (NLWebNet, Demo, Tests)");
     }
 
