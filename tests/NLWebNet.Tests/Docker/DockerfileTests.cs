@@ -49,9 +49,9 @@ public class DockerfileTests
         var dockerfileContent = File.ReadAllText(dockerfilePath);
 
         // Act & Assert
-        Assert.DoesNotContain("AspireHost", dockerfileContent,
+        Assert.IsFalse(dockerfileContent.Contains("AspireHost"),
             "Dockerfile should not contain references to AspireHost project");
-        Assert.DoesNotContain("NLWebNet.AspireHost.csproj", dockerfileContent,
+        Assert.IsFalse(dockerfileContent.Contains("NLWebNet.AspireHost.csproj"),
             "Dockerfile should not contain references to NLWebNet.AspireHost.csproj");
     }
 
