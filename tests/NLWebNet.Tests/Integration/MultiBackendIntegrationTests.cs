@@ -51,12 +51,13 @@ public class MultiBackendIntegrationTests
         Assert.AreEqual("test-001", response.QueryId);
         Assert.IsNull(response.Error, "Response should not have an error");
         Assert.IsNotNull(response.Results);
-        Assert.IsTrue(response.Results.Any(), "Should return search results");
+        Assert.IsNotEmpty(response.Results, "Should return search results");
 
         // Verify backend manager provides information about backends
         var backendInfo = backendManager.GetBackendInfo().ToList();
-        Assert.IsTrue(backendInfo.Count >= 1, "Should have at least one backend configured");
-        Assert.IsTrue(backendInfo.Any(b => b.IsWriteEndpoint), "Should have a write endpoint designated");
+        Assert.IsGreaterThanOrEqualTo(1, backendInfo.Count, "Should have at least one backend configured");
+        var hasMatchingItem = backendInfo.Any(b => b.IsWriteEndpoint);
+        Assert.IsTrue(hasMatchingItem, "Should have a write endpoint designated");
 
         // Verify write backend is accessible
         var writeBackend = backendManager.GetWriteBackend();
@@ -139,7 +140,7 @@ public class MultiBackendIntegrationTests
             if (responseCount >= 3) break;
         }
 
-        Assert.IsTrue(responseCount > 0, "Should receive streaming responses");
+        Assert.IsGreaterThan(0, responseCount, "Should receive streaming responses");
     }
 
     [TestMethod]
@@ -249,7 +250,8 @@ public class MultiBackendIntegrationTests
 
                     // Results should have reasonable consistency for the same query
                     // Note: Some variation is expected due to scoring differences or backend variations
-                    Assert.IsTrue(overlapPercent >= scenario.MinOverlapPercent || firstResults.Count <= 2,
+                    var meetsOverlapThreshold = overlapPercent >= scenario.MinOverlapPercent || firstResults.Count <= 2;
+                    Assert.IsTrue(meetsOverlapThreshold,
                         $"Results should have at least {scenario.MinOverlapPercent}% overlap for consistent queries. " +
                         $"Got {overlapPercent:F1}% for scenario: {scenario.Name}");
                 }
@@ -276,7 +278,7 @@ public class MultiBackendIntegrationTests
 
         var backendInfo = backendManager.GetBackendInfo().ToList();
 
-        Assert.IsTrue(backendInfo.Count >= 1, "Should have at least one backend configured");
+        Assert.IsGreaterThanOrEqualTo(1, backendInfo.Count, "Should have at least one backend configured");
 
         foreach (var backend in backendInfo)
         {

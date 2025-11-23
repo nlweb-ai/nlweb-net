@@ -44,7 +44,7 @@ public class BackendManagerTests
         // Assert
         Assert.IsNotNull(results);
         var resultList = results.ToList();
-        Assert.IsTrue(resultList.Count > 0, "Should return results from multiple backends");
+        Assert.IsGreaterThan(0, resultList.Count, "Should return results from multiple backends");
     }
 
     [TestMethod]
@@ -80,7 +80,7 @@ public class BackendManagerTests
         // Assert
         var resultList = results.ToList();
         // Should have results when using a valid query
-        Assert.IsTrue(resultList.Count > 0, "Should return results even without deduplication");
+        Assert.IsGreaterThan(0, resultList.Count, "Should return results even without deduplication");
     }
 
     [TestMethod]
@@ -98,7 +98,7 @@ public class BackendManagerTests
         // Assert
         Assert.IsNotNull(results);
         // Should work even when multi-backend is disabled
-        Assert.IsTrue(results.Any(), "Should return results from single backend fallback");
+        Assert.IsNotEmpty(results, "Should return results from single backend fallback");
     }
 
     [TestMethod]
@@ -115,7 +115,7 @@ public class BackendManagerTests
         // Assert
         Assert.IsNotNull(sites);
         var siteList = sites.ToList();
-        Assert.IsTrue(siteList.Count > 0, "Should return sites from all backends");
+        Assert.IsGreaterThan(0, siteList.Count, "Should return sites from all backends");
     }
 
     [TestMethod]
@@ -164,9 +164,11 @@ public class BackendManagerTests
         // Assert
         Assert.IsNotNull(backendInfo);
         var infoList = backendInfo.ToList();
-        Assert.AreEqual(2, infoList.Count, "Should return info for all backends");
-        Assert.IsTrue(infoList.All(info => info.Enabled), "All backends should be marked as enabled");
-        Assert.IsTrue(infoList.Any(info => info.IsWriteEndpoint), "One backend should be marked as write endpoint");
+        Assert.HasCount(2, infoList, "Should return info for all backends");
+        var allEnabled = infoList.All(info => info.Enabled);
+        Assert.IsTrue(allEnabled, "All backends should be marked as enabled");
+        var hasWriteEndpoint = infoList.Any(info => info.IsWriteEndpoint);
+        Assert.IsTrue(hasWriteEndpoint, "One backend should be marked as write endpoint");
     }
 
     [TestMethod]
@@ -183,7 +185,7 @@ public class BackendManagerTests
 
         // Assert
         Assert.IsNotNull(results);
-        Assert.IsTrue(results.Any(), "Should return results even with sequential querying");
+        Assert.IsNotEmpty(results, "Should return results even with sequential querying");
     }
 
     [TestMethod]
@@ -215,7 +217,7 @@ public class BackendManagerTests
         // Assert
         Assert.IsNotNull(backendInfo);
         var infoList = backendInfo.ToList();
-        Assert.AreEqual(2, infoList.Count, "Should return info for all backends");
+        Assert.HasCount(2, infoList, "Should return info for all backends");
 
         // Verify that configured endpoint names are used instead of generic backend_0, backend_1
         var backendIds = infoList.Select(info => info.Id).OrderBy(id => id).ToList();
@@ -241,7 +243,7 @@ public class BackendManagerTests
         // Assert
         Assert.IsNotNull(backendInfo);
         var infoList = backendInfo.ToList();
-        Assert.AreEqual(2, infoList.Count, "Should return info for all backends");
+        Assert.HasCount(2, infoList, "Should return info for all backends");
 
         // Verify that generic names are used as fallback
         var backendIds = infoList.Select(info => info.Id).OrderBy(id => id).ToList();
