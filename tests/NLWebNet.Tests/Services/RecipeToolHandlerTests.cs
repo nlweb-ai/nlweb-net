@@ -68,7 +68,7 @@ public class RecipeToolHandlerTests
         var hasMatchingItem = response.Results.Any(r => r.Name.Contains("Recipe Guide"));
         Assert.IsTrue(hasMatchingItem);
         Assert.IsNotNull(response.ProcessingTimeMs);
-        Assert.IsGreaterThanOrEqualTo(response.ProcessingTimeMs.Value, 0);
+        Assert.IsGreaterThanOrEqualTo(0, response.ProcessingTimeMs.Value);
     }
 
     [TestMethod]
@@ -95,6 +95,7 @@ public class RecipeToolHandlerTests
         Assert.IsNotNull(response);
         var hasMatchingItem = response.Results.Any(r => r.Name.Contains("Substitution"));
         Assert.IsTrue(hasMatchingItem);
+        Assert.IsNotNull(response.Summary);
         Assert.Contains("Recipe information", response.Summary);
     }
 
@@ -223,7 +224,7 @@ public class RecipeToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsTrue(string.IsNullOrEmpty(response.Error));
         Assert.HasCount(1, response.Results); // Only the recipe guide header
-        Assert.IsTrue(response.Results[0].Name.Contains("Recipe Guide"));
+        Assert.Contains("Recipe Guide", response.Results[0].Name);
     }
 
     [TestMethod]
@@ -249,7 +250,8 @@ public class RecipeToolHandlerTests
         // Assert - tool should handle cancellation gracefully and return error response
         Assert.IsNotNull(response);
         Assert.IsFalse(string.IsNullOrEmpty(response.Error));
-        Assert.IsTrue(response.Error.Contains("canceled") || response.Error.Contains("cancelled"));
+        var containsCancellation = response.Error.Contains("canceled") || response.Error.Contains("cancelled");
+        Assert.IsTrue(containsCancellation);
     }
 
     [TestMethod]
@@ -477,7 +479,7 @@ public class RecipeToolHandlerTests
         Assert.AreEqual(request.Mode, response.Mode);
         Assert.IsNotNull(response.Results);
         Assert.IsNotNull(response.ProcessingTimeMs);
-        Assert.IsGreaterThanOrEqualTo(response.ProcessingTimeMs.Value, 0);
+        Assert.IsGreaterThanOrEqualTo(0, response.ProcessingTimeMs.Value);
         Assert.IsLessThanOrEqualTo(response.Timestamp, DateTimeOffset.UtcNow);
         Assert.IsGreaterThan(response.Timestamp, DateTimeOffset.UtcNow.AddMinutes(-1));
     }

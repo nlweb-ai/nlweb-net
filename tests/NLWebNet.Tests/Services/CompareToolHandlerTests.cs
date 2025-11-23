@@ -83,10 +83,11 @@ public class CompareToolHandlerTests
         Assert.IsNotNull(response.Results);
         Assert.IsGreaterThanOrEqualTo(response.Results.Count, 1);
         Assert.IsNotNull(response.ProcessedQuery);
-        Assert.IsTrue(response.ProcessedQuery.Contains("react vs angular comparison differences"));
+        Assert.Contains("react vs angular comparison differences", response.ProcessedQuery);
+        Assert.IsNotNull(response.Summary);
         Assert.Contains("Comparison completed between 'react' and 'angular'", response.Summary);
         Assert.IsNotNull(response.ProcessingTimeMs);
-        Assert.IsGreaterThan(response.ProcessingTimeMs.Value, 0);
+        Assert.IsGreaterThan(0, response.ProcessingTimeMs.Value);
 
         // Verify comparison structure - should have summary comparison result
         var resultsList = response.Results.ToList();
@@ -127,7 +128,8 @@ public class CompareToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.ProcessedQuery);
-        Assert.IsTrue(response.ProcessedQuery.Contains("python vs java"));
+        Assert.Contains("python vs java", response.ProcessedQuery);
+        Assert.IsNotNull(response.Summary);
         Assert.Contains("'python' and 'java'", response.Summary);
     }
 
@@ -162,6 +164,7 @@ public class CompareToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.Contains("sql vs nosql", response.ProcessedQuery);
+        Assert.IsNotNull(response.Summary);
         Assert.Contains("'sql' and 'nosql'", response.Summary);
     }
 

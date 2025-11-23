@@ -84,9 +84,10 @@ public class SearchToolHandlerTests
         Assert.IsNotNull(response.Results);
         Assert.HasCount(2, response.Results);
         Assert.IsNotNull(response.ProcessedQuery);
+        Assert.IsNotNull(response.Summary);
         Assert.Contains("Enhanced search completed", response.Summary);
         Assert.IsNotNull(response.ProcessingTimeMs);
-        Assert.IsGreaterThan(response.ProcessingTimeMs.Value, 0);
+        Assert.IsGreaterThan(0, response.ProcessingTimeMs.Value);
 
         // Verify results are ordered by relevance
         var resultsList = response.Results.ToList();
@@ -150,6 +151,7 @@ public class SearchToolHandlerTests
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
         Assert.HasCount(0, response.Results);
+        Assert.IsNotNull(response.Summary);
         Assert.Contains("found 0 results", response.Summary);
     }
 

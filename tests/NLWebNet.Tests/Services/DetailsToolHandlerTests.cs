@@ -83,10 +83,11 @@ public class DetailsToolHandlerTests
         Assert.IsNotNull(response.Results);
         Assert.IsGreaterThanOrEqualTo(response.Results.Count, 1);
         Assert.IsNotNull(response.ProcessedQuery);
-        Assert.IsTrue(response.ProcessedQuery.Contains("machine learning overview definition explanation details"));
+        Assert.Contains("machine learning overview definition explanation details", response.ProcessedQuery);
+        Assert.IsNotNull(response.Summary);
         Assert.Contains("Details retrieved for 'machine learning'", response.Summary);
         Assert.IsNotNull(response.ProcessingTimeMs);
-        Assert.IsGreaterThan(response.ProcessingTimeMs.Value, 0);
+        Assert.IsGreaterThan(0, response.ProcessingTimeMs.Value);
 
         // Verify details enhancement
         var resultsList = response.Results.ToList();
@@ -125,7 +126,8 @@ public class DetailsToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.ProcessedQuery);
-        Assert.IsTrue(response.ProcessedQuery.Contains("artificial intelligence"));
+        Assert.Contains("artificial intelligence", response.ProcessedQuery);
+        Assert.IsNotNull(response.Summary);
         Assert.Contains("artificial intelligence", response.Summary);
     }
 
@@ -160,6 +162,7 @@ public class DetailsToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.Contains("cloud computing", response.ProcessedQuery);
+        Assert.IsNotNull(response.Summary);
         Assert.Contains("cloud computing", response.Summary);
     }
 

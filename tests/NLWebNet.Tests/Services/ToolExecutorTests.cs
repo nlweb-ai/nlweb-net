@@ -52,11 +52,11 @@ public class ToolExecutorTests
         Assert.IsGreaterThan(tools.Count, 0, "Should have at least one tool handler");
 
         var toolTypes = tools.Select(t => t.ToolType).ToList();
-        Assert.IsTrue(toolTypes.Contains("search"), "Should include search tool");
-        Assert.IsTrue(toolTypes.Contains("details"), "Should include details tool");
-        Assert.IsTrue(toolTypes.Contains("compare"), "Should include compare tool");
-        Assert.IsTrue(toolTypes.Contains("ensemble"), "Should include ensemble tool");
-        Assert.IsTrue(toolTypes.Contains("recipe"), "Should include recipe tool");
+        Assert.Contains("search", toolTypes, "Should include search tool");
+        Assert.Contains("details", toolTypes, "Should include details tool");
+        Assert.Contains("compare", toolTypes, "Should include compare tool");
+        Assert.Contains("ensemble", toolTypes, "Should include ensemble tool");
+        Assert.Contains("recipe", toolTypes, "Should include recipe tool");
     }
 
     [TestMethod]

@@ -306,7 +306,7 @@ public class ToolSelectionAccuracyTests
 
             var elapsedMs = (endTime - startTime).TotalMilliseconds;
 
-            Assert.IsLessThan(elapsedMs, maxAllowedTimeMs,
+            Assert.IsLessThan(maxAllowedTimeMs, elapsedMs,
                 $"Tool selection should complete within {maxAllowedTimeMs}ms. " +
                 $"Actual: {elapsedMs:F2}ms for query: {query}");
 

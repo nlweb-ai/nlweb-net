@@ -85,9 +85,10 @@ public class EnsembleToolHandlerTests
         Assert.IsGreaterThanOrEqualTo(response.Results.Count, 2); // Should have overview + option results
         Assert.IsNotNull(response.ProcessedQuery);
         Assert.Contains("recommendations suggestions set", response.ProcessedQuery);
+        Assert.IsNotNull(response.Summary);
         Assert.Contains("Ensemble recommendations created", response.Summary);
         Assert.IsNotNull(response.ProcessingTimeMs);
-        Assert.IsGreaterThanOrEqualTo(response.ProcessingTimeMs.Value, 0);
+        Assert.IsGreaterThanOrEqualTo(0, response.ProcessingTimeMs.Value);
 
         // Verify ensemble structure
         var resultsList = response.Results.ToList();

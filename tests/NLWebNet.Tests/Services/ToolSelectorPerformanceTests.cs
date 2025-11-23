@@ -89,7 +89,7 @@ public class ToolSelectorPerformanceTests
 
         // For this implementation, we focus on ensuring the feature works correctly
         // and that backward compatibility is maintained (tested separately)
-        Assert.IsLessThan(performanceImpactPercent, 1000,
+        Assert.IsLessThan(1000, performanceImpactPercent,
             "Performance impact should be reasonable for a test environment with debug overhead");
     }
 
