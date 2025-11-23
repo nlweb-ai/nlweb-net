@@ -49,14 +49,14 @@ public class ToolExecutorTests
         var tools = _toolExecutor.GetAvailableTools().ToList();
 
         // Assert
-        Assert.IsTrue(tools.Count > 0, "Should have at least one tool handler");
+        Assert.IsGreaterThan(0, tools.Count, "Should have at least one tool handler");
 
         var toolTypes = tools.Select(t => t.ToolType).ToList();
-        Assert.IsTrue(toolTypes.Contains("search"), "Should include search tool");
-        Assert.IsTrue(toolTypes.Contains("details"), "Should include details tool");
-        Assert.IsTrue(toolTypes.Contains("compare"), "Should include compare tool");
-        Assert.IsTrue(toolTypes.Contains("ensemble"), "Should include ensemble tool");
-        Assert.IsTrue(toolTypes.Contains("recipe"), "Should include recipe tool");
+        Assert.Contains("search", toolTypes, "Should include search tool");
+        Assert.Contains("details", toolTypes, "Should include details tool");
+        Assert.Contains("compare", toolTypes, "Should include compare tool");
+        Assert.Contains("ensemble", toolTypes, "Should include ensemble tool");
+        Assert.Contains("recipe", toolTypes, "Should include recipe tool");
     }
 
     [TestMethod]
@@ -99,8 +99,8 @@ public class ToolExecutorTests
         Assert.AreEqual(request.QueryId, response.QueryId);
         Assert.IsNotNull(response.Results);
         // The mock backend may return empty results, but the response should be processed by details tool
-        Assert.IsTrue(response.Summary?.Contains("Details") == true || response.Summary?.Contains("details") == true,
-                     "Should be processed by details tool");
+        var containsDetails = response.Summary?.Contains("Details") == true || response.Summary?.Contains("details") == true;
+        Assert.IsTrue(containsDetails, "Should be processed by details tool");
     }
 
     [TestMethod]
