@@ -67,7 +67,8 @@ public class RecipeToolHandlerTests
         Assert.IsGreaterThan(response.Results.Count, 0);
         var hasMatchingItem = response.Results.Any(r => r.Name.Contains("Recipe Guide"));
         Assert.IsTrue(hasMatchingItem);
-        Assert.IsGreaterThanOrEqualTo(response.ProcessingTimeMs, 0);
+        Assert.IsNotNull(response.ProcessingTimeMs);
+        Assert.IsGreaterThanOrEqualTo(response.ProcessingTimeMs.Value, 0);
     }
 
     [TestMethod]
@@ -475,7 +476,8 @@ public class RecipeToolHandlerTests
         Assert.AreEqual(request.Query, response.Query);
         Assert.AreEqual(request.Mode, response.Mode);
         Assert.IsNotNull(response.Results);
-        Assert.IsGreaterThanOrEqualTo(response.ProcessingTimeMs, 0);
+        Assert.IsNotNull(response.ProcessingTimeMs);
+        Assert.IsGreaterThanOrEqualTo(response.ProcessingTimeMs.Value, 0);
         Assert.IsLessThanOrEqualTo(response.Timestamp, DateTimeOffset.UtcNow);
         Assert.IsGreaterThan(response.Timestamp, DateTimeOffset.UtcNow.AddMinutes(-1));
     }

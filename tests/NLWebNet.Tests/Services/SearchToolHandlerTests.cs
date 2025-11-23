@@ -85,7 +85,8 @@ public class SearchToolHandlerTests
         Assert.HasCount(2, response.Results);
         Assert.IsNotNull(response.ProcessedQuery);
         Assert.Contains("Enhanced search completed", response.Summary);
-        Assert.IsGreaterThan(response.ProcessingTimeMs, 0);
+        Assert.IsNotNull(response.ProcessingTimeMs);
+        Assert.IsGreaterThan(response.ProcessingTimeMs.Value, 0);
 
         // Verify results are ordered by relevance
         var resultsList = response.Results.ToList();

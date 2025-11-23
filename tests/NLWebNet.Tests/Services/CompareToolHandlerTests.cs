@@ -85,7 +85,8 @@ public class CompareToolHandlerTests
         Assert.IsNotNull(response.ProcessedQuery);
         Assert.IsTrue(response.ProcessedQuery.Contains("react vs angular comparison differences"));
         Assert.Contains("Comparison completed between 'react' and 'angular'", response.Summary);
-        Assert.IsGreaterThan(response.ProcessingTimeMs, 0);
+        Assert.IsNotNull(response.ProcessingTimeMs);
+        Assert.IsGreaterThan(response.ProcessingTimeMs.Value, 0);
 
         // Verify comparison structure - should have summary comparison result
         var resultsList = response.Results.ToList();

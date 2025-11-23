@@ -86,7 +86,8 @@ public class EnsembleToolHandlerTests
         Assert.IsNotNull(response.ProcessedQuery);
         Assert.Contains("recommendations suggestions set", response.ProcessedQuery);
         Assert.Contains("Ensemble recommendations created", response.Summary);
-        Assert.IsGreaterThanOrEqualTo(response.ProcessingTimeMs, 0);
+        Assert.IsNotNull(response.ProcessingTimeMs);
+        Assert.IsGreaterThanOrEqualTo(response.ProcessingTimeMs.Value, 0);
 
         // Verify ensemble structure
         var resultsList = response.Results.ToList();

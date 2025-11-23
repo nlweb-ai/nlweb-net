@@ -408,8 +408,9 @@ public class BaseToolHandlerTests
 
         // Assert
         Assert.IsNotNull(response);
-        Assert.IsGreaterThanOrEqualTo(response.ProcessingTimeMs, 0);
-        Assert.IsLessThan(response.ProcessingTimeMs, 1000); // Should be fast for test
+        Assert.IsNotNull(response.ProcessingTimeMs);
+        Assert.IsGreaterThanOrEqualTo(response.ProcessingTimeMs.Value, 0);
+        Assert.IsLessThan(response.ProcessingTimeMs.Value, 1000); // Should be fast for test
     }
 
     [TestMethod]

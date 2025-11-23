@@ -85,7 +85,8 @@ public class DetailsToolHandlerTests
         Assert.IsNotNull(response.ProcessedQuery);
         Assert.IsTrue(response.ProcessedQuery.Contains("machine learning overview definition explanation details"));
         Assert.Contains("Details retrieved for 'machine learning'", response.Summary);
-        Assert.IsGreaterThan(response.ProcessingTimeMs, 0);
+        Assert.IsNotNull(response.ProcessingTimeMs);
+        Assert.IsGreaterThan(response.ProcessingTimeMs.Value, 0);
 
         // Verify details enhancement
         var resultsList = response.Results.ToList();
