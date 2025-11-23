@@ -24,8 +24,7 @@ public static class McpEndpoints
     public static RouteGroupBuilder MapMcpEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/mcp")
-            .WithTags("MCP")
-            .WithOpenApi();
+            .WithTags("MCP");
 
         // POST /mcp/list_tools - List available MCP tools
         group.MapPost("/list_tools", ListToolsAsync)

@@ -33,7 +33,7 @@ public class McpServiceTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsNotNull(result.Tools);
-        Assert.AreEqual(2, result.Tools.Count);
+        Assert.HasCount(2, result.Tools);
 
         var searchTool = result.Tools.Find(t => t.Name == "nlweb_search");
         Assert.IsNotNull(searchTool);
@@ -53,7 +53,7 @@ public class McpServiceTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsNotNull(result.Prompts);
-        Assert.AreEqual(3, result.Prompts.Count);
+        Assert.HasCount(3, result.Prompts);
 
         var searchPrompt = result.Prompts.Find(p => p.Name == "nlweb_search_prompt");
         Assert.IsNotNull(searchPrompt);
@@ -105,10 +105,11 @@ public class McpServiceTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsFalse(result.IsError);
-        Assert.AreEqual(1, result.Content.Count);
+        Assert.HasCount(1, result.Content);
         Assert.AreEqual("text", result.Content[0].Type);
-        Assert.IsTrue(result.Content[0].Text?.Contains("test-123") == true);
-        Assert.IsTrue(result.Content[0].Text?.Contains("Test Result") == true);
+        Assert.IsNotNull(result.Content[0].Text);
+        Assert.Contains("test-123", result.Content[0].Text!);
+        Assert.Contains("Test Result", result.Content[0].Text!);
 
         await _mockNLWebService.Received(1).ProcessRequestAsync(
             Arg.Is<NLWebRequest>(r => r.Query == "test query" && r.Mode == QueryMode.List),
@@ -172,8 +173,9 @@ public class McpServiceTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsTrue(result.IsError);
-        Assert.AreEqual(1, result.Content.Count);
-        Assert.IsTrue(result.Content[0].Text?.Contains("Unknown tool: unknown_tool") == true);
+        Assert.HasCount(1, result.Content);
+        Assert.IsNotNull(result.Content[0].Text);
+        Assert.Contains("Unknown tool: unknown_tool", result.Content[0].Text!);
     }
 
     [TestMethod]
@@ -192,8 +194,9 @@ public class McpServiceTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsTrue(result.IsError);
-        Assert.AreEqual(1, result.Content.Count);
-        Assert.IsTrue(result.Content[0].Text?.Contains("Query parameter is required") == true);
+        Assert.HasCount(1, result.Content);
+        Assert.IsNotNull(result.Content[0].Text);
+        Assert.Contains("Query parameter is required", result.Content[0].Text!);
     }
 
     [TestMethod]
@@ -216,10 +219,11 @@ public class McpServiceTests
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual("Structured search prompt for NLWeb", result.Description);
-        Assert.AreEqual(1, result.Messages.Count);
+        Assert.HasCount(1, result.Messages);
         Assert.AreEqual("user", result.Messages[0].Role);
-        Assert.IsTrue(result.Messages[0].Content.Text?.Contains("artificial intelligence") == true);
-        Assert.IsTrue(result.Messages[0].Content.Text?.Contains("machine learning applications") == true);
+        Assert.IsNotNull(result.Messages[0].Content.Text);
+        Assert.Contains("artificial intelligence", result.Messages[0].Content.Text!);
+        Assert.Contains("machine learning applications", result.Messages[0].Content.Text!);
     }
 
     [TestMethod]
@@ -242,10 +246,11 @@ public class McpServiceTests
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual("Prompt for summarizing NLWeb search results", result.Description);
-        Assert.AreEqual(2, result.Messages.Count);
+        Assert.HasCount(2, result.Messages);
         Assert.AreEqual("system", result.Messages[0].Role);
         Assert.AreEqual("user", result.Messages[1].Role);
-        Assert.IsTrue(result.Messages[1].Content.Text?.Contains("test search query") == true);
+        Assert.IsNotNull(result.Messages[1].Content.Text);
+        Assert.Contains("test search query", result.Messages[1].Content.Text!);
     }
 
     [TestMethod]
@@ -264,9 +269,10 @@ public class McpServiceTests
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual("Unknown prompt: unknown_prompt", result.Description);
-        Assert.AreEqual(1, result.Messages.Count);
+        Assert.HasCount(1, result.Messages);
         Assert.AreEqual("system", result.Messages[0].Role);
-        Assert.IsTrue(result.Messages[0].Content.Text?.Contains("Error: Unknown prompt 'unknown_prompt'") == true);
+        Assert.IsNotNull(result.Messages[0].Content.Text);
+        Assert.Contains("Error: Unknown prompt 'unknown_prompt'", result.Messages[0].Content.Text!);
     }
 
     [TestMethod]
