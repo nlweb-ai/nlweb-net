@@ -53,8 +53,8 @@ public class BackendOperationTests
         var searchResults = await mockBackend.SearchAsync("millennium falcon", null, 10, CancellationToken.None);
         var resultsList = searchResults.ToList();
 
-        Assert.IsGreaterThan(resultsList.Count, 0, "Should return results for 'millennium falcon'");
-        Assert.IsLessThanOrEqualTo(resultsList.Count, 10, "Should respect max results limit");
+        Assert.IsGreaterThan(0, resultsList.Count, "Should return results for 'millennium falcon'");
+        Assert.IsLessThanOrEqualTo(10, resultsList.Count, "Should respect max results limit");
 
         foreach (var result in resultsList)
         {
@@ -106,7 +106,7 @@ public class BackendOperationTests
 
         // Test backend information retrieval
         var backendInfo = backendManager.GetBackendInfo().ToList();
-        Assert.IsGreaterThanOrEqualTo(backendInfo.Count, 1, "Should have at least one backend configured");
+        Assert.IsGreaterThanOrEqualTo(1, backendInfo.Count, "Should have at least one backend configured");
 
         foreach (var backend in backendInfo)
         {
@@ -159,7 +159,7 @@ public class BackendOperationTests
         var maxResultsQuery = await mockBackend.SearchAsync("space", null, capabilities.MaxResults + 10, CancellationToken.None);
         var maxResultsList = maxResultsQuery.ToList();
 
-        Assert.IsLessThanOrEqualTo(maxResultsList.Count, capabilities.MaxResults,
+        Assert.IsLessThanOrEqualTo(capabilities.MaxResults, maxResultsList.Count,
             $"Should not return more than MaxResults ({capabilities.MaxResults}). Got {maxResultsList.Count}");
 
         Console.WriteLine($"✓ Max results limitation respected: {maxResultsList.Count} <= {capabilities.MaxResults}");
@@ -258,7 +258,7 @@ public class BackendOperationTests
             var elapsedMs = stopwatch.ElapsedMilliseconds;
 
             // Mock backend should be reasonably fast (< 500ms) in test environment
-            Assert.IsLessThan(elapsedMs, 500,
+            Assert.IsLessThan(500, elapsedMs,
                 $"MockDataBackend should be reasonably fast. Query '{query}' took {elapsedMs}ms");
 
             Console.WriteLine($"✓ Query '{query}' completed in {elapsedMs}ms with {resultsList.Count} results");

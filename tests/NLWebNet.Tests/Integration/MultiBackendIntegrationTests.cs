@@ -55,7 +55,7 @@ public class MultiBackendIntegrationTests
 
         // Verify backend manager provides information about backends
         var backendInfo = backendManager.GetBackendInfo().ToList();
-        Assert.IsGreaterThanOrEqualTo(backendInfo.Count, 1, "Should have at least one backend configured");
+        Assert.IsGreaterThanOrEqualTo(1, backendInfo.Count, "Should have at least one backend configured");
         var hasMatchingItem = backendInfo.Any(b => b.IsWriteEndpoint);
         Assert.IsTrue(hasMatchingItem, "Should have a write endpoint designated");
 
@@ -140,7 +140,7 @@ public class MultiBackendIntegrationTests
             if (responseCount >= 3) break;
         }
 
-        Assert.IsGreaterThan(responseCount, 0, "Should receive streaming responses");
+        Assert.IsGreaterThan(0, responseCount, "Should receive streaming responses");
     }
 
     [TestMethod]
@@ -278,7 +278,7 @@ public class MultiBackendIntegrationTests
 
         var backendInfo = backendManager.GetBackendInfo().ToList();
 
-        Assert.IsGreaterThanOrEqualTo(backendInfo.Count, 1, "Should have at least one backend configured");
+        Assert.IsGreaterThanOrEqualTo(1, backendInfo.Count, "Should have at least one backend configured");
 
         foreach (var backend in backendInfo)
         {

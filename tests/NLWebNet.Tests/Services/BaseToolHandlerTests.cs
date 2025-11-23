@@ -328,7 +328,7 @@ public class BaseToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsTrue(string.IsNullOrEmpty(response.Error));
-        Assert.IsGreaterThan(response.Results.Count, 0);
+        Assert.IsGreaterThan(0, response.Results.Count);
         Assert.AreEqual("Test execution completed", response.Summary);
     }
 

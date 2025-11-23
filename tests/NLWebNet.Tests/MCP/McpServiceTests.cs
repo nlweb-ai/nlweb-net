@@ -107,8 +107,9 @@ public class McpServiceTests
         Assert.IsFalse(result.IsError);
         Assert.HasCount(1, result.Content);
         Assert.AreEqual("text", result.Content[0].Type);
-        Assert.Contains("test-123", result.Content[0].Text);
-        Assert.Contains("Test Result", result.Content[0].Text);
+        Assert.IsNotNull(result.Content[0].Text);
+        Assert.Contains("test-123", result.Content[0].Text!);
+        Assert.Contains("Test Result", result.Content[0].Text!);
 
         await _mockNLWebService.Received(1).ProcessRequestAsync(
             Arg.Is<NLWebRequest>(r => r.Query == "test query" && r.Mode == QueryMode.List),
@@ -173,7 +174,8 @@ public class McpServiceTests
         Assert.IsNotNull(result);
         Assert.IsTrue(result.IsError);
         Assert.HasCount(1, result.Content);
-        Assert.Contains("Unknown tool: unknown_tool", result.Content[0].Text);
+        Assert.IsNotNull(result.Content[0].Text);
+        Assert.Contains("Unknown tool: unknown_tool", result.Content[0].Text!);
     }
 
     [TestMethod]
@@ -193,7 +195,8 @@ public class McpServiceTests
         Assert.IsNotNull(result);
         Assert.IsTrue(result.IsError);
         Assert.HasCount(1, result.Content);
-        Assert.Contains("Query parameter is required", result.Content[0].Text);
+        Assert.IsNotNull(result.Content[0].Text);
+        Assert.Contains("Query parameter is required", result.Content[0].Text!);
     }
 
     [TestMethod]
@@ -218,8 +221,9 @@ public class McpServiceTests
         Assert.AreEqual("Structured search prompt for NLWeb", result.Description);
         Assert.HasCount(1, result.Messages);
         Assert.AreEqual("user", result.Messages[0].Role);
-        Assert.Contains("artificial intelligence", result.Messages[0].Content.Text);
-        Assert.Contains("machine learning applications", result.Messages[0].Content.Text);
+        Assert.IsNotNull(result.Messages[0].Content.Text);
+        Assert.Contains("artificial intelligence", result.Messages[0].Content.Text!);
+        Assert.Contains("machine learning applications", result.Messages[0].Content.Text!);
     }
 
     [TestMethod]
@@ -245,7 +249,8 @@ public class McpServiceTests
         Assert.HasCount(2, result.Messages);
         Assert.AreEqual("system", result.Messages[0].Role);
         Assert.AreEqual("user", result.Messages[1].Role);
-        Assert.Contains("test search query", result.Messages[1].Content.Text);
+        Assert.IsNotNull(result.Messages[1].Content.Text);
+        Assert.Contains("test search query", result.Messages[1].Content.Text!);
     }
 
     [TestMethod]
@@ -266,7 +271,8 @@ public class McpServiceTests
         Assert.AreEqual("Unknown prompt: unknown_prompt", result.Description);
         Assert.HasCount(1, result.Messages);
         Assert.AreEqual("system", result.Messages[0].Role);
-        Assert.Contains("Error: Unknown prompt 'unknown_prompt'", result.Messages[0].Content.Text);
+        Assert.IsNotNull(result.Messages[0].Content.Text);
+        Assert.Contains("Error: Unknown prompt 'unknown_prompt'", result.Messages[0].Content.Text!);
     }
 
     [TestMethod]

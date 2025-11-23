@@ -64,7 +64,7 @@ public class RecipeToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsTrue(string.IsNullOrEmpty(response.Error));
-        Assert.IsGreaterThan(response.Results.Count, 0);
+        Assert.IsGreaterThan(0, response.Results.Count);
         var hasMatchingItem = response.Results.Any(r => r.Name.Contains("Recipe Guide"));
         Assert.IsTrue(hasMatchingItem);
         Assert.IsNotNull(response.ProcessingTimeMs);
@@ -96,7 +96,7 @@ public class RecipeToolHandlerTests
         var hasMatchingItem = response.Results.Any(r => r.Name.Contains("Substitution"));
         Assert.IsTrue(hasMatchingItem);
         Assert.IsNotNull(response.Summary);
-        Assert.Contains("Recipe information", response.Summary);
+        Assert.Contains("Recipe information", response.Summary!);
     }
 
     [TestMethod]
@@ -122,8 +122,9 @@ public class RecipeToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsTrue(string.IsNullOrEmpty(response.Error));
-        Assert.IsGreaterThan(response.Results.Count, 0);
-        Assert.Contains("recipe cooking instructions", response.ProcessedQuery);
+        Assert.IsGreaterThan(0, response.Results.Count);
+        Assert.IsNotNull(response.ProcessedQuery);
+        Assert.Contains("recipe cooking instructions", response.ProcessedQuery!);
     }
 
     [TestMethod]
@@ -148,7 +149,7 @@ public class RecipeToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsTrue(string.IsNullOrEmpty(response.Error));
-        Assert.IsGreaterThan(response.Results.Count, 0);
+        Assert.IsGreaterThan(0, response.Results.Count);
     }
 
     [TestMethod]
@@ -201,7 +202,8 @@ public class RecipeToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsTrue(string.IsNullOrEmpty(response.Error));
         Assert.IsNotEmpty(response.Results); // Just verify we have results
-        Assert.Contains("recipe", response.ProcessedQuery); // Verify recipe query processing
+        Assert.IsNotNull(response.ProcessedQuery);
+        Assert.Contains("recipe", response.ProcessedQuery!); // Verify recipe query processing
     }
 
     [TestMethod]
@@ -224,7 +226,8 @@ public class RecipeToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsTrue(string.IsNullOrEmpty(response.Error));
         Assert.HasCount(1, response.Results); // Only the recipe guide header
-        Assert.Contains("Recipe Guide", response.Results[0].Name);
+        Assert.IsNotNull(response.Results[0].Name);
+        Assert.Contains("Recipe Guide", response.Results[0].Name!);
     }
 
     [TestMethod]
@@ -448,8 +451,8 @@ public class RecipeToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsFalse(string.IsNullOrEmpty(response.Error));
-        Assert.Contains("Recipe tool execution failed", response.Error);
-        Assert.AreEqual(1, response.Results.Count); // Error result
+        Assert.Contains("Recipe tool execution failed", response.Error!);
+        Assert.HasCount(1, response.Results); // Error result
         Assert.AreEqual("Tool Error", response.Results[0].Name);
     }
 
@@ -505,11 +508,12 @@ public class RecipeToolHandlerTests
 
         // Assert
         Assert.IsNotNull(response);
-        Assert.IsGreaterThanOrEqualTo(response.Results.Count, 1);
+        Assert.IsGreaterThanOrEqualTo(1, response.Results.Count);
 
         var headerResult = response.Results.FirstOrDefault(r => r.Name.Contains("Recipe Guide"));
         Assert.IsNotNull(headerResult, "Should include Recipe Guide header");
-        Assert.Contains("special cooking technique", headerResult.Description);
+        Assert.IsNotNull(headerResult.Description);
+        Assert.Contains("special cooking technique", headerResult.Description!);
         Assert.AreEqual("Recipe", headerResult.Site);
         Assert.AreEqual(1.0, headerResult.Score, 0.001);
     }
@@ -537,7 +541,7 @@ public class RecipeToolHandlerTests
 
         // Assert
         Assert.IsNotNull(response);
-        Assert.IsGreaterThan(response.Results.Count, 1); // Header + filtered results
+        Assert.IsGreaterThan(1, response.Results.Count); // Header + filtered results
 
         // Should include relevant results but filter out unrelated ones
         var relevantResults = response.Results.Where(r => !r.Name.Contains("Recipe Guide")).ToList();
@@ -575,9 +579,9 @@ public class RecipeToolHandlerTests
         Assert.IsNotNull(response);
 
         // Should have header + max 8 recipe results = 9 total
-        Assert.IsLessThanOrEqualTo(response.Results.Count, 9);
+        Assert.IsLessThanOrEqualTo(9, response.Results.Count);
 
         var recipeResults = response.Results.Where(r => !r.Name.Contains("Recipe Guide")).ToList();
-        Assert.IsLessThanOrEqualTo(recipeResults.Count, 8, "Should limit recipe results to 8");
+        Assert.IsLessThanOrEqualTo(8, recipeResults.Count, "Should limit recipe results to 8");
     }
 }

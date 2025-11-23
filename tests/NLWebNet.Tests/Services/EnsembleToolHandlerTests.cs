@@ -82,7 +82,7 @@ public class EnsembleToolHandlerTests
         Assert.AreEqual(request.Query, response.Query);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.IsGreaterThanOrEqualTo(response.Results.Count, 2); // Should have overview + option results
+        Assert.IsGreaterThanOrEqualTo(2, response.Results.Count); // Should have overview + option results
         Assert.IsNotNull(response.ProcessedQuery);
         Assert.Contains("recommendations suggestions set", response.ProcessedQuery);
         Assert.IsNotNull(response.Summary);

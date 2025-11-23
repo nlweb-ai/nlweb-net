@@ -81,11 +81,11 @@ public class DetailsToolHandlerTests
         Assert.AreEqual(request.Query, response.Query);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.IsGreaterThanOrEqualTo(response.Results.Count, 1);
+        Assert.IsGreaterThanOrEqualTo(1, response.Results.Count);
         Assert.IsNotNull(response.ProcessedQuery);
-        Assert.Contains("machine learning overview definition explanation details", response.ProcessedQuery);
+        Assert.Contains("machine learning overview definition explanation details", response.ProcessedQuery!);
         Assert.IsNotNull(response.Summary);
-        Assert.Contains("Details retrieved for 'machine learning'", response.Summary);
+        Assert.Contains("Details retrieved for 'machine learning'", response.Summary!);
         Assert.IsNotNull(response.ProcessingTimeMs);
         Assert.IsGreaterThan(0, response.ProcessingTimeMs.Value);
 
@@ -126,9 +126,9 @@ public class DetailsToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.ProcessedQuery);
-        Assert.Contains("artificial intelligence", response.ProcessedQuery);
+        Assert.Contains("artificial intelligence", response.ProcessedQuery!);
         Assert.IsNotNull(response.Summary);
-        Assert.Contains("artificial intelligence", response.Summary);
+        Assert.Contains("artificial intelligence", response.Summary!);
     }
 
     [TestMethod]
@@ -161,9 +161,10 @@ public class DetailsToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
-        Assert.Contains("cloud computing", response.ProcessedQuery);
+        Assert.IsNotNull(response.ProcessedQuery);
+        Assert.Contains("cloud computing", response.ProcessedQuery!);
         Assert.IsNotNull(response.Summary);
-        Assert.Contains("cloud computing", response.Summary);
+        Assert.Contains("cloud computing", response.Summary!);
     }
 
     [TestMethod]
@@ -206,7 +207,7 @@ public class DetailsToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsFalse(string.IsNullOrEmpty(response.Error));
-        Assert.Contains("Could not identify the subject", response.Error);
+        Assert.Contains("Could not identify the subject", response.Error!);
     }
 
     [TestMethod]
@@ -553,7 +554,7 @@ public class DetailsToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.IsGreaterThanOrEqualTo(response.Results.Count, 1);
+        Assert.IsGreaterThanOrEqualTo(1, response.Results.Count);
     }
 
     [TestMethod]
@@ -587,7 +588,7 @@ public class DetailsToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.IsLessThanOrEqualTo(response.Results.Count, 10, "Should limit results to 10 maximum");
+        Assert.IsLessThanOrEqualTo(10, response.Results.Count, "Should limit results to 10 maximum");
     }
 
     [TestMethod]
@@ -615,7 +616,7 @@ public class DetailsToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsFalse(string.IsNullOrEmpty(response.Error));
-        Assert.Contains("Details tool execution failed", response.Error);
+        Assert.Contains("Details tool execution failed", response.Error!);
     }
 
     [TestMethod]
@@ -666,7 +667,7 @@ public class DetailsToolHandlerTests
 
         // Results should be reordered by relevance, not just base score
         var resultsList = response.Results.ToList();
-        Assert.IsGreaterThanOrEqualTo(resultsList.Count, 2);
+        Assert.IsGreaterThanOrEqualTo(2, resultsList.Count);
 
         // ML-related results should be ranked higher due to relevance
         var topResult = resultsList.FirstOrDefault();

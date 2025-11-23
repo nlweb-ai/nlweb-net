@@ -81,11 +81,11 @@ public class CompareToolHandlerTests
         Assert.AreEqual(request.Query, response.Query);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.IsGreaterThanOrEqualTo(response.Results.Count, 1);
+        Assert.IsGreaterThanOrEqualTo(1, response.Results.Count);
         Assert.IsNotNull(response.ProcessedQuery);
-        Assert.Contains("react vs angular comparison differences", response.ProcessedQuery);
+        Assert.Contains("react vs angular comparison differences", response.ProcessedQuery!);
         Assert.IsNotNull(response.Summary);
-        Assert.Contains("Comparison completed between 'react' and 'angular'", response.Summary);
+        Assert.Contains("Comparison completed between 'react' and 'angular'", response.Summary!);
         Assert.IsNotNull(response.ProcessingTimeMs);
         Assert.IsGreaterThan(0, response.ProcessingTimeMs.Value);
 
@@ -128,9 +128,9 @@ public class CompareToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.ProcessedQuery);
-        Assert.Contains("python vs java", response.ProcessedQuery);
+        Assert.Contains("python vs java", response.ProcessedQuery!);
         Assert.IsNotNull(response.Summary);
-        Assert.Contains("'python' and 'java'", response.Summary);
+        Assert.Contains("'python' and 'java'", response.Summary!);
     }
 
     [TestMethod]
@@ -163,9 +163,10 @@ public class CompareToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
-        Assert.Contains("sql vs nosql", response.ProcessedQuery);
+        Assert.IsNotNull(response.ProcessedQuery);
+        Assert.Contains("sql vs nosql", response.ProcessedQuery!);
         Assert.IsNotNull(response.Summary);
-        Assert.Contains("'sql' and 'nosql'", response.Summary);
+        Assert.Contains("'sql' and 'nosql'", response.Summary!);
     }
 
     [TestMethod]
@@ -211,7 +212,7 @@ public class CompareToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsFalse(string.IsNullOrEmpty(response.Error));
-        Assert.Contains("Could not identify two items to compare", response.Error);
+        Assert.Contains("Could not identify two items to compare", response.Error!);
     }
 
     [TestMethod]
@@ -592,7 +593,7 @@ public class CompareToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.IsGreaterThanOrEqualTo(response.Results.Count, 2); // Summary + at least one result
+        Assert.IsGreaterThanOrEqualTo(2, response.Results.Count); // Summary + at least one result
     }
 
     [TestMethod]
@@ -626,7 +627,7 @@ public class CompareToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.IsLessThanOrEqualTo(response.Results.Count, 9, "Should limit to 8 comparison results + 1 summary = 9 maximum");
+        Assert.IsLessThanOrEqualTo(9, response.Results.Count, "Should limit to 8 comparison results + 1 summary = 9 maximum");
 
         // Should always have the comparison summary as first result
         var resultsList = response.Results.ToList();
@@ -658,7 +659,7 @@ public class CompareToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsFalse(string.IsNullOrEmpty(response.Error));
-        Assert.Contains("Compare tool execution failed", response.Error);
+        Assert.Contains("Compare tool execution failed", response.Error!);
     }
 
     [TestMethod]
@@ -717,8 +718,8 @@ public class CompareToolHandlerTests
         var resultsList = response.Results.ToList();
 
         // Should have comparison summary + relevant results (not the database one)
-        Assert.IsGreaterThanOrEqualTo(resultsList.Count, 2);
-        Assert.IsLessThanOrEqualTo(resultsList.Count, 5); // Summary + up to 4 relevant results
+        Assert.IsGreaterThanOrEqualTo(2, resultsList.Count);
+        Assert.IsLessThanOrEqualTo(5, resultsList.Count); // Summary + up to 4 relevant results
 
         // Should filter out irrelevant results (database)
         var containsDatabase = resultsList.Any(r => r.Name?.Contains("Database") == true);
