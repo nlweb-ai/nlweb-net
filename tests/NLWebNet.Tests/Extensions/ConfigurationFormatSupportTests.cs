@@ -99,7 +99,7 @@ nlweb:
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(1, result.Tools.Count);
+        Assert.HasCount(1, result.Tools);
         Assert.AreEqual("test-tool", result.Tools[0].Id);
         Assert.AreEqual("Test Tool", result.Tools[0].Name);
         Assert.AreEqual("search", result.Tools[0].Type);
@@ -126,8 +126,8 @@ nlweb:
 
         // Act & Assert
         var exception = Assert.ThrowsExactly<InvalidOperationException>(() => loader.LoadFromXml(xml));
-        Assert.IsTrue(exception.Message.Contains("Tool definitions validation failed"));
-        Assert.IsTrue(exception.Message.Contains("Tool ID cannot be empty"));
+        Assert.Contains("Tool definitions validation failed", exception.Message);
+        Assert.Contains("Tool ID cannot be empty", exception.Message);
     }
 
     [TestMethod]

@@ -25,8 +25,7 @@ public static class AskEndpoints
     public static RouteGroupBuilder MapAskEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/ask")
-            .WithTags("Ask")
-            .WithOpenApi();
+            .WithTags("Ask");
 
         // POST /ask - Main endpoint for processing queries
         group.MapPost("/", ProcessQueryAsync)

@@ -26,15 +26,15 @@ public class MockDataBackendTests
         var resultsList = results.ToList();
 
         // Assert
-        Assert.IsTrue(resultsList.Count > 0);
+        Assert.IsGreaterThan(0, resultsList.Count);
         foreach (var result in resultsList)
         {
             Assert.IsNotNull(result.Name);
-            Assert.IsTrue(result.Name.Length > 0);
+            Assert.IsGreaterThan(0, result.Name.Length);
             Assert.IsNotNull(result.Url);
-            Assert.IsTrue(result.Url.Length > 0);
+            Assert.IsGreaterThan(0, result.Url.Length);
             Assert.IsNotNull(result.Description);
-            Assert.IsTrue(result.Description.Length > 0);
+            Assert.IsGreaterThan(0, result.Description.Length);
         }
     }
     [TestMethod]
@@ -49,7 +49,7 @@ public class MockDataBackendTests
         var resultsList = results.ToList();
 
         // Assert
-        Assert.IsTrue(resultsList.Count > 0, "Should find results for 'young' content on scifi-cinema.com");
+        Assert.IsGreaterThan(0, resultsList.Count, "Should find results for 'young' content on scifi-cinema.com");
         foreach (var result in resultsList)
         {
             Assert.AreEqual(site, result.Site, $"All results should be from site: {site}");
@@ -67,7 +67,7 @@ public class MockDataBackendTests
         var resultsList = results.ToList();
 
         // Assert
-        Assert.IsTrue(resultsList.Count <= maxResults, $"Should return at most {maxResults} results, got {resultsList.Count}");
+        Assert.IsLessThanOrEqualTo(maxResults, resultsList.Count, $"Should return at most {maxResults} results, got {resultsList.Count}");
     }
 
     [TestMethod]
@@ -80,6 +80,6 @@ public class MockDataBackendTests
         var resultsList = results.ToList();
 
         // Assert
-        Assert.AreEqual(0, resultsList.Count);
+        Assert.IsEmpty(resultsList);
     }
 }
