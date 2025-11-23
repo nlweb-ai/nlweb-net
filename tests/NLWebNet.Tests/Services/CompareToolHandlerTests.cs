@@ -91,7 +91,8 @@ public class CompareToolHandlerTests
         var resultsList = response.Results.ToList();
         var hasMatchingItem = resultsList.Any(r => r.Name?.StartsWith("Comparison:") == true);
         Assert.IsTrue(hasMatchingItem);
-        Assert.Contains("Database", resultsList.Any(r => r.Site == "Compare"));
+        var hasComparisonSite = resultsList.Any(r => r.Site == "Compare");
+        Assert.IsTrue(hasComparisonSite);
     }
 
     [TestMethod]
@@ -716,15 +717,13 @@ public class CompareToolHandlerTests
         Assert.IsLessThanOrEqualTo(resultsList.Count, 5); // Summary + up to 4 relevant results
 
         // Should filter out irrelevant results (database)
-        Assert.IsFalse(resultsList.Any(r => r.Name));
+        var containsDatabase = resultsList.Any(r => r.Name?.Contains("Database") == true);
+        Assert.IsFalse(containsDatabase);
 
-        var hasMatchingItem = resultsList.Any(r => r.Name?.ToLowerInvariant().Contains("react") == true);
-        var hasMatchingItem = resultsList.Any(r => r.Name?.ToLowerInvariant().Contains("angular") == true);
-        Assert.IsTrue(hasMatchingItem);
-        var hasMatchingItem = resultsList.Any(r => r.Name?.ToLowerInvariant().Contains("react") == true);
-        Assert.IsTrue(hasMatchingItem);
-        var hasMatchingItem = resultsList.Any(r => r.Name?.ToLowerInvariant().Contains("angular") == true);
-        Assert.IsTrue(hasMatchingItem);
+        var hasReactItem = resultsList.Any(r => r.Name?.ToLowerInvariant().Contains("react") == true);
+        var hasAngularItem = resultsList.Any(r => r.Name?.ToLowerInvariant().Contains("angular") == true);
+        Assert.IsTrue(hasReactItem);
+        Assert.IsTrue(hasAngularItem);
     }
 
     [TestMethod]
@@ -760,9 +759,13 @@ public class CompareToolHandlerTests
         Assert.IsNotNull(response.ProcessedQuery);
 
         // Should extract the main technologies being compared
-        var containsNodejs = response.Summary?.Contains("node.js") == true || response.Summary?.Contains("nodejs") == true;
-        Assert.IsTrue(containsNodejs);
-        var containsPhp = response.Summary?.Contains("php") == true;
-        Assert.IsTrue(containsPhp);
+        var processedQueryContainsNodejs = response.ProcessedQuery.Contains("node.js") || response.ProcessedQuery.Contains("nodejs");
+        Assert.IsTrue(processedQueryContainsNodejs);
+        var processedQueryContainsPhp = response.ProcessedQuery.Contains("php");
+        Assert.IsTrue(processedQueryContainsPhp);
+        var summaryContainsNodejs = response.Summary?.Contains("node.js") == true || response.Summary?.Contains("nodejs") == true;
+        Assert.IsTrue(summaryContainsNodejs);
+        var summaryContainsPhp = response.Summary?.Contains("php") == true;
+        Assert.IsTrue(summaryContainsPhp);
     }
 }

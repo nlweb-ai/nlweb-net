@@ -159,7 +159,7 @@ public class BackendOperationTests
         var maxResultsQuery = await mockBackend.SearchAsync("space", null, capabilities.MaxResults + 10, CancellationToken.None);
         var maxResultsList = maxResultsQuery.ToList();
 
-        Assert.IsLessThanOrEqualTo(maxResultsList.Count , capabilities.MaxResults,
+        Assert.IsLessThanOrEqualTo(maxResultsList.Count, capabilities.MaxResults,
             $"Should not return more than MaxResults ({capabilities.MaxResults}). Got {maxResultsList.Count}");
 
         Console.WriteLine($"✓ Max results limitation respected: {maxResultsList.Count} <= {capabilities.MaxResults}");

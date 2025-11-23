@@ -250,7 +250,8 @@ public class MultiBackendIntegrationTests
 
                     // Results should have reasonable consistency for the same query
                     // Note: Some variation is expected due to scoring differences or backend variations
-                    Assert.IsLessThanOrEqualTo(overlapPercent >= scenario.MinOverlapPercent || firstResults.Count , 2,
+                    var meetsOverlapThreshold = overlapPercent >= scenario.MinOverlapPercent || firstResults.Count <= 2;
+                    Assert.IsTrue(meetsOverlapThreshold,
                         $"Results should have at least {scenario.MinOverlapPercent}% overlap for consistent queries. " +
                         $"Got {overlapPercent:F1}% for scenario: {scenario.Name}");
                 }

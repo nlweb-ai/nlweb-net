@@ -67,7 +67,6 @@ public class RecipeToolHandlerTests
         Assert.IsGreaterThan(response.Results.Count, 0);
         var hasMatchingItem = response.Results.Any(r => r.Name.Contains("Recipe Guide"));
         Assert.IsTrue(hasMatchingItem);
-        Assert.IsTrue(hasMatchingItem);
         Assert.IsGreaterThanOrEqualTo(response.ProcessingTimeMs, 0);
     }
 
@@ -93,8 +92,6 @@ public class RecipeToolHandlerTests
 
         // Assert
         Assert.IsNotNull(response);
-        var hasMatchingItem = response.Results.Any(r => r.Name.Contains("Substitution"));
-        Assert.IsTrue(hasMatchingItem);
         var hasMatchingItem = response.Results.Any(r => r.Name.Contains("Substitution"));
         Assert.IsTrue(hasMatchingItem);
         Assert.Contains("Recipe information", response.Summary);
@@ -173,8 +170,7 @@ public class RecipeToolHandlerTests
         var response = await _recipeToolHandler.ExecuteAsync(request);
 
         // Assert
-        var hasMatchingItem = response.Results.Any(r => r.Name.Contains("Pairing"));
-        Assert.IsTrue(hasMatchingItem);
+        Assert.IsNotNull(response);
         Assert.IsTrue(string.IsNullOrEmpty(response.Error));
         var hasMatchingItem = response.Results.Any(r => r.Name.Contains("Pairing"));
         Assert.IsTrue(hasMatchingItem);
@@ -450,7 +446,7 @@ public class RecipeToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsFalse(string.IsNullOrEmpty(response.Error));
         Assert.Contains("Recipe tool execution failed", response.Error);
-        Assert.AreEqual(1, response.Results.Count ); // Error result
+        Assert.AreEqual(1, response.Results.Count); // Error result
         Assert.AreEqual("Tool Error", response.Results[0].Name);
     }
 
@@ -541,10 +537,6 @@ public class RecipeToolHandlerTests
 
         // Should include relevant results but filter out unrelated ones
         var relevantResults = response.Results.Where(r => !r.Name.Contains("Recipe Guide")).ToList();
-        var hasMatchingItem = relevantResults.Any(r => r.Name.Contains("Storage") || r.Name.Contains("Food"));
-        Assert.IsTrue(hasMatchingItem);
-
-        // Results should be recipe-relevant
         var hasMatchingItem = relevantResults.Any(r => r.Name.Contains("Storage") || r.Name.Contains("Food"));
         Assert.IsTrue(hasMatchingItem);
     }

@@ -90,11 +90,12 @@ public class EnsembleToolHandlerTests
 
         // Verify ensemble structure
         var resultsList = response.Results.ToList();
-        Assert.Contains("Curated Ensemble", resultsList.Any(r => r.Name));
-        var hasMatchingItem = resultsList.Any(r => r.Site == "Ensemble");
-        Assert.IsTrue(hasMatchingItem);
-        var hasMatchingItem = resultsList.Any(r => r.Name?.StartsWith("[Option") == true);
-        Assert.IsTrue(hasMatchingItem);
+        var hasCuratedEnsemble = resultsList.Any(r => r.Name?.Contains("Curated Ensemble") == true);
+        Assert.IsTrue(hasCuratedEnsemble);
+        var hasEnsembleSiteItem = resultsList.Any(r => r.Site == "Ensemble");
+        Assert.IsTrue(hasEnsembleSiteItem);
+        var hasOptionNameItem = resultsList.Any(r => r.Name?.StartsWith("[Option") == true);
+        Assert.IsTrue(hasOptionNameItem);
     }
 
     [TestMethod]

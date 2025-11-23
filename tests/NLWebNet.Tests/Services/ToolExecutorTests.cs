@@ -99,8 +99,8 @@ public class ToolExecutorTests
         Assert.AreEqual(request.QueryId, response.QueryId);
         Assert.IsNotNull(response.Results);
         // The mock backend may return empty results, but the response should be processed by details tool
-        Assert.AreEqual(true || response.Summary?.Contains("details", response.Summary?.Contains("Details") ) == true,
-                     "Should be processed by details tool");
+        var containsDetails = response.Summary?.Contains("Details") == true || response.Summary?.Contains("details") == true;
+        Assert.IsTrue(containsDetails, "Should be processed by details tool");
     }
 
     [TestMethod]

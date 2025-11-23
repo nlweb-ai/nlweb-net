@@ -62,7 +62,7 @@ public class BackendManagerTests
         // Assert
         var resultList = results.ToList();
         var uniqueUrls = resultList.Select(r => r.Url).Distinct().Count();
-        Assert.AreEqual(uniqueUrls, resultList.Count, "Results should be deduplicated by URL");
+        Assert.AreEqual(resultList.Count, uniqueUrls, "Results should be deduplicated by URL");
     }
 
     [TestMethod]
@@ -165,10 +165,10 @@ public class BackendManagerTests
         Assert.IsNotNull(backendInfo);
         var infoList = backendInfo.ToList();
         Assert.HasCount(infoList, 2, "Should return info for all backends");
-        var allItemsMatch = infoList.All(info => info.Enabled);
-        Assert.IsTrue(allItemsMatch, "All backends should be marked as enabled");
-        var hasMatchingItem = infoList.Any(info => info.IsWriteEndpoint);
-        Assert.IsTrue(hasMatchingItem, "One backend should be marked as write endpoint");
+        var allEnabled = infoList.All(info => info.Enabled);
+        Assert.IsTrue(allEnabled, "All backends should be marked as enabled");
+        var hasWriteEndpoint = infoList.Any(info => info.IsWriteEndpoint);
+        Assert.IsTrue(hasWriteEndpoint, "One backend should be marked as write endpoint");
     }
 
     [TestMethod]
