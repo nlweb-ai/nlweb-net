@@ -164,7 +164,7 @@ public class BackendManagerTests
         // Assert
         Assert.IsNotNull(backendInfo);
         var infoList = backendInfo.ToList();
-        Assert.HasCount(infoList, 2, "Should return info for all backends");
+        Assert.HasCount(2, infoList, "Should return info for all backends");
         var allEnabled = infoList.All(info => info.Enabled);
         Assert.IsTrue(allEnabled, "All backends should be marked as enabled");
         var hasWriteEndpoint = infoList.Any(info => info.IsWriteEndpoint);
@@ -217,7 +217,7 @@ public class BackendManagerTests
         // Assert
         Assert.IsNotNull(backendInfo);
         var infoList = backendInfo.ToList();
-        Assert.HasCount(infoList, 2, "Should return info for all backends");
+        Assert.HasCount(2, infoList, "Should return info for all backends");
 
         // Verify that configured endpoint names are used instead of generic backend_0, backend_1
         var backendIds = infoList.Select(info => info.Id).OrderBy(id => id).ToList();
@@ -243,7 +243,7 @@ public class BackendManagerTests
         // Assert
         Assert.IsNotNull(backendInfo);
         var infoList = backendInfo.ToList();
-        Assert.HasCount(infoList, 2, "Should return info for all backends");
+        Assert.HasCount(2, infoList, "Should return info for all backends");
 
         // Verify that generic names are used as fallback
         var backendIds = infoList.Select(info => info.Id).OrderBy(id => id).ToList();

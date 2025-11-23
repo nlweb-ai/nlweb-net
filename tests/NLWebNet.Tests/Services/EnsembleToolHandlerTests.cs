@@ -136,7 +136,7 @@ public class EnsembleToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.HasCount(response.Results, 3);
+        Assert.HasCount(3, response.Results);
 
         var resultsList = response.Results.ToList();
         Assert.Contains("plan a day in Seattle", resultsList[0].Description);
@@ -162,7 +162,7 @@ public class EnsembleToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.HasCount(response.Results, 1); // Only the overview
+        Assert.HasCount(1, response.Results); // Only the overview
 
         var resultsList = response.Results.ToList();
         Assert.AreEqual("Curated Ensemble Recommendations", resultsList[0].Name);
@@ -563,7 +563,7 @@ public class EnsembleToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.HasCount(response.Results, 2);
+        Assert.HasCount(2, response.Results);
     }
 
     [TestMethod]
@@ -597,7 +597,7 @@ public class EnsembleToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.HasCount(response.Results, 11); // 1 overview + 10 options (limited)
+        Assert.HasCount(11, response.Results); // 1 overview + 10 options (limited)
 
         var resultsList = response.Results.ToList();
         Assert.AreEqual("Curated Ensemble Recommendations", resultsList[0].Name);

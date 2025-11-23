@@ -182,7 +182,7 @@ public class DetailsToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.HasCount(response.Results, 0);
+        Assert.HasCount(0, response.Results);
     }
 
     [TestMethod]

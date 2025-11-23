@@ -221,7 +221,7 @@ public class RecipeToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsTrue(string.IsNullOrEmpty(response.Error));
-        Assert.HasCount(response.Results, 1); // Only the recipe guide header
+        Assert.HasCount(1, response.Results); // Only the recipe guide header
         Assert.IsTrue(response.Results[0].Name.Contains("Recipe Guide"));
     }
 

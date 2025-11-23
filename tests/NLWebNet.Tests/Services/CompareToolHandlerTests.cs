@@ -184,7 +184,7 @@ public class CompareToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.HasCount(response.Results, 1); // Only the comparison summary
+        Assert.HasCount(1, response.Results); // Only the comparison summary
 
         var resultsList = response.Results.ToList();
         Assert.AreEqual("Comparison: item1 vs item2", resultsList[0].Name);

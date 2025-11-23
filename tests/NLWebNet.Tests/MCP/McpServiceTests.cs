@@ -33,7 +33,7 @@ public class McpServiceTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsNotNull(result.Tools);
-        Assert.HasCount(result.Tools, 2);
+        Assert.HasCount(2, result.Tools);
 
         var searchTool = result.Tools.Find(t => t.Name == "nlweb_search");
         Assert.IsNotNull(searchTool);
@@ -53,7 +53,7 @@ public class McpServiceTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsNotNull(result.Prompts);
-        Assert.HasCount(result.Prompts, 3);
+        Assert.HasCount(3, result.Prompts);
 
         var searchPrompt = result.Prompts.Find(p => p.Name == "nlweb_search_prompt");
         Assert.IsNotNull(searchPrompt);
@@ -105,7 +105,7 @@ public class McpServiceTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsFalse(result.IsError);
-        Assert.HasCount(result.Content, 1);
+        Assert.HasCount(1, result.Content);
         Assert.AreEqual("text", result.Content[0].Type);
         Assert.Contains("test-123", result.Content[0].Text);
         Assert.Contains("Test Result", result.Content[0].Text);
@@ -172,7 +172,7 @@ public class McpServiceTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsTrue(result.IsError);
-        Assert.HasCount(result.Content, 1);
+        Assert.HasCount(1, result.Content);
         Assert.Contains("Unknown tool: unknown_tool", result.Content[0].Text);
     }
 
@@ -192,7 +192,7 @@ public class McpServiceTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsTrue(result.IsError);
-        Assert.HasCount(result.Content, 1);
+        Assert.HasCount(1, result.Content);
         Assert.Contains("Query parameter is required", result.Content[0].Text);
     }
 
@@ -216,7 +216,7 @@ public class McpServiceTests
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual("Structured search prompt for NLWeb", result.Description);
-        Assert.HasCount(result.Messages, 1);
+        Assert.HasCount(1, result.Messages);
         Assert.AreEqual("user", result.Messages[0].Role);
         Assert.Contains("artificial intelligence", result.Messages[0].Content.Text);
         Assert.Contains("machine learning applications", result.Messages[0].Content.Text);
@@ -242,7 +242,7 @@ public class McpServiceTests
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual("Prompt for summarizing NLWeb search results", result.Description);
-        Assert.HasCount(result.Messages, 2);
+        Assert.HasCount(2, result.Messages);
         Assert.AreEqual("system", result.Messages[0].Role);
         Assert.AreEqual("user", result.Messages[1].Role);
         Assert.Contains("test search query", result.Messages[1].Content.Text);
@@ -264,7 +264,7 @@ public class McpServiceTests
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual("Unknown prompt: unknown_prompt", result.Description);
-        Assert.HasCount(result.Messages, 1);
+        Assert.HasCount(1, result.Messages);
         Assert.AreEqual("system", result.Messages[0].Role);
         Assert.Contains("Error: Unknown prompt 'unknown_prompt'", result.Messages[0].Content.Text);
     }

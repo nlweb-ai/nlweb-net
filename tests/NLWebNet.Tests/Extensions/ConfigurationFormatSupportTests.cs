@@ -99,7 +99,7 @@ nlweb:
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.HasCount(result.Tools, 1);
+        Assert.HasCount(1, result.Tools);
         Assert.AreEqual("test-tool", result.Tools[0].Id);
         Assert.AreEqual("Test Tool", result.Tools[0].Name);
         Assert.AreEqual("search", result.Tools[0].Type);

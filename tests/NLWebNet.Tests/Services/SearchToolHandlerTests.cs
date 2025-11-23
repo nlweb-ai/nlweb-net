@@ -82,7 +82,7 @@ public class SearchToolHandlerTests
         Assert.AreEqual(request.Query, response.Query);
         Assert.IsNull(response.Error); // Success means no error
         Assert.IsNotNull(response.Results);
-        Assert.HasCount(response.Results, 2);
+        Assert.HasCount(2, response.Results);
         Assert.IsNotNull(response.ProcessedQuery);
         Assert.Contains("Enhanced search completed", response.Summary);
         Assert.IsGreaterThan(response.ProcessingTimeMs, 0);
@@ -148,7 +148,7 @@ public class SearchToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.HasCount(response.Results, 0);
+        Assert.HasCount(0, response.Results);
         Assert.Contains("found 0 results", response.Summary);
     }
 
@@ -378,7 +378,7 @@ public class SearchToolHandlerTests
         Assert.IsNotNull(response);
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Results);
-        Assert.HasCount(response.Results, 1);
+        Assert.HasCount(1, response.Results);
     }
 
     [TestMethod]
@@ -422,7 +422,7 @@ public class SearchToolHandlerTests
         Assert.IsNotNull(response.Results);
 
         var resultsList = response.Results.ToList();
-        Assert.HasCount(resultsList, 2);
+        Assert.HasCount(2, resultsList);
 
         // First result should be the one with higher calculated relevance
         Assert.AreEqual("API Documentation Guide", resultsList[0].Name);

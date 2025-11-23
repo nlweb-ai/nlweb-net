@@ -225,7 +225,7 @@ public class BaseToolHandlerTests
         Assert.IsGreaterThan(response.Timestamp, DateTimeOffset.UtcNow.AddMinutes(-1));
 
         // Should have one error result
-        Assert.HasCount(response.Results, 1);
+        Assert.HasCount(1, response.Results);
         Assert.AreEqual("Tool Error", response.Results[0].Name);
         Assert.AreEqual(errorMessage, response.Results[0].Description);
         Assert.AreEqual("System", response.Results[0].Site);
@@ -251,7 +251,7 @@ public class BaseToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.AreEqual(errorMessage, response.Error);
-        Assert.HasCount(response.Results, 1);
+        Assert.HasCount(1, response.Results);
         Assert.AreEqual("Tool Error", response.Results[0].Name);
     }
 
@@ -431,7 +431,7 @@ public class BaseToolHandlerTests
         // Assert
         Assert.IsNotNull(response);
         Assert.IsNotNull(response.Results);
-        Assert.HasCount(response.Results, 0);
+        Assert.HasCount(0, response.Results);
         Assert.IsNull(response.Error);
     }
 
