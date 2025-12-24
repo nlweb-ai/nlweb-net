@@ -72,7 +72,7 @@ jobs:
       run: dotnet --info
 
     - name: Cache NuGet packages
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ~/.nuget/packages
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
@@ -132,7 +132,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: build-artifacts-Release
         path: |
@@ -303,7 +303,7 @@ jobs:
       run: dotnet pack src/NLWebNet --configuration Release --no-build --output ./packages -p:PackageVersion=${{ steps.version.outputs.version }}
 
     - name: Upload package artifacts
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: nuget-packages
         path: ./packages/*.nupkg
