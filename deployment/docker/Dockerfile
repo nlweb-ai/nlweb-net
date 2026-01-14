@@ -9,6 +9,22 @@ WORKDIR /src
 ENV DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=true
 ENV NUGET_XMLDOC_MODE=skip
+# Configure .NET to handle SSL issues in Docker environment
+ENV DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
+ENV NUGET_CERT_REVOCATION_MODE=offline
+# Additional SSL configurations for NuGet connectivity
+ENV NUGET_CERT_REVOCATION_MODE=offline
+ENV DOTNET_SYSTEM_NET_HTTP_SOCKETSHTTPHANDLER_HTTP2SUPPORT=false
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
+
+# Update package lists and install certificates with additional SSL handling
+RUN apt-get update && \
+    apt-get install -y ca-certificates curl && \
+    update-ca-certificates && \
+    rm -rf /var/lib/apt/lists/* && \
+    # Create NuGet config to bypass SSL issues
+    mkdir -p ~/.nuget/NuGet && \
+    echo '<?xml version="1.0" encoding="utf-8"?><configuration><packageSources><add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" /></packageSources><config><add key="http_proxy" value="" /><add key="https_proxy" value="" /></config></configuration>' > ~/.nuget/NuGet/NuGet.Config
 
 # Copy solution file and project files for dependency resolution
 COPY ["NLWebNet.sln", "./"]
@@ -18,8 +34,19 @@ COPY ["src/NLWebNet/NLWebNet.csproj", "src/NLWebNet/"]
 COPY ["samples/Demo/NLWebNet.Demo.csproj", "samples/Demo/"]
 COPY ["tests/NLWebNet.Tests/NLWebNet.Tests.csproj", "tests/NLWebNet.Tests/"]
 
-# Restore dependencies
-RUN dotnet restore "samples/Demo/NLWebNet.Demo.csproj"
+# Restore dependencies with comprehensive SSL workarounds
+RUN dotnet restore "samples/Demo/NLWebNet.Demo.csproj" \
+    --disable-parallel \
+    --verbosity minimal \
+    --force \
+    --ignore-failed-sources || \
+    # Fallback with additional options if first attempt fails
+    dotnet restore "samples/Demo/NLWebNet.Demo.csproj" \
+    --disable-parallel \
+    --verbosity minimal \
+    --force \
+    --ignore-failed-sources \
+    --no-cache
 
 # Copy source code
 COPY . .

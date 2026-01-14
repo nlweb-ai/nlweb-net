@@ -1,0 +1,81 @@
+# Docker ignore file for NLWebNet pre-built approach
+# This version allows obj/ folders for pre-restored packages
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# GitHub workflows and metadata
+.github/
+copilot-setup-steps.yml
+
+# IDE and editor files
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.idea/
+
+# Build outputs (keep obj/ for restore metadata)
+**/bin/
+**/out/
+**/.vs/
+
+# Test results
+TestResults/
+test-results*.xml
+coverage*.xml
+*.coverage
+*.coveragexml
+
+# NuGet packages (but not restore metadata)
+packages/
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+
+# Runtime logs
+logs/
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Documentation (not needed in container)
+README.md
+doc/
+*.md
+
+# Scripts (not needed in runtime)
+scripts/
+
+# License files
+LICENSE*
+COPYING*
+
+# Docker files (avoid recursion)
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Environment specific files (use volume mounts instead)
+appsettings.*.json
+!appsettings.json
+*.env
+.env*
