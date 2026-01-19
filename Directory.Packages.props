@@ -29,7 +29,7 @@
     <!-- .NET Aspire Integration -->
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.1.0" />
     <!-- Build Tools -->
-    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.102" />
     <!-- Testing Dependencies -->
     <PackageVersion Include="MSTest" Version="4.0.2" />
     <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.3.2" />
