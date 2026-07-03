@@ -1,6 +1,6 @@
 # NLWebNet
 
-[![.NET Build and Test](https://github.com/nlweb-ai/nlweb-net/actions/workflows/build.yml/badge.svg)](https://github.com/jongalloway/NLWebNet/actions/workflows/build.yml)
+[![.NET Build and Test](https://github.com/nlweb-ai/nlweb-net/actions/workflows/build.yml/badge.svg)](https://github.com/nlweb-ai/nlweb-net/actions/workflows/build.yml)
 [![NuGet Version](https://img.shields.io/nuget/v/NLWebNet.svg)](https://www.nuget.org/packages/NLWebNet/)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/NLWebNet.svg)](https://www.nuget.org/packages/NLWebNet/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -192,6 +192,46 @@ graph TB
 
 > **📋 Note**: This library is provided for **testing and evaluation purposes only**. This is alpha-quality software that may contain bugs or incomplete features. Please review the development status section before integrating into any project.
 
+### Newcomer Quickstart (<10 minutes)
+
+Use this path to install the library, run the demo locally, and try the containerized demo before diving into the full setup guides.
+
+1. **Install the NuGet package in an ASP.NET Core project**
+
+   ```bash
+   dotnet new web -n NlWebNetQuickstart
+   cd NlWebNetQuickstart
+   dotnet add package NLWebNet --version 0.1.0-alpha.3
+   ```
+
+   Wire the package as shown in [Using the Library in Your Project](#using-the-library-in-your-project).
+
+1. **Run the demo sample locally**
+
+   ```bash
+   git clone https://github.com/nlweb-ai/nlweb-net.git
+   cd nlweb-net/samples/Demo
+   dotnet run
+   ```
+
+   Open `http://localhost:5037` for the demo UI or `http://localhost:5037/openapi/v1.json` for the OpenAPI document. The demo runs in mock mode by default, so no AI keys are required for a first look.
+
+1. **Run the demo with Docker**
+
+   ```bash
+   cd nlweb-net/deployment/docker
+   docker compose up --build
+   ```
+
+   Open `http://localhost:8080` when the container is healthy. Optional AI service values can be passed as environment variables in `deployment/docker/docker-compose.yml`.
+
+1. **Add only the config you need**
+
+   - Mock mode works with no secrets and is best for protocol/UI exploration.
+   - For real LLM responses, configure Azure OpenAI or OpenAI settings with user secrets or environment variables. Do not commit API keys.
+   - For full setup details, see [doc/demo-setup-guide.md](doc/demo-setup-guide.md).
+   - For backend routing and multi-backend options, see [doc/multi-backend-configuration.md](doc/multi-backend-configuration.md).
+
 ### Using the Library in Your Project
 
 1. Add the NLWebNet library to your ASP.NET Core project:
@@ -290,8 +330,8 @@ All existing JSON configuration continues to work unchanged. See the [Configurat
 
 
    ```bash
-   git clone https://github.com/jongalloway/NLWebNet.git
-   cd NLWebNet
+   git clone https://github.com/nlweb-ai/nlweb-net.git
+   cd nlweb-net
 
    ```
 
@@ -575,8 +615,8 @@ NLWebNet supports multiple deployment options for different environments:
 
 # Quick start with Docker Compose
 
-git clone https://github.com/jongalloway/NLWebNet.git
-cd NLWebNet
+git clone https://github.com/nlweb-ai/nlweb-net.git
+cd nlweb-net
 cd deployment/docker && docker-compose up --build
 
 ```
@@ -664,7 +704,7 @@ This is an **alpha implementation** of the NLWeb protocol, provided as an **expe
 This project follows the [NLWeb specification](https://github.com/microsoft/NLWeb). Contributions are welcome!
 
 1. Review the [current tasks](doc/todo.md) and [design decisions](doc/design-decisions.md)
-1. Check [open issues](https://github.com/jongalloway/NLWebNet/issues)
+1. Check [open issues](https://github.com/nlweb-ai/nlweb-net/issues)
 1. Submit pull requests with tests
 
 ## 📖 Related Resources
